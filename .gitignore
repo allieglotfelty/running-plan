@@ -1,1 +1,8 @@
 .DS_Store
+env
+.git
+~$RunningPlan.xlsx
+server.py
+run_generator.py
+model.py
+RunningPlan.xlsx

@@ -1,3 +1,10 @@
+from datetime import datetime
+from datetime import timedelta
+import xlsxwriter
+import calendar
+
+
+
 def gather_information_from_user(question):
     """Questions to gather information from the user in order to generate their 
     running plan.
@@ -77,6 +84,34 @@ def build_plan_alternate(weeks_to_goal, current_ability, goal_distance, incremen
 
     return weekly_plan
 
+def create_excel_doc(weekly_plan):
+    """Creates a new excel document with the running plan information"""
+
+    workbook = xlsxwriter.Workbook('RunningPlan.xlsx')
+    worksheet = workbook.add_worksheet('RunningPlan')
+    # worksheet.write(row, col, some_data) rows & columns are zero indexed A1 is (0,0)
+
+    row = 0
+    col = 1
+    weekdays = calendar.day_abbr
+
+    for day in weekdays:
+        worksheet.write(row, col, day)
+        col += 1
+
+    row = 1
+    col = 0
+    for i in range(len(weekly_plan)):
+        week = "Week %s" % i
+        worksheet.write(row, col, week)
+        for day in weekly_plan[i]:
+            worksheet.write(row, col + 1, day)
+            col +=1
+        row += 1
+        col = 0
+
+    workbook.close()
+
 
 def print_alternate_plan(weekly_plan):
     """Prints out the running plan in a nice format."""
@@ -101,6 +136,28 @@ def print_plan(weekly_plan):
                                                              weekly_plan[week]['Sat'], 
                                                              weekly_plan[week]['Sun'])
 
+def handle_edgecases(increment, goal_distance, current_ability):
+    """Handles any edge cases that the user might encounter."""
+
+    if increment > 1:
+        print """We're sorry, but it will be very difficult for you to achieve 
+        your goal in the time that you have. Please consider a race that 
+        will provide you with more weeks for training."""
+
+    if (goal_distance * .8) <= current_ability:
+        print """We believe that you already have the ability to achieve your goal. 
+        If you would like to try a longer race or goal, we would be happy to assist you!"""
+
+# def get_date():
+#     """Gets the current date."""
+#     today_nice = datetime.today().strftime("%A, %B, %d, %Y")
+#     today = datetime.today()
+#     tomorrow = today + timedelta(days=1)
+#     tomorrow_nice = tomorrow.strftime("%A, %B, %d, %Y")
+
+#     print "Today is %s" % today_nice
+#     print "Tomorrow is %s" % tomorrow_nice
+
 
 def generate_plan():
     """Uses informaiton from user to generate their running plan.
@@ -117,16 +174,9 @@ def generate_plan():
                                                      goal_distance, 
                                                      weeks_to_goal))
 
-    if increment > 1:
-        print """We're sorry, but it will be very difficult for you to achieve 
-        your goal in the time that you have. Please consider a race that 
-        will provide you with more weeks for training."""
+    handle_edgecases(increment, goal_distance, current_ability)
 
-    if (goal_distance * .8) <= current_ability:
-        print """We believe that you already have the ability to achieve your goal. 
-        If you would like to try a more difficult race, or a faster time, 
-        we would be happy to assist you!"""
-
+    # get_date()
     weekly_plan = build_plan_alternate(weeks_to_goal, current_ability, goal_distance, increment)
     print_alternate_plan(weekly_plan)
 
