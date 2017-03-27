@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Run Planner</title>
+</head>
+<body>
+  <h1>Run Holmes</h1>
+  <h3>runner tested. runner approved.</h3>
+  <p>Answer these three simple questions and we will generate a running plan 
+    to help you reach your running goals.</p>
+  <form action="/plan" method="GET">
+    How far can you run today without stopping?:
+      <select name="current_ability">
+        <option value="0">Less than a mile</option>
+        <option value="1">1 mile</option>
+        <option value="2">2 miles</option>
+        <option value="3">3 miles</option>
+        <option value="4">4 miles</option>
+        <option value="5">5 miles</option>
+        <option value="6">6 miles</option>
+        <option value="7">7 miles</option>
+        <option value="8">8 miles</option>
+        <option value="9">9 miles</option>
+        <option value="10">10 miles</option>
+        <option value="11">11 miles</option>
+        <option value="12">12 miles</option>
+        <option value="13">13 miles</option>
+        <option value="14">14 miles</option>
+        <option value="15">15 miles</option>
+        <option value="16">16 miles</option>
+        <option value="17">17 miles</option>
+        <option value="18">18 miles</option>
+        <option value="19">19 miles</option>
+        <option value="20">20 miles</option>
+        <option value="21">21 miles</option>
+        <option value="22">22 miles</option>
+        <option value="23">23 miles</option>
+        <option value="24">24 miles</option>
+        <option value="25">25 miles</option>
+        <option value="26+">26 miles</option>
+      </select><br><br>
+      What is your running goal (event or distance)?:
+      <select name="goal-distance">
+        <option value="5K">5K (3.1 miles)</option>
+        <option value="5">5 miles</option>
+        <option value="10K">10K (6.2 miles)</option>
+        <option value="10">10 miles</option>
+        <option value="Half">Half Marathon (13.1 miles)</option>
+        <option value="Marathon">Marathon (26.2 miles)</option>
+      </select><br><br>
+      What date will your event/goal take place?
+      <input type="date" name="goal-date"><br><br>
+      <input type="submit" name="generate-plan" value="Generate Plan!">
+  </form>
+</body>
+</html>

@@ -2,7 +2,8 @@
 env
 .git
 ~$RunningPlan.xlsx
-server.py
 run_generator.py
 RunningPlan.xlsx
 client_secrets.json
+model.pyc
+server.pyc
