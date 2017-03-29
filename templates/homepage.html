@@ -62,8 +62,8 @@
   </form><br><br>
 
   
-  <table id="plan-calendar" name="plan-calendar" border="1px">
-    <thead>
+  <table id="plan-calendar" name="plan-calendar" border="1px" hidden>
+    <thead id="plan-header">
       <tr>
         <th>Week</th>
         <th>Monday</th>
@@ -78,6 +78,17 @@
     <tbody id="run-info-chart">
     </tbody>
   </table>
+
+  <form action="/registration">
+    <input type="submit" id="sign-up-and-save" name="sign-up-and-save" value="Save &amp Sign-up" hidden>
+  </form>
+
+  <form action="/download">
+    <input type="submit" id="download-to-excel" name="download-to-excel" value="Download to Excel" hidden>
+  </form>
+
+
+
 
   <script>
   "use strict";
@@ -98,6 +109,7 @@
       }
       $("#run-info-chart").append('</tr>');
     }
+    $("#plan-calendar").removeAttr("hidden");
     
   }
 
@@ -111,7 +123,15 @@
                      "goal-date": goalDate}, showPlanResults);
   }
 
+  function displaySignUpAndSaveButton(evt) {
+    evt.preventDefault();
+    $("#download-to-excel").removeAttr("hidden");
+    $("#sign-up-and-save").removeAttr("hidden");
+  }
+
   $("#planning-form").on('submit', getPlanResults);
+  $("#planning-form").on('submit', displaySignUpAndSaveButton);
+
 
   </script>
 
