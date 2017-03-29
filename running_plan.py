@@ -151,7 +151,7 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     
     # Create runs for first week if start date is something other than a Monday - base week
     else:
-        increment = (goal_distance - current_ability) / (weeks - 1)
+        increment = (goal_distance - current_ability) / (weeks)
         weekly_plan[1] = {}
         if start_date_day == 1:
             weekly_plan[1][str(start_date+relativedelta(days=-1))] = "--"
@@ -221,96 +221,96 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         
         # Last week will be the same as the first week
         # CHECK TO MAKE SURE THIS IS TRUE!!!
-        for i in range(7):
-            weekly_plan[weeks + 2] = {}
-            long_run = float(current_ability)
-            typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
-            weekly_plan[weeks + 2][str(first_date+relativedelta(days=i))] = round_quarter(typical_week[i]) 
+        # for i in range(7):
+        #     weekly_plan[weeks + 2] = {}
+        #     long_run = float(current_ability)
+        #     typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
+        #     weekly_plan[weeks + 2][str(first_date+relativedelta(days=i))] = round_quarter(typical_week[i]) 
 
     # Generate last week of runs based on the number of days in the last week
-    weekly_plan[weeks + 3] = {}       
+    weekly_plan[weeks + 2] = {}       
     if end_day == 1:
-        weekly_plan[weeks + 3][str(end_date)] = goal_distance
+        weekly_plan[weeks + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 3.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 1.0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+4))] = "Start a new plan! 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+5))] = "Take a light jog. 2"
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+4))] = "Start a new plan! 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+5))] = "Take a light jog. 2"
         
 
     elif end_day == 2:
-        weekly_plan[weeks + 3][str(end_date)] = goal_distance
+        weekly_plan[weeks + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 3.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 1.0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-2))] = 0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+4))] = "Start a new plan! 0"
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+4))] = "Start a new plan! 0"
 
     elif end_day == 3:
-        weekly_plan[weeks + 3][str(end_date)] = goal_distance
+        weekly_plan[weeks + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 3.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 1.0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-2))] = 0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
 
     elif end_day == 4:
-        weekly_plan[weeks + 3][str(end_date)] = goal_distance
+        weekly_plan[weeks + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 3.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 1.0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-2))] = 0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-4))] = 0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-4))] = 0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
 
     elif end_day == 5:
-        weekly_plan[weeks + 3][str(end_date)] = goal_distance
+        weekly_plan[weeks + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 3.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 1.0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-2))] = 0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-4))] = 0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/4)
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-4))] = 0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/4)
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
 
     elif end_day == 6:
-        weekly_plan[weeks + 3][str(end_date)] = goal_distance
+        weekly_plan[weeks + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 3.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-1))] = 1.0
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-2))] = 0.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0.0
         if goal_distance < 4:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-3))] = 1.0 
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = 1.0 
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-4))] = 0.0
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-4))] = 0.0
         if goal_distance > 20:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/6)
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/6)
         elif goal_distance < 4:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/3)
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/3)
         else:
-            weekly_plan[weeks + 3][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/3)
-        weekly_plan[weeks + 3][str(end_date+relativedelta(days=-6))] = round_quarter(goal_distance/4)
+            weekly_plan[weeks + 2][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/3)
+        weekly_plan[weeks + 2][str(end_date+relativedelta(days=-6))] = round_quarter(goal_distance/4)
     else:
-        weekly_plan[weeks + 3][str(end_date)] = goal_distance
+        weekly_plan[weeks + 2][str(end_date)] = goal_distance
 
     return weekly_plan
 
