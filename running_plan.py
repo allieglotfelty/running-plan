@@ -88,9 +88,10 @@ def calculate_weeks_to_goal(today_date, end_date):
 
     return (end_date - today_date).days / 7
 
-today = date.today()
+today = datetime.today()
 start_date = today+relativedelta(days=-2)
-end = today+relativedelta(days=+67)
+end_date = "2017-05-27"
+enddate = datetime.strptime(end_date, "%Y-%m-%d")
 
 def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance):
     """Generates plan using a list of lists, where each internal list includes
@@ -113,12 +114,12 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     days_in_last_week = end_day + 1
     weeks = ((days_to_goal - days_in_first_week - days_in_last_week) / 7) + 1
 
-    print "There are %s days until the goal" % days_to_goal
-    print "The plan will start on %s" % start_date_day
-    print "There are %s days in the first week." % days_in_first_week
-    print "The plan will end on %s" % end_day
-    print "There are %s days in the last week" % days_in_last_week
-    print "There are %s weeks in between the first and last week." % weeks
+    # print "There are %s days until the goal" % days_to_goal
+    # print "The plan will start on %s" % start_date_day
+    # print "There are %s days in the first week." % days_in_first_week
+    # print "The plan will end on %s" % end_day
+    # print "There are %s days in the last week" % days_in_last_week
+    # print "There are %s weeks in between the first and last week." % weeks
 
 
     # Create run distances for first week
@@ -323,7 +324,7 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
 def create_excel_doc(weekly_plan):
     """Creates a new excel document with the running plan information"""
 
-    workbook = xlsxwriter.Workbook('RunningPlan.xlsx')
+    workbook = xlsxwriter.Workbook('RunningPlan7.xlsx')
     worksheet = workbook.add_worksheet('RunningPlan')
     # worksheet.write(row, col, some_data) rows & columns are zero indexed A1 is (0,0)
 
@@ -337,11 +338,11 @@ def create_excel_doc(weekly_plan):
 
     row = 1
     col = 0
-    for i in range(len(weekly_plan)):
+    for i in range(1, len(weekly_plan) + 1):
         week = "Week %s" % i
         worksheet.write(row, col, week)
-        for day in weekly_plan[i]:
-            worksheet.write(row, col + 1, day)
+        for day in sorted(weekly_plan[i]):
+            worksheet.write(row, col + 1, "%s: %s" % (day[5:10], weekly_plan[i][day]))
             col +=1
         row += 1
         col = 0
