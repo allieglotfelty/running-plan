@@ -3,15 +3,21 @@
 <html>
 <head>
     <title>Run Planner</title>
+    <script
+      src="https://code.jquery.com/jquery-2.2.4.js"
+      integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+      crossorigin="anonymous">
+    </script>
 </head>
 <body>
   <h1>Run Holmes</h1>
   <h3>runner tested. runner approved.</h3>
   <p>Answer these three simple questions and we will generate a running plan 
     to help you reach your running goals.</p>
-  <form action="/plan" method="GET">
+  <form action="/plan.json" method="POST" id="planning-form">
     How far can you run today without stopping?:
-      <select name="current_ability">
+      <select id="current-ability" name="current-ability">
+        <option value="---">---</option>
         <option value="0">Less than a mile</option>
         <option value="1">1 mile</option>
         <option value="2">2 miles</option>
@@ -41,17 +47,76 @@
         <option value="26+">26 miles</option>
       </select><br><br>
       What is your running goal (event or distance)?:
-      <select name="goal-distance">
-        <option value="5K">5K (3.1 miles)</option>
+      <select id="goal-distance" name="goal-distance">
+        <option value="---">---</option>
+        <option value="3.1">5K (3.1 miles)</option>
         <option value="5">5 miles</option>
-        <option value="10K">10K (6.2 miles)</option>
+        <option value="6.2">10K (6.2 miles)</option>
         <option value="10">10 miles</option>
-        <option value="Half">Half Marathon (13.1 miles)</option>
-        <option value="Marathon">Marathon (26.2 miles)</option>
+        <option value="13.1">Half Marathon (13.1 miles)</option>
+        <option value="26.2">Marathon (26.2 miles)</option>
       </select><br><br>
       What date will your event/goal take place?
-      <input type="date" name="goal-date"><br><br>
-      <input type="submit" name="generate-plan" value="Generate Plan!">
-  </form>
+      <input type="date" id="goal-date" name="goal-date"><br><br>
+      <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!">
+  </form><br><br>
+
+  
+  <table id="plan-calendar" name="plan-calendar" border="1px">
+    <thead>
+      <tr>
+        <th>Week</th>
+        <th>Monday</th>
+        <th>Tuesday</th>
+        <th>Wednesday</th>
+        <th>Thursday</th>
+        <th>Friday</th>
+        <th>Saturday</th>
+        <th>Sunday</th>
+      </tr>
+    </thead>
+    <tbody id="run-info-chart">
+    </tbody>
+  </table>
+
+  <script>
+  "use strict";
+
+  function showPlanResults(results) {
+    var RunPlan = results
+    $("#run-info-chart").empty();
+
+    for (var week in RunPlan) {
+      $("#run-info-chart").append('<tr>');
+      $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
+      var weeklyPlan = RunPlan[week];
+      for (var date in weeklyPlan) {
+        var newDate = new Date(date);
+        var month = (newDate.getMonth()+1)+ "";
+        var day = newDate.getDate();
+        $("#run-info-chart").append('<td>' + month + "/" + day + ': ' + weeklyPlan[date] + ' miles</td>');
+      }
+      $("#run-info-chart").append('</tr>');
+    }
+    
+  }
+
+  function getPlanResults(evt) {
+    evt.preventDefault();
+    var currentAbility = $("#current-ability").val();
+    var goalDistance = $("#goal-distance").val();
+    var goalDate = $("#goal-date").val();
+    $.post("/plan.json", {"current-ability": currentAbility, 
+                     "goal-distance": goalDistance, 
+                     "goal-date": goalDate}, showPlanResults);
+  }
+
+  $("#planning-form").on('submit', getPlanResults);
+
+  </script>
+
+
+
+
 </body>
 </html>

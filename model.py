@@ -47,6 +47,7 @@ class Plan(db.Model):
     end_date = db.Column(db.DateTime, nullable=False)
     goal_distance = db.Column(db.Float, nullable=False)
     current_ability = db.Column(db.Integer, nullable=False)
+    start_time = db.Column(db.DateTime, nullable=True)
 
     runner = db.relationship("Runner", backref=db.backref("plans"))
 
@@ -65,9 +66,8 @@ class Run(db.Model):
     email_id = db.Column(db.Integer, db.ForeignKey('emails.email_id'), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     distance = db.Column(db.Float, nullable=False)
-    start_time = db.Column(db.DateTime, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
-
+    
     plan = db.relationship("Plan", backref=db.backref("runs", order_by=date))
 
     def __repr__(self):
