@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <title>Holmes Run</title>
+  <script
+      src="https://code.jquery.com/jquery-2.2.4.js"
+      integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+      crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+  <h1>Holmes Run</h1>
+   <h3>runner tested. runner approved.</h3>
+    <ul>
+    {% for message in get_flashed_messages() %}
+        <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  <hr>
+  
+  {% block content %} put your content here {% endblock %}
+
+</body>
+</html>
