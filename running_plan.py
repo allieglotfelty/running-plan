@@ -357,8 +357,13 @@ def create_excel_workbook(weekly_plan, output):
     workbook.close()
 
 def create_excel_text(weekly_plan):
+    # Creates an instance of the StringIO class - a string object that holds a file in the form of a string buffer
     output = StringIO.StringIO()
+
+    # Create_excel_workbook writes the information to the output instance of StringIO
     create_excel_workbook(weekly_plan, output)
+
+    # Retrieves the entire contents of the "File"
     return output.getvalue()
 
 def create_excel_doc(weekly_plan):

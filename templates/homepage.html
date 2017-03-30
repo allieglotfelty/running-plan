@@ -1,17 +1,6 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block content %}
 
-<html>
-<head>
-    <title>Run Planner</title>
-    <script
-      src="https://code.jquery.com/jquery-2.2.4.js"
-      integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-      crossorigin="anonymous">
-    </script>
-</head>
-<body>
-  <h1>Run Holmes</h1>
-  <h3>runner tested. runner approved.</h3>
   <p>Answer these three simple questions and we will generate a running plan 
     to help you reach your running goals.</p>
   <form action="/plan.json" method="POST" id="planning-form">
@@ -125,11 +114,11 @@
   }
 
   function getPlanResultsForDownload(evt) {
-    evt.preventDefault();
     var currentAbility = $("#current-ability").val();
     var goalDistance = $("#goal-distance").val();
     var goalDate = $("#goal-date").val();
 
+    // Routes to /download (download? below) with the following values from the DOM
     window.location = 'download?current-ability=' + currentAbility + 
                       '&goal-distance=' + goalDistance + '&goal-date=' + 
                       goalDate;
@@ -141,8 +130,4 @@
   $("#download-to-excel").on('click', getPlanResultsForDownload)
   </script>
 
-
-
-
-</body>
-</html>
+{% endblock %}
