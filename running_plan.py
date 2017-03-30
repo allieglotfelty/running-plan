@@ -2,6 +2,7 @@ from datetime import datetime, date, timedelta
 import xlsxwriter
 import calendar
 from dateutil.relativedelta import *
+import StringIO
 
 
 def gather_information_from_user(question):
@@ -321,10 +322,10 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     #         print week, date, weekly_plan[week][date]
 
 
-def create_excel_doc(weekly_plan):
+def create_excel_workbook(weekly_plan, output):
     """Creates a new excel document with the running plan information"""
 
-    workbook = xlsxwriter.Workbook('RunningPlan7.xlsx')
+    workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet('RunningPlan')
     # worksheet.write(row, col, some_data) rows & columns are zero indexed A1 is (0,0)
 
@@ -347,7 +348,22 @@ def create_excel_doc(weekly_plan):
         row += 1
         col = 0
 
+    workbook.set_properties({
+    'title':    'Running Plan',
+    'author':   'Run Holmes',
+    'keywords': 'Run, Plan, Workout',
+    })
+
     workbook.close()
+
+def create_excel_text(weekly_plan):
+    output = StringIO.StringIO()
+    create_excel_workbook(weekly_plan, output)
+    return output.getvalue()
+
+def create_excel_doc(weekly_plan):
+    filename = 'RunningPlan9.xlsx'
+    create_excel_workbook(weekly_plan, filename)
 
 
 def print_alternate_plan(weekly_plan):

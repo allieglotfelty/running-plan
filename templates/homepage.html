@@ -24,7 +24,7 @@
         <option value="3">3 miles</option>
         <option value="4">4 miles</option>
         <option value="5">5 miles</option>
-        <option value="6">6 miles</option>
+        <option selected="selected" value="6">6 miles</option>
         <option value="7">7 miles</option>
         <option value="8">8 miles</option>
         <option value="9">9 miles</option>
@@ -53,11 +53,11 @@
         <option value="5">5 miles</option>
         <option value="6.2">10K (6.2 miles)</option>
         <option value="10">10 miles</option>
-        <option value="13.1">Half Marathon (13.1 miles)</option>
+        <option selected="selected" value="13.1">Half Marathon (13.1 miles)</option>
         <option value="26.2">Marathon (26.2 miles)</option>
       </select><br><br>
       What date will your event/goal take place?
-      <input type="date" id="goal-date" name="goal-date"><br><br>
+      <input type="date" id="goal-date" value="2017-06-03" name="goal-date"><br><br>
       <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!">
   </form><br><br>
 
@@ -83,12 +83,7 @@
     <input type="submit" id="sign-up-and-save" name="sign-up-and-save" value="Save &amp Sign-up" hidden>
   </form>
 
-  <form action="/download">
-    <input type="submit" id="download-to-excel" name="download-to-excel" value="Download to Excel" hidden>
-  </form>
-
-
-
+  <button type="submit" id="download-to-excel" name="download-to-excel" hidden>Download as .xlsx</button>
 
   <script>
   "use strict";
@@ -129,10 +124,21 @@
     $("#sign-up-and-save").removeAttr("hidden");
   }
 
+  function getPlanResultsForDownload(evt) {
+    evt.preventDefault();
+    var currentAbility = $("#current-ability").val();
+    var goalDistance = $("#goal-distance").val();
+    var goalDate = $("#goal-date").val();
+
+    window.location = 'download?current-ability=' + currentAbility + 
+                      '&goal-distance=' + goalDistance + '&goal-date=' + 
+                      goalDate;
+  }
+
+
   $("#planning-form").on('submit', getPlanResults);
   $("#planning-form").on('submit', displaySignUpAndSaveButton);
-
-
+  $("#download-to-excel").on('click', getPlanResultsForDownload)
   </script>
 
 
