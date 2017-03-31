@@ -156,7 +156,7 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         increment = (goal_distance - current_ability) / (weeks)
         weekly_plan[1] = {}
         if start_date_day == 1:
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = "--"
+            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
             weekly_plan[1][str(start_date)] = short_run
             weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
             weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
@@ -165,8 +165,8 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
             weekly_plan[1][str(start_date+relativedelta(days=+5))] = long_run
 
         elif start_date_day == 2:
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = "--"
+            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
             weekly_plan[1][str(start_date)] = short_run
             weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
             weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
@@ -174,39 +174,39 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
             weekly_plan[1][str(start_date+relativedelta(days=+4))] = long_run
            
         elif start_date_day == 3:
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = "--"
+            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
             weekly_plan[1][str(start_date)] = short_run
             weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
             weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
             weekly_plan[1][str(start_date+relativedelta(days=+3))] = long_run
             
         elif start_date_day == 4:
-            weekly_plan[1][str(start_date+relativedelta(days=-4))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = "--"
+            weekly_plan[1][str(start_date+relativedelta(days=-4))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
             weekly_plan[1][str(start_date)] = short_run
             weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
             weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
          
         elif start_date_day == 5:
-            weekly_plan[1][str(start_date+relativedelta(days=-5))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-4))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = "--"
+            weekly_plan[1][str(start_date+relativedelta(days=-5))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-4))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
             weekly_plan[1][str(start_date)] = short_run
             weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
            
         else:
-            weekly_plan[1][str(start_date+relativedelta(days=-6))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-5))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-4))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = "--"
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = "--"
+            weekly_plan[1][str(start_date+relativedelta(days=-6))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-5))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-4))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
+            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
             weekly_plan[1][str(start_date)] = short_run
 
         # Start date for first full week will be the Monday after the start_date
@@ -237,11 +237,11 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
             weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
             weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+4))] = "Start a new plan! 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+5))] = "Take a light jog. 2"
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+4))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+5))] = 0
         
 
     elif end_day == 2:
@@ -251,10 +251,10 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         else:
             weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+4))] = "Start a new plan! 0"
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+4))] = 0
 
     elif end_day == 3:
         weekly_plan[weeks + 2][str(end_date)] = goal_distance
@@ -264,9 +264,9 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
             weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = "Keep resting. 0"
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = 0
 
     elif end_day == 4:
         weekly_plan[weeks + 2][str(end_date)] = goal_distance
@@ -277,8 +277,8 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-2))] = 0
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-4))] = 0
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = "RELAX. 0"
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = 0
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = 0
 
     elif end_day == 5:
         weekly_plan[weeks + 2][str(end_date)] = goal_distance
@@ -290,7 +290,7 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-4))] = 0
         weekly_plan[weeks + 2][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/4)
-        weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = "YOU DID IT!! 0"
+        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = 0
 
     elif end_day == 6:
         weekly_plan[weeks + 2][str(end_date)] = goal_distance
@@ -342,8 +342,9 @@ def create_excel_workbook(weekly_plan, output):
     for i in range(1, len(weekly_plan) + 1):
         week = "Week %s" % i
         worksheet.write(row, col, week)
-        for day in sorted(weekly_plan[i]):
-            worksheet.write(row, col + 1, "%s: %s" % (day[5:10], weekly_plan[i][day]))
+        print i
+        for day in sorted(weekly_plan[str(i)]):
+            worksheet.write(row, col + 1, "%s: %s" % (day[5:10], weekly_plan[str(i)][day]))
             col +=1
         row += 1
         col = 0
