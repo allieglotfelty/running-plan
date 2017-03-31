@@ -20,7 +20,8 @@ class Runner(db.Model):
 
     runner_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.String(64), nullable=False)
-    password = db.Column(db.String(20), nullable=True)
+    password = db.Column(db.String(64), nullable=True)
+    salt = db.Column(db.String(16), nullable=False)
     is_using_gCal = db.Column(db.Boolean, default=False, nullable=True)
     is_subscribed = db.Column(db.Boolean, default=False, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=True)

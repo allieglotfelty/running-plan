@@ -5,13 +5,15 @@ from flask import Flask, jsonify, render_template, redirect, request, flash, ses
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db, db, Runner, Plan, Run
 from datetime import datetime, date, timedelta
+import hashlib, binascii
+from random import choice
 
 from running_plan import build_plan_with_two_dates, create_excel_text, handle_edgecases, generate_plan
 
 app = Flask(__name__)
 
 # Required to use Flask sessions and the debug toolbar
-app.secret_key = "ABC"
+app.secret_key = "amcio9320e9wjadmclswep9q2-[ie290qfmvwnuq34op092iwopqk;dsmlcvq84yp9hrwafousdzncjlkx2[qOAPDSSGURW9EI"
 
 app.jinja_env.undefined = StrictUndefined
 
@@ -20,7 +22,13 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage."""
 
-    return render_template("homepage.html")
+    try:
+        session['runner_id']
+    except KeyError:
+        return render_template("homepage.html")
+    
+    return redirect("/dashboard")
+
 
 
 @app.route('/plan.json', methods=["POST"])
@@ -76,13 +84,19 @@ def process_sign_up():
     runner_password = request.form.get("password")
     email_query = Runner.query.filter_by(email=runner_email).all()
     if email_query:
-        return flash("This user already exists. Please try to login or create an account with a different email.")
+        flash("This user already exists. Please try to login or create an account with a different email.")
+
     else:
-        runner = Runner(email=runner_email, password=runner_password)
+        salt = generate_salt()
+        binary_password = hashlib.pbkdf2_hmac('sha256', runner_password, salt, 100000)
+        hex_password = binascii.hexlify(binary_password)
+
+        runner = Runner(email=runner_email, password=hex_password, salt=salt)
         db.session.add(runner)
         db.session.commit()
 
         runner_id = runner.runner_id
+        session['runner_id'] = runner_id
 
         plan = Plan(runner_id=runner_id, 
                     name="Running Plan %s" % runner_id,
@@ -105,15 +119,60 @@ def process_sign_up():
 
         db.session.commit()
 
-    return redirect('/%s' % runner_id, runner_id)
+    return redirect('/dashboard')
 
-@app.route('/<runner_id>')
-def display_runner_page(runner_id):
+@app.route('/login-complete', methods=["POST"])
+def process_login():
+    """Checks if user email and password exist on same account. 
+    If so, logs them into their account. If not, flashes a message.
+    """
+
+    runner_email = request.form.get("email")
+    runner_password = request.form.get("password")
+
+    try:
+        runner_account = Runner.query.filter_by(email=runner_email).one()
+    except Exception, e:
+        runner_account = False
+
+    if runner_account:
+        binary_password = hashlib.pbkdf2_hmac('sha256', runner_password, runner_account.salt, 100000)
+        hex_password = binascii.hexlify(binary_password)
+
+    if runner_account and runner_account.password == hex_password:
+        session["runner_id"] = runner_account.runner_id
+        print session
+        flash("You have successfully logged in!")
+        return redirect('/dashboard')
+    else:
+        flash("Email or Password is incorrect. Please try again!")
+        return redirect("/")
+
+@app.route('/logout-complete')
+def process_logout():
+    """Logout user and clear their session."""
+    
+    session.clear()
+    print session
+    flash("You have successfully logged out!")
+    return redirect("/")
+
+
+@app.route('/dashboard')
+def display_runner_page():
     """Displays the runner's dashboard with current plan and tracking information."""
 
-    # runner = Runner.query.get(runner_id)
+    runner_id = session.get('runner_id')
+    runner = Runner.query.get(runner_id)
     return render_template("runner_dashboard.html")
 
+
+def generate_salt():
+    """Generates salt for password encryption."""
+
+    letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    return "".join(choice(letters) for i in range(16))
 
 
 if __name__ == "__main__":
