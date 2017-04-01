@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 import hashlib, binascii
 from random import choice
 
-from running_plan import build_plan_with_two_dates, create_excel_text, handle_edgecases, generate_plan
+from running_plan import build_plan_with_two_dates, create_excel_text, build_plan_no_weeks, create_event_source
 
 app = Flask(__name__)
 
@@ -50,6 +50,21 @@ def generate_plan():
     session['weekly_plan'] = weekly_plan
 
     return jsonify(weekly_plan)
+
+@app.route('/run-event', methods=["GET"])
+def generate_run_event():
+    """Gets running info for a particular date"""
+
+    current_ability = float(request.form.get("current-ability"))
+    goal_distance = float(request.form.get("goal-distance"))
+    end_date = datetime.strptime(request.form.get("goal-date"), "%Y-%m-%d")
+    today_date = datetime.today()
+    weekly_plan = build_plan_no_weeks(today_date, end_date, current_ability, goal_distance)
+    event_source = create_event_source(weekly_plan)
+
+    # weekly_plan()
+    pass
+
 
 @app.route('/download', methods=["GET"])
 def download_excel():
@@ -164,8 +179,12 @@ def display_runner_page():
 
     runner_id = session.get('runner_id')
     runner = Runner.query.get(runner_id)
-    return render_template("runner_dashboard.html")
-
+    for plan in runner.plans:
+        if datetime.today() < plan.end_date :
+            current_plan = plan
+    length_of_plan = len(current_plan.runs)
+    weeks_in_plan = int(length_of_plan/7)
+    return render_template("runner_dashboard.html", runner=runner, plan=current_plan, weeks_in_plan=weeks_in_plan)
 
 def generate_salt():
     """Generates salt for password encryption."""

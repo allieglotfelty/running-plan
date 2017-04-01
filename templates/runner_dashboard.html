@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Runner Dashboard{% endblock %}
 {% block content %}
 
 
@@ -8,7 +9,53 @@
 
 <h1>Running Dashboard</h1>
 
-<p>STUFF!!!</p>
+{% if plan %}
+<table id="plan-calendar" name="plan-calendar" border="1px">
+    <thead id="plan-header">
+      <tr>
+        <th>Week</th>
+        <th>Monday</th>
+        <th>Tuesday</th>
+        <th>Wednesday</th>
+        <th>Thursday</th>
+        <th>Friday</th>
+        <th>Saturday</th>
+        <th>Sunday</th>
+      </tr>
+    </thead>
+    <tbody id="run-info-chart">
+        {% for i in range(weeks_in_plan + 2) %}
+            <tr>
+            <td>Week {{ i + 1 }}</td>
+            {% for run in plan.runs[(i-1)*7:7*i] %}
+
+             <td> {{ run.date }}: <br><br>{{ run.distance }}</td>
+             {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+
+
+<script>
+for (var week in RunPlan) {
+  $("#run-info-chart").append('<tr>');
+  $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
+  var weeklyPlan = RunPlan[week];
+  for (var date in weeklyPlan) {
+    var newDate = new Date(date);
+    var month = (newDate.getMonth()+1)+ "";
+    var day = newDate.getDate();
+    if (weeklyPlan[date]) {
+      $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
+    } else {
+      $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  off day</td>');
+    }
+  }
+  $("#run-info-chart").append('</tr>');
+</script>
 
 
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Holmes Run{% endblock %}
 {% block content %}
 
   <form action="/login-complete" method="POST">
@@ -58,7 +59,6 @@
       <input type="date" id="goal-date" value="2017-06-03" name="goal-date"><br><br>
       <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!">
   </form><br><br>
-
   
   <table id="plan-calendar" name="plan-calendar" border="1px" hidden>
     <thead id="plan-header">
@@ -83,8 +83,50 @@
 
   <button type="submit" id="download-to-excel" name="download-to-excel" hidden>Download as .xlsx</button>
 
+  <div id="calendar" hidden></div>
+
   <script>
   "use strict";
+
+  
+  function displayCalendar(evt) {
+    $(document).ready(function() {
+      // page is now ready, initialize the calendar...
+      $("#calendar").removeAttr("hidden");
+      $('#calendar').fullCalendar({
+          // put your options and callbacks here
+          firstDay: 1,
+          height: 600,
+          width: 100,
+          // events: run_events,
+          dayClick: function() {
+          alert('a day has been clicked!');
+          },
+      });
+      // function getPlanResultsForCalendar() {
+      //   var currentAbility = $("#current-ability").val();
+      //   var goalDistance = $("#goal-distance").val();
+      //   var goalDate = $("#goal-date").val();
+      //   $.post("/run-event", {"current-ability": currentAbility, 
+      //                          "goal-distance": goalDistance, 
+      //                          "goal-date": goalDate}, renderCalendar);
+      // }
+      // function renderCalendar(results) {
+      //   var run_events = [];
+      //   for (var i in results) {
+      //     run_events.push({title: results[i], start: moment(i).format(), allDay: true});
+      //   };
+      //   for (var j=0; j<run_events.length; j++) {
+      //     var run_event = run_events[j]
+      //     $('#calendar').fullCalendar('renderEvent', run_event, true);
+      //   };
+      // }
+    
+    });
+  }
+
+  var run_event_one = {title: 3, start: moment().format(), allDay: true};
+  $('#calendar').fullCalendar('renderEvent', run_event_one, true);
 
   function showPlanResults(results) {
     var RunPlan = results
@@ -98,7 +140,11 @@
         var newDate = new Date(date);
         var month = (newDate.getMonth()+1)+ "";
         var day = newDate.getDate();
-        $("#run-info-chart").append('<td>' + month + "/" + day + ': ' + weeklyPlan[date] + ' miles</td>');
+        if (weeklyPlan[date]) {
+          $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
+        } else {
+          $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  off day</td>');
+        }
       }
       $("#run-info-chart").append('</tr>');
     }
@@ -136,7 +182,8 @@
 
   $("#planning-form").on('submit', getPlanResults);
   $("#planning-form").on('submit', displaySignUpAndSaveButton);
-  $("#download-to-excel").on('click', getPlanResultsForDownload)
+  $("#planning-form").on('submit', displayCalendar);
+  $("#download-to-excel").on('click', getPlanResultsForDownload);
   </script>
 
 {% endblock %}
