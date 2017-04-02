@@ -36,10 +36,21 @@ def generate_plan():
     """Generates and displays a runner's plan based on the information 
     they entered.
     """
-   
-    current_ability = float(request.form.get("current-ability"))
-    goal_distance = float(request.form.get("goal-distance"))
-    end_date = datetime.strptime(request.form.get("goal-date"), "%Y-%m-%d")
+    
+    raw_current_ability = request.form.get("current-ability")
+    raw_goal_distance = request.form.get("goal-distance")
+    raw_end_date = request.form.get("goal-date")
+    today_date = datetime.today()
+    weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
+
+    return jsonify(weekly_plan)
+
+def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
+    """Generates a runner's plan based on the information they entered."""
+
+    current_ability = float(raw_current_ability)
+    goal_distance = float(raw_goal_distance)
+    end_date = datetime.strptime(raw_end_date, "%Y-%m-%d")
     today_date = datetime.today()
     weekly_plan = build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance)
 
@@ -49,21 +60,22 @@ def generate_plan():
     session['end_date'] = end_date
     session['weekly_plan'] = weekly_plan
 
-    return jsonify(weekly_plan)
+    return weekly_plan
 
-@app.route('/run-event', methods=["GET"])
-def generate_run_event():
-    """Gets running info for a particular date"""
 
-    current_ability = float(request.form.get("current-ability"))
-    goal_distance = float(request.form.get("goal-distance"))
-    end_date = datetime.strptime(request.form.get("goal-date"), "%Y-%m-%d")
-    today_date = datetime.today()
-    weekly_plan = build_plan_no_weeks(today_date, end_date, current_ability, goal_distance)
-    event_source = create_event_source(weekly_plan)
+# @app.route('/run-event', methods=["GET"])
+# def generate_run_event():
+#     """Gets running info for a particular date"""
 
-    # weekly_plan()
-    pass
+#     current_ability = float(request.form.get("current-ability"))
+#     goal_distance = float(request.form.get("goal-distance"))
+#     end_date = datetime.strptime(request.form.get("goal-date"), "%Y-%m-%d")
+#     today_date = datetime.today()
+#     weekly_plan = build_plan_no_weeks(today_date, end_date, current_ability, goal_distance)
+#     event_source = create_event_source(weekly_plan)
+
+#     # weekly_plan()
+#     pass
 
 
 @app.route('/download', methods=["GET"])
@@ -168,7 +180,6 @@ def process_logout():
     """Logout user and clear their session."""
     
     session.clear()
-    print session
     flash("You have successfully logged out!")
     return redirect("/")
 
@@ -180,7 +191,7 @@ def display_runner_page():
     runner_id = session.get('runner_id')
     runner = Runner.query.get(runner_id)
     for plan in runner.plans:
-        if datetime.today() < plan.end_date :
+        if datetime.today() < plan.end_date:
             current_plan = plan
     length_of_plan = len(current_plan.runs)
     weeks_in_plan = int(length_of_plan/7)
