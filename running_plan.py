@@ -33,14 +33,14 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     days_in_first_week = 7 - start_date_day
     end_day = end_date.weekday()
     days_in_last_week = end_day + 1
-    weeks = ((days_to_goal - days_in_first_week - days_in_last_week) / 7) + 1
+    weeks = ((days_to_goal - days_in_first_week - days_in_last_week) / 7)
 
-    # print "There are %s days until the goal" % days_to_goal
-    # print "The plan will start on %s" % start_date_day
-    # print "There are %s days in the first week." % days_in_first_week
-    # print "The plan will end on %s" % end_day
-    # print "There are %s days in the last week" % days_in_last_week
-    # print "There are %s weeks in between the first and last week." % weeks
+    print "There are %s days until the goal" % days_to_goal
+    print "The plan will start on %s" % start_date_day
+    print "There are %s days in the first week." % days_in_first_week
+    print "The plan will end on %s" % end_day
+    print "There are %s days in the last week" % days_in_last_week
+    print "There are %s weeks in between the first and last week." % weeks
 
 
     # Create run distances for first week
@@ -54,7 +54,6 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     # Create all runs if start date is a Monday
     if start_date_day == 0:
         increment = (goal_distance - current_ability) / float(weeks)
-        print increment
 
         for week in range(1, weeks + 1):
             weekly_plan[week] = {}
@@ -143,11 +142,12 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         
         # Last week will be the same as the first week
         # CHECK TO MAKE SURE THIS IS TRUE!!!
-        # for i in range(7):
-        #     weekly_plan[weeks + 2] = {}
-        #     long_run = float(current_ability)
-        #     typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
-        #     weekly_plan[weeks + 2][str(first_date+relativedelta(days=i))] = round_quarter(typical_week[i]) 
+        print "first date is %s" % first_date
+        for i in range(7):
+            weekly_plan[weeks + 3] = {}
+            long_run = float(current_ability)
+            typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
+            weekly_plan[weeks + 3][str(first_date+relativedelta(days=i))] = round_quarter(typical_week[i]) 
 
     # Generate last week of runs based on the number of days in the last week
     weekly_plan[weeks + 2] = {}       

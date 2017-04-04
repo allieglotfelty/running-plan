@@ -7,9 +7,28 @@
     <input type="submit" value="Logout" name="logout-button">
 </form>
 
+<form action="/account-settings">
+    <input type="submit" value="Account Settings" name="account-settings-button">
+</form>
+
+<form action="/add-to-google-calendar">
+    <input type="submit" value="Add Runs to Google Calendar" name="add-to-gcal-button">
+</form>
+
+<form action="/opt-into-weekly-emails">
+    <label>I would like to opt into weekly email run reminders:</label>
+    <input type="checkbox" name="opt-into-weekly-emails">
+</form>
+
+
+
 <h1>Running Dashboard</h1>
 
 {% if plan %}
+
+<p>Countdown to Goal:{{ days_left_to_goal }} days</p>
+<p>Total Workouts Completed:</p><p id="total-workouts">{{ total_workouts_completed }}</p>
+<p>Total Miles Completed: </p> <p id="total-miles"> {{ total_miles_completed }}</p>
 <table id="plan-calendar" name="plan-calendar" border="1px">
     <thead id="plan-header">
       <tr>
@@ -24,37 +43,58 @@
       </tr>
     </thead>
     <tbody id="run-info-chart">
-        {% for i in range(weeks_in_plan + 2) %}
+        {% for i in range(weeks_in_plan + 1) %}
             <tr>
             <td>Week {{ i + 1 }}</td>
-            {% for run in plan.runs[(i-1)*7:7*i] %}
-
-             <td> {{ run.date }}: <br><br>{{ run.distance }}</td>
-             {% endfor %}
+            {% for run in plan.runs[(i)*7:7*(i+1)] %}
+              {% if run.distance != 0.0 %}
+                {% if run.is_completed %}
+                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}" checked>{{ run.date }}: <br><br>{{ run.distance }}</td>
+                {% else %}
+                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}">{{ run.date }}: <br><br>{{ run.distance }}</td>
+                {% endif %} 
+              {% else %}
+                <td id="run{{ run.run_id }}">{{ run.date }}: <br><br>Off day!</td>
+              {% endif %}
+            {% endfor %}
             </tr>
         {% endfor %}
     </tbody>
   </table>
 {% endif %}
 
-
-
 <script>
-for (var week in RunPlan) {
-  $("#run-info-chart").append('<tr>');
-  $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
-  var weeklyPlan = RunPlan[week];
-  for (var date in weeklyPlan) {
-    var newDate = new Date(date);
-    var month = (newDate.getMonth()+1)+ "";
-    var day = newDate.getDate();
-    if (weeklyPlan[date]) {
-      $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
-    } else {
-      $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  off day</td>');
-    }
-  }
-  $("#run-info-chart").append('</tr>');
+
+
+
+$('input:checkbox').change(
+    function(){
+      var runId = $(this).attr('id');
+      console.log(runId);
+      if ($(this).is(":checked")) {
+          $(this).attr("checked", true);
+          var newPara = $("<p>");
+          newPara.append("Run Complete!");
+          $.post("/update-run.json", {'run-id': runId}, function(results) {
+            alert("Congrats on completing a run!");
+            $("#total-miles").html(results['total_miles_completed']);
+            $("#total-workouts").html(results['total_workouts_completed']);
+          });
+      } else {
+          $(this).attr("checked", false);
+          $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
+            alert("We have removed this run from your total!");
+            $("#total-miles").html(results['total_miles_completed']);
+            $("#total-workouts").html(results['total_workouts_completed']);
+          });
+      }
+    });
+
+
+// $(".run-complete").on("change", markRunAsCompleted);
+
+
+
 </script>
 
 

@@ -13,6 +13,7 @@ class ServerTests(unittest.TestCase):
     def test_homepage(self):
         result = self.client.get("/")
         self.assertIn("What is your running goal", result.data)
+        self.assertEqual(result.status_code, 200)
 
     def test_homepage_after_generate_plan(self):
         result = self.client.post("/plan.json", data= {"current-ability": 6, 
@@ -22,21 +23,34 @@ class ServerTests(unittest.TestCase):
         
         self.assertIn("13.1", result.data)
         self.assertIn("2017-06-03", result.data)
+        self.assertEqual(result.status_code, 200)
 
-    # def test_download(self):
-    #     result = self.client.get("/download", data= {"current-ability": 6, 
-    #                                             "goal-distance": 13.1,
-    #                                             "goal-date": "2017-06-03"})
+    def test_download(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['weekly_plan'] = {'1': {"2017-06-03": 13.1,
+                                       "2017-06-02": 3,
+                                       "2017-06-01": 0,
+                                       "2017-05-31": 6}}
+
+        result = self.client.get("/download", data= {"current-ability": 6, 
+                                                     "goal-distance": 13.1,
+                                                     "goal-date": "2017-06-03"})
+        print result.headers
+        self.assertIn('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', result.headers)
+        print "\n\n\n\nThe result is %s\n\n\n\n\n\n" % result
     #     self.assertIn('["Content-Disposition"] = "attachment; filename=RunPlan.xlsx"', result.data)
     
     def test_sign_up(self):
         result = self.client.get("/sign-up")
         self.assertIn("<h1>Sign-up</h1>", result.data)
+        self.assertEqual(result.status_code, 200)
 
     def test_logout(self):
         result = self.client.get("/logout-complete", follow_redirects=True)
         self.assertIn("What is your running goal", result.data)
         self.assertIn("You have successfully logged out!", result.data)
+        self.assertEqual(result.status_code, 200)
 
 
 class DatabaseTests(unittest.TestCase):
@@ -47,11 +61,7 @@ class DatabaseTests(unittest.TestCase):
 
         self.client = app.test_client()
         app.config['TESTING'] = True
-        connect_to_db(app)
-
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
+        connect_to_db(app, 'postgresql:///testdb')
 
         db.create_all()
         example_data()
@@ -62,19 +72,43 @@ class DatabaseTests(unittest.TestCase):
         db.session.close()
         db.drop_all()
 
+    def test_sign_up_complete(self):
+        result = self.client.post('/sign-up-complete', data={'email': 'john@gmail.com',
+                                                             "password": 'password'}, 
+                                                             follow_redirects=True)
+        self.assertIn('<h1>Running Dashboard</h1>', result.data)
+        self.assertNotIn('<h1>Sign-up</h1>', result.data)
+        self.assertEqual(result.status_code, 200)
+
+    def test_login_good_account(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 1
+
+        result = self.client.post('/login-complete', data={'email': 'sally@gmail.com',
+                                                           'password': 'password'},
+                                                           follow_redirects=True)
+        self.assertIn('<h1>Running Dashboard</h1>', result.data)
+        self.assertEqual(result.status_code, 200)
+
+    def test_login_bad_account(self):
+        result = self.client.post('/login-complete', data={'email': 'joe@gmail.com',
+                                                           'password': 'password'}, 
+                                                           follow_redirects=True)
+        self.assertIn('Email or Password is incorrect.', result.data)
+        self.assertNotIn('<h1>Running Dashboard</h1>', result.data)
+        self.assertEqual(result.status_code, 200)
+
     def test_dashboard(self):
-        result = self.client.get("/dashboard", data={"session['user_id']": 1})
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 1
+
+        result = self.client.get("/dashboard")
         self.assertIn("Monday", result.data)
         self.assertIn("2017-04-27", result.data)
         self.assertIn('<input type="submit" value="Logout"', result.data)
-
-
-    def test_sign_up_complete(self):
-        result = self.client.post("/sign-up-complete", data={"email": 'sally@gmail.com',
-                                                             "password": 'password'}, 
-                                                             follow_redirects=True)
-        self.assertIn("<h1>Running Dashboard</h1>", result.data)
-        self.assertNotIn("<h1>Sign-up</h1>", result.data)
+        self.assertEqual(result.status_code, 200)
 
 
 

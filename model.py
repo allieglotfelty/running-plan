@@ -84,7 +84,7 @@ def example_data():
     """Creates some sample data for testing."""
     start_date = datetime.today()
 
-    sally = Runner(runner_id=1, email='sally@gmail.com', password='password', salt='sldeifwlopcSDUEo')
+    sally = Runner(email='sally@gmail.com', password='password', salt='sldeifwlopcSDUEo')
     plan = Plan(plan_id=1, runner_id=1, start_date="2017-03-29", end_date="2017-05-27", goal_distance=13.1, current_ability=6)
     run1 = Run(run_id=1, plan_id=1, date="2017-04-27", distance=7, is_completed=True)
     run2 = Run(run_id=2, plan_id=1, date="2017-04-28", distance=4, is_completed=False)
@@ -96,11 +96,11 @@ def example_data():
 ##############################################################################
 # Helper functions
 
-def connect_to_db(app):
+def connect_to_db(app, db_uri = 'postgresql:///running'):
     """Connect the database to our Flask app."""
 
     # Configure to use our PstgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///testdb'
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
