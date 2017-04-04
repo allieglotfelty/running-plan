@@ -108,11 +108,11 @@ def process_sign_up():
         runner = Runner(email=runner_email, password=hex_password, salt=salt)
         db.session.add(runner)
         db.session.commit()
+        
         runner_id = runner.runner_id
         session['runner_id'] = runner_id
 
-        plan = Plan(runner_id=runner_id, 
-                    name="Running Plan %s" % runner_id,
+        plan = Plan(runner_id=runner_id,
                     start_date=session.get('start_date'), 
                     end_date=session.get('end_date'),
                     goal_distance=session.get('goal_distance'),
@@ -120,7 +120,10 @@ def process_sign_up():
                     )
         db.session.add(plan)
         db.session.commit() 
+
         plan_id = plan.plan_id
+        plan.name="Running Plan %s" % plan_id
+
         weekly_plan = session.get('weekly_plan') 
 
         for i in range(1, len(weekly_plan) + 1):

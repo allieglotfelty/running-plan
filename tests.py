@@ -3,7 +3,7 @@ import unittest
 from server import app
 from model import db, example_data, connect_to_db
 
-class ServerTests(unittest.TestCase):
+class ServerTestsNoDB(unittest.TestCase):
     """Tests for Run Holmes site."""
 
     def setUp(self):
@@ -33,13 +33,10 @@ class ServerTests(unittest.TestCase):
                                        "2017-06-01": 0,
                                        "2017-05-31": 6}}
 
-        result = self.client.get("/download", data= {"current-ability": 6, 
+        result = self.client.get("/download", data={"current-ability": 6, 
                                                      "goal-distance": 13.1,
                                                      "goal-date": "2017-06-03"})
-        print result.headers
-        self.assertIn('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', result.headers)
-        print "\n\n\n\nThe result is %s\n\n\n\n\n\n" % result
-    #     self.assertIn('["Content-Disposition"] = "attachment; filename=RunPlan.xlsx"', result.data)
+        self.assertEqual(result.headers['Content-Type'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     
     def test_sign_up(self):
         result = self.client.get("/sign-up")
@@ -53,7 +50,7 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
 
 
-class DatabaseTests(unittest.TestCase):
+class ServerTestsWithDB(unittest.TestCase):
     """Flask tests that use the database."""
 
     def setUp(self):
@@ -109,7 +106,6 @@ class DatabaseTests(unittest.TestCase):
         self.assertIn("2017-04-27", result.data)
         self.assertIn('<input type="submit" value="Logout"', result.data)
         self.assertEqual(result.status_code, 200)
-
 
 
 if __name__ == "__main__":
