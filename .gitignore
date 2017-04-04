@@ -4,7 +4,7 @@ env
 ~$RunningPlan.xlsx
 run_generator.py
 RunningPlan.xlsx
-client_secrets.json
+client_secret.json
 model.pyc
 server.pyc
 running_plan.pyc

@@ -1,12 +1,18 @@
 """Run Planner"""
 
 from jinja2 import StrictUndefined
-from flask import Flask, jsonify, render_template, redirect, request, flash, session, Response
+from flask import Flask, jsonify, render_template, redirect, request, flash, session, Response, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db, db, Runner, Plan, Run
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 import hashlib, binascii
 from random import choice
+from apiclient import discovery
+from oauth2client import client
+from oauth2client import tools
+from oauth2client.file import Storage
+import httplib2
+import json
 
 from running_plan import build_plan_with_two_dates, create_excel_text, build_plan_no_weeks, create_event_source
 
@@ -108,7 +114,7 @@ def process_sign_up():
         runner = Runner(email=runner_email, password=hex_password, salt=salt)
         db.session.add(runner)
         db.session.commit()
-        
+
         runner_id = runner.runner_id
         session['runner_id'] = runner_id
 
@@ -189,8 +195,6 @@ def display_runner_page():
             flash("It seems like all of your plans have expired. Feel free to click and view and old plan or make a new one!")
     length_of_plan = len(current_plan.runs)
     weeks_in_plan = int(length_of_plan/7)
-    
-
 
     return render_template("runner_dashboard.html", runner=runner, 
                                                     plan=current_plan, 
@@ -244,7 +248,73 @@ def display_account_settings_page():
 @app.route('/add-to-google-calendar')
 def add_runs_to_runners_google_calenadr_account():
     """Adds a runner's runs to their Google Calendar account."""
-    pass
+    if not session.get('credentials'):
+        return  redirect('/oauth2callback')
+    credentials = client.OAuth2Credentials.from_json(session['credentials'])
+    if credentials.access_token_expired:
+        return redirect('/oauth2callback')
+    else:
+        http_auth = credentials.authorize(httplib2.Http())
+        calendar = discovery.build('calendar', 'v3', http_auth)
+        
+        runner_id = session.get('runner_id')
+        runner = Runner.query.get(runner_id)
+        today_date = datetime.today()
+        for plan in runner.plans:
+            if today_date < plan.end_date:
+                current_plan = plan
+        if current_plan:
+            for run in current_plan.runs[:5]:
+                title = "Daily Run %s miles" % run.distance
+                date = run.date.date()
+                start_time = time(7,0,0)
+                finish_time = time(8,0,0)
+                start = datetime.combine(date, start_time).isoformat()
+                finish = datetime.combine(date, finish_time).isoformat()
+                event = {
+                    'summary': title,
+                    'start': {
+                               'dateTime': start,
+                               'timeZone': 'America/Los_Angeles'
+                    },
+                    'end': {
+                               'dateTime': finish,
+                               'timeZone': 'America/Los_Angeles'
+                    },
+                    'reminders': {
+                                'useDefault': False,
+                    },
+                }
+
+            event = calendar.events().insert(calendarId='primary', body=event).execute()
+            flash('Event created for: %s on %s' % (title, start_time))
+            print'Event created: %s' % (event.get('htmlLink'))
+
+    return redirect("/dashboard")
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    try:
+        import argparse
+        flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+    except ImportError:
+        flags = None
+
+    flow = client.flow_from_clientsecrets(
+        'client_secret.json',
+        scope='https://www.googleapis.com/auth/calendar',
+        redirect_uri=url_for('oauth2callback', _external=True))
+        # if flags:
+        #     credentials = tools.run_flow(flow, store, flags)
+        # print('Storing credentials to ' + credential_path)
+    if 'code' not in request.args:
+        auth_uri = flow.step1_get_authorize_url()
+        return redirect(auth_uri)
+    else:
+        auth_code = request.args.get('code')
+        credentials = flow.step2_exchange(auth_code)
+        session['credentials'] = credentials.to_json()
+        return redirect('/add-to-google-calendar')
 
 @app.route('/opt-into-weekly-emails')
 def opt_into_weekly_emails():

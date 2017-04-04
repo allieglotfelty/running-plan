@@ -141,13 +141,10 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
                 weekly_plan[week][str(first_date+relativedelta(days=+i))] = round_quarter(typical_week[i])
             first_date = first_date+relativedelta(weeks=+1)
 
-        # Last week will be the same as the first week
-        # CHECK TO MAKE SURE THIS IS TRUE!!!
-        print "first date is %s" % first_date
+        # Second to last week will be the same as the first week
         second_to_last_week_monday = end_date+relativedelta(weekday=MO(-2))
         weekly_plan[weeks_to_goal + 1] = {}
         for i in range(7):
-            # import pdb; pdb.set_trace()
             long_run = float(current_ability)
             typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
             weekly_plan[weeks_to_goal + 1][str(second_to_last_week_monday+relativedelta(days=i))] = round_quarter(typical_week[i]) 
@@ -160,13 +157,7 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
             weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
             weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-1))] = 1.0
-        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+2))] = 0
-        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+3))] = 0
-        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+4))] = 0
-        # weekly_plan[weeks + 2][str(end_date+relativedelta(days=+5))] = 0
         
-
     elif end_day == 2:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
@@ -174,10 +165,6 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         else:
             weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-1))] = 1.0
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-2))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+2))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+3))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+4))] = 0
 
     elif end_day == 3:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
@@ -187,9 +174,6 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
             weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-1))] = 1.0
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-2))] = 0
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+2))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+3))] = 0
 
     elif end_day == 4:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
@@ -200,8 +184,6 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-2))] = 0
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-4))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+2))] = 0
 
     elif end_day == 5:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
@@ -213,7 +195,6 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-4))] = 0
         weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/4)
-        # weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=+1))] = 0
 
     elif end_day == 6:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
@@ -361,13 +342,13 @@ def build_plan_no_weeks(today_date, end_date, current_ability, goal_distance):
                 weekly_plan[str(first_date+relativedelta(days=i))] = round_quarter(typical_week[i])
             first_date = first_date+relativedelta(weeks=+1)
         
-        # Last week will be the same as the first week
-        # CHECK TO MAKE SURE THIS IS TRUE!!!
-        # for i in range(7):
-        #     weekly_plan[weeks + 2] = {}
-        #     long_run = float(current_ability)
-        #     typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
-        #     weekly_plan[weeks + 2][str(first_date+relativedelta(days=i))] = round_quarter(typical_week[i]) 
+        # Second to last week will be the same as the first week
+        second_to_last_week_monday = end_date+relativedelta(weekday=MO(-2))
+        for i in range(7):
+            long_run = float(current_ability)
+            typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
+            weekly_plan[str(second_to_last_week_monday+relativedelta(days=i))] = round_quarter(typical_week[i]) 
+
 
     # Generate last week of runs based on the number of days in the last week    
     if end_day == 1:
@@ -376,13 +357,7 @@ def build_plan_no_weeks(today_date, end_date, current_ability, goal_distance):
             weekly_plan[str(end_date+relativedelta(days=-1))] = 3.0
         else:
             weekly_plan[str(end_date+relativedelta(days=-1))] = 1.0
-        # weekly_plan[str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+2))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+3))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+4))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+5))] = 0
         
-
     elif end_day == 2:
         weekly_plan[str(end_date)] = goal_distance
         if goal_distance >= 10:
@@ -390,10 +365,6 @@ def build_plan_no_weeks(today_date, end_date, current_ability, goal_distance):
         else:
             weekly_plan[weeks + 2][str(end_date+relativedelta(days=-1))] = 1.0
         weekly_plan[str(end_date+relativedelta(days=-2))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+2))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+3))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+4))] = 0
 
     elif end_day == 3:
         weekly_plan[str(end_date)] = goal_distance
@@ -403,9 +374,6 @@ def build_plan_no_weeks(today_date, end_date, current_ability, goal_distance):
             weekly_plan[str(end_date+relativedelta(days=-1))] = 1.0
         weekly_plan[str(end_date+relativedelta(days=-2))] = 0
         weekly_plan[str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
-        # weekly_plan[str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+2))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+3))] = 0
 
     elif end_day == 4:
         weekly_plan[str(end_date)] = goal_distance
@@ -416,8 +384,6 @@ def build_plan_no_weeks(today_date, end_date, current_ability, goal_distance):
         weekly_plan[str(end_date+relativedelta(days=-2))] = 0
         weekly_plan[str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
         weekly_plan[str(end_date+relativedelta(days=-4))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+1))] = 0
-        # weekly_plan[str(end_date+relativedelta(days=+2))] = 0
 
     elif end_day == 5:
         weekly_plan[str(end_date)] = goal_distance
@@ -429,7 +395,6 @@ def build_plan_no_weeks(today_date, end_date, current_ability, goal_distance):
         weekly_plan[str(end_date+relativedelta(days=-3))] = round_quarter(goal_distance/4)
         weekly_plan[str(end_date+relativedelta(days=-4))] = 0
         weekly_plan[str(end_date+relativedelta(days=-5))] = round_quarter(goal_distance/4)
-        # weekly_plan[str(end_date+relativedelta(days=+1))] = 0
 
     elif end_day == 6:
         weekly_plan[str(end_date)] = goal_distance
@@ -454,11 +419,6 @@ def build_plan_no_weeks(today_date, end_date, current_ability, goal_distance):
         weekly_plan[str(end_date)] = goal_distance
 
     return weekly_plan
-
-    # Nice format for test printing
-    # for week in sorted(weekly_plan.keys()):
-    #     for date in sorted(weekly_plan[week].keys()):
-    #         print week, date, weekly_plan[week][date]
 
 def create_event_source(weekly_plan):
     """Creates objects in correct format to feed into calendar."""
