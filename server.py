@@ -232,38 +232,44 @@ def display_runner_page():
 
 
 @app.route('/update-run.json', methods=["POST"])
-def update_run():
+def update_run_and_dashboard_as_completed():
     """When a runner clicks a run checkbox, updates run is_completed as true,
     commits updated run to database, and updates the total miles and total workouts
     completed on the dashboard.
     """
 
     run_id = request.form.get("run-id")
-    result_data = update_run(run_id, True)
+    update_run(run_id, True)
+    result_data = gather_info_to_update_dashboard(run_id)
 
     return jsonify(result_data)
 
 @app.route('/update-run-incomplete.json', methods=["POST"])
-def update_run_incomplete():
+def update_run__and_dashboard_as_incompleted():
     """When a runner unclicks a run checkbox, updates run is_completed as false,
     commits updated run to database, and updates the total miles and total workouts
     completed on the dashboard.
     """
 
     run_id = request.form.get("run-id")
-    result_data = update_run(run_id, False)
+    update_run(run_id, False)
+    result_data = gather_info_to_update_dashboard(run_id)
 
     return jsonify(result_data)
 
 
 def update_run(run_id, is_completed):
-    """Updates run is_complete to true or false, commits updated run to database, 
-    and updates the total miles and total workouts completed on the dashboard.
+    """Updates run is_complete to true or false, commits updated run to database.
     """
     run = Run.query.get(run_id)
     run.is_completed = is_completed
     db.session.commit()
 
+
+def gather_info_to_update_dashboard(run_id):
+    """Updates the total miles and total workouts completed on a user's dashboard."""
+
+    run = Run.query.get(run_id)
     plan_id = run.plan_id
     plan = Plan.query.get(plan_id)
     runs = plan.runs
@@ -275,6 +281,7 @@ def update_run(run_id, is_completed):
                    'run_id': run_id}
 
     return result_data
+
 
 @app.route('/account-settings')
 def display_account_settings_page():
