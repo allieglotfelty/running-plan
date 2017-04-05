@@ -104,34 +104,39 @@ def process_sign_up():
         salt = generate_salt()
         hashed_password = generate_hashed_password(raw_runner_password, salt)
 
-        runner = add_runner_to_database(raw_runner_email, hashed_password, salt)
+        current_runner = add_runner_to_database(raw_runner_email, hashed_password, salt)
 
-        runner_id = runner.runner_id
-        session['runner_id'] = runner_id
+        current_runner_id = current_runner.runner_id
+        session['runner_id'] = current_runner_id
 
-        plan = Plan(runner_id=runner_id,
-                    start_date=session.get('start_date'), 
-                    end_date=session.get('end_date'),
-                    goal_distance=session.get('goal_distance'),
-                    current_ability=session.get('current_ability'),
-                    )
-        db.session.add(plan)
-        db.session.commit() 
+        current_plan = add_plan_to_database(current_runner_id)
 
-        plan_id = plan.plan_id
-        plan.name="Running Plan %s" % plan_id
+        current_plan_id = current_plan.plan_id
+        current_plan.name = "Running Plan %s" % current_plan_id
         db.session.commit()
 
         weekly_plan = session.get('weekly_plan') 
-        add_runs_to_database(weekly_plan)
+        add_runs_to_database(weekly_plan, current_plan_id)
 
         return redirect('/dashboard')
 
 def add_plan_to_database(runner_id):
-    
+    """Adds a plan to the database and returns the plan object."""
+
+    plan = Plan(runner_id=runner_id,
+                start_date=session.get('start_date'), 
+                end_date=session.get('end_date'),
+                goal_distance=session.get('goal_distance'),
+                current_ability=session.get('current_ability'),
+                )
+    db.session.add(plan)
+    db.session.commit() 
+
+    return plan
+
 
 def add_runner_to_database(email, password, salt):
-    """Adds a runner to the database"""
+    """Adds a runner to the database and returns the runner object"""
 
     runner = Runner(email=email, password=password, salt=salt)
     db.session.add(runner)
@@ -148,7 +153,7 @@ def generate_hashed_password(runner_password, salt):
 
     return hex_password
 
-def add_runs_to_database(weekly_plan):
+def add_runs_to_database(weekly_plan, plan_id):
     """Takes a plan and adds each run in the plan to the database."""
 
     for i in range(1, len(weekly_plan) + 1):
