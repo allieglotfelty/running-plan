@@ -192,7 +192,7 @@ def process_login():
 @app.route('/logout-complete')
 def process_logout():
     """Logout user and clear their session."""
-    
+
     session.clear()
     flash("You have successfully logged out!")
     return redirect("/")
@@ -244,6 +244,7 @@ def update_run_and_dashboard_as_completed():
 
     return jsonify(result_data)
 
+
 @app.route('/update-run-incomplete.json', methods=["POST"])
 def update_run__and_dashboard_as_incompleted():
     """When a runner unclicks a run checkbox, updates run is_completed as false,
@@ -288,6 +289,7 @@ def display_account_settings_page():
     """Displays the account settings page to allow users to update their account settings."""
     pass
 
+
 @app.route('/add-to-google-calendar')
 def add_runs_to_runners_google_calenadr_account():
     """Adds a runner's runs to their Google Calendar account."""
@@ -295,61 +297,91 @@ def add_runs_to_runners_google_calenadr_account():
     timezone = request.args.get("time-zone")
     preferred_start_time = request.args.get("cal-run-start-time")
 
+    # If there are no credentials in the current session, redirect to get oauth permisssions
     if not session.get('credentials'):
         return redirect('/start_oauth')
+
+    # Otherwise get the credentials 
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
+
+    # If the credentials have expired, redirect to get oauth permissions
     if credentials.access_token_expired:
         return redirect('/start_oauth')
+
     else:
+        # Get the autorization to the user's google calendar
         http_auth = credentials.authorize(httplib2.Http())
+
+        # Gather the user's google calendar using the authorization to add events
         calendar = gcal_client.build('calendar', 'v3', http_auth)
         
         runner_id = session.get('runner_id')
-        runner = Runner.query.get(runner_id)
-        runner.is_using_gCal = True
-        db.session.commit()
-
+        update_runner_to_is_using_gCal(runner_id)
+        
         today_date = datetime.today()
-        for plan in runner.plans:
-            if today_date < plan.end_date:
-                current_plan = plan
-        if current_plan:
-            for run in current_plan.runs[5:10]:
-                if run.distance > 0 and run.is_on_gCal == False:
-                    title = "Run %s miles" % run.distance
-                    date = run.date.date()
-                    start_time = plan.start_time
-                    finish_time = start_time + timedelta(hours=1)
-                    start_time = start_time.time()
-                    finish_time = finish_time.time()
-                    start = datetime.combine(date, start_time).isoformat()
-                    finish = datetime.combine(date, finish_time).isoformat()
-                    event = {
-                        'summary': title,
-                        'start': {
-                                   'dateTime': start,
-                                   'timeZone': 'America/Los_Angeles'
-                        },
-                        'end': {
-                                   'dateTime': finish,
-                                   'timeZone': 'America/Los_Angeles'
-                        },
-                        'reminders': {
-                                    'useDefault': False,
-                        },
-                    }
-                    event = calendar.events().insert(calendarId='primary', body=event).execute()
-                    run.is_on_gCal = True
+        current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
+                                                                  Plan.end_date > today_date).one()
 
-                    flash('Added event to Google Calendar: %s on %s' % (title, date))
+        if current_plan:
+            run_events = generate_run_events_for_google_calendar(current_plan)
+            if not run_events:
+                flash('There are no new runs to add to your Google Calendar.')
+            else:
+                for event in run_events:
+                    calendar.events().insert(calendarId='primary', body=event).execute()
+                    flash('Added event to Google Calendar: %s on %s' % (event['summary'], event['start']['dateTime']))
                     print'Event created: %s' % (event.get('htmlLink'))
-                else:
-                     flash('There are no new runs to add to your Google Calendar.')
-            db.session.commit()
         else:
-            flash('There are no new runs to add to your Google Calendar.')
+             flash('There are no new runs to add to your Google Calendar.')
 
     return redirect("/dashboard")
+
+def update_runner_to_is_using_gCal(runner_id):
+    """Updates a runner in the database to is_using_gCal is True."""
+
+    runner = Runner.query.get(runner_id)
+    runner.is_using_gCal = True
+    db.session.commit()
+
+def generate_run_events_for_google_calendar(plan):
+    """Generates plans to add to user's google calendar account."""
+
+    runs = plan.runs
+    run_events = []
+
+    for run in runs[:5]:
+        if run.distance > 0 and run.is_on_gCal == False:
+            title = "Run %s miles" % run.distance
+            date = run.date.date()
+            
+            start_time = plan.start_time
+            finish_time = start_time + timedelta(hours=1)
+            start_time = start_time.time()
+            finish_time = finish_time.time()
+            
+            start = datetime.combine(date, start_time).isoformat()
+            finish = datetime.combine(date, finish_time).isoformat()
+
+            event = {
+                'summary': title,
+                'start': {
+                           'dateTime': start,
+                           'timeZone': 'America/Los_Angeles'
+                },
+                'end': {
+                           'dateTime': finish,
+                           'timeZone': 'America/Los_Angeles'
+                },
+                'reminders': {
+                            'useDefault': False,
+                },
+            }
+            run_events.append(event)
+            run.is_on_gCal = True
+
+    db.session.commit()
+    
+    return run_events
 
 @app.route('/start_oauth')
 def start_oauth():
