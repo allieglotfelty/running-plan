@@ -170,21 +170,19 @@ def process_login():
     If so, logs them into their account. If not, flashes a message.
     """
 
-    runner_email = request.form.get("email")
-    runner_password = request.form.get("password")
+    raw_runner_email = request.form.get("email")
+    raw_runner_password = request.form.get("password")
 
     try:
-        runner_account = Runner.query.filter_by(email=runner_email).one()
+        runner_account = Runner.query.filter_by(email=raw_runner_email).one()
     except Exception, e:
         runner_account = False
 
     if runner_account:
-        binary_password = hashlib.pbkdf2_hmac('sha256', runner_password, runner_account.salt, 100000)
-        hex_password = binascii.hexlify(binary_password)
+        hashed_password = generate_hashed_password(raw_runner_password, runner_account.salt)
 
-    if runner_account and runner_account.password == hex_password:
+    if runner_account and runner_account.password == hashed_password:
         session["runner_id"] = runner_account.runner_id
-        print session
         flash("You have successfully logged in!")
         return redirect('/dashboard')
     else:
