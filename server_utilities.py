@@ -1,3 +1,4 @@
+from flask import session
 from model import db, Runner, Plan, Run
 from datetime import datetime, date, timedelta, time
 import hashlib, binascii
