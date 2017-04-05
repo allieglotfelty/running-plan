@@ -92,9 +92,9 @@ def display_sign_up_page():
 def process_sign_up():
     """Checks if user exists. If not, creates new account."""
 
-    runner_email = request.form.get("email")
-    runner_password = request.form.get("password")
-    email_query = Runner.query.filter_by(email=runner_email).all()
+    raw_runner_email = request.form.get("email")
+    raw_runner_password = request.form.get("password")
+    email_query = Runner.query.filter_by(email=raw_runner_email).all()
 
     if email_query:
         flash('This user already exists. Please try to login or create an account with a different email.')
@@ -102,12 +102,9 @@ def process_sign_up():
 
     else:
         salt = generate_salt()
-        binary_password = hashlib.pbkdf2_hmac('sha256', runner_password, salt, 100000)
-        hex_password = binascii.hexlify(binary_password)
+        hashed_password = generate_hashed_password(raw_runner_password, salt)
 
-        runner = Runner(email=runner_email, password=hex_password, salt=salt)
-        db.session.add(runner)
-        db.session.commit()
+        runner = add_runner_to_database(raw_runner_email, hashed_password, salt)
 
         runner_id = runner.runner_id
         session['runner_id'] = runner_id
@@ -123,18 +120,44 @@ def process_sign_up():
 
         plan_id = plan.plan_id
         plan.name="Running Plan %s" % plan_id
-
-        weekly_plan = session.get('weekly_plan') 
-
-        for i in range(1, len(weekly_plan) + 1):
-            for date in weekly_plan[str(i)]:
-                distance = weekly_plan[str(i)][date]
-                run = Run(plan_id=plan_id, date=date, distance=distance)
-                db.session.add(run)
-
         db.session.commit()
 
+        weekly_plan = session.get('weekly_plan') 
+        add_runs_to_database(weekly_plan)
+
         return redirect('/dashboard')
+
+def add_plan_to_database(runner_id):
+    
+
+def add_runner_to_database(email, password, salt):
+    """Adds a runner to the database"""
+
+    runner = Runner(email=email, password=password, salt=salt)
+    db.session.add(runner)
+    db.session.commit()
+
+    return runner
+
+
+def generate_hashed_password(runner_password, salt):
+    """Takes in a users password, hashes it and returns a hashed version of it"""
+
+    binary_password = hashlib.pbkdf2_hmac('sha256', runner_password, salt, 100000)
+    hex_password = binascii.hexlify(binary_password)
+
+    return hex_password
+
+def add_runs_to_database(weekly_plan):
+    """Takes a plan and adds each run in the plan to the database."""
+
+    for i in range(1, len(weekly_plan) + 1):
+        for date in weekly_plan[str(i)]:
+            distance = weekly_plan[str(i)][date]
+            run = Run(plan_id=plan_id, date=date, distance=distance)
+            db.session.add(run)
+    db.session.commit()
+
 
 @app.route('/login-complete', methods=["POST"])
 def process_login():
