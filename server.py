@@ -7,13 +7,10 @@ from model import connect_to_db, db, Runner, Plan, Run
 from datetime import datetime, date, timedelta, time
 import hashlib, binascii
 from random import choice
-from apiclient import discovery
-from oauth2client import client
-from oauth2client import tools
+from apiclient import discovery as gcal_client
+from oauth2client import client, tools
 from oauth2client.file import Storage
 import httplib2
-import json
-
 from running_plan import build_plan_with_two_dates, create_excel_text, build_plan_no_weeks, create_event_source
 
 app = Flask(__name__)
@@ -32,14 +29,13 @@ def index():
         session['runner_id']
     except KeyError:
         return render_template("homepage.html")
-    
-    return redirect("/dashboard")
 
+    return redirect("/dashboard")
 
 
 @app.route('/plan.json', methods=["POST"])
 def generate_plan():
-    """Generates and displays a runner's plan based on the information 
+    """Generates and displays a runner's plan based on the information
     they entered.
     """
     
@@ -99,8 +95,6 @@ def process_sign_up():
     runner_email = request.form.get("email")
     runner_password = request.form.get("password")
     email_query = Runner.query.filter_by(email=runner_email).all()
-
-    # except Exception, e:
 
     if email_query:
         flash('This user already exists. Please try to login or create an account with a different email.')
@@ -183,7 +177,11 @@ def display_runner_page():
     """Displays the runner's dashboard with current plan and tracking information."""
 
     runner_id = session.get('runner_id')
+
     runner = Runner.query.get(runner_id)
+    if not runner:
+        return redirect('/')
+
     today_date = datetime.today()
     for plan in runner.plans:
         if today_date < plan.end_date:
@@ -244,77 +242,103 @@ def display_account_settings_page():
     """Displays the account settings page to allow users to update their account settings."""
     pass
 
-
 @app.route('/add-to-google-calendar')
 def add_runs_to_runners_google_calenadr_account():
     """Adds a runner's runs to their Google Calendar account."""
+
+    timezone = request.args.get("time-zone")
+    preferred_start_time = request.args.get("cal-run-start-time")
+
     if not session.get('credentials'):
-        return  redirect('/oauth2callback')
+        return redirect('/start_oauth')
     credentials = client.OAuth2Credentials.from_json(session['credentials'])
     if credentials.access_token_expired:
-        return redirect('/oauth2callback')
+        return redirect('/start_oauth')
     else:
         http_auth = credentials.authorize(httplib2.Http())
-        calendar = discovery.build('calendar', 'v3', http_auth)
+        calendar = gcal_client.build('calendar', 'v3', http_auth)
         
         runner_id = session.get('runner_id')
         runner = Runner.query.get(runner_id)
+        runner.is_using_gCal = True
+        db.session.commit()
+
         today_date = datetime.today()
         for plan in runner.plans:
             if today_date < plan.end_date:
                 current_plan = plan
         if current_plan:
-            for run in current_plan.runs[:5]:
-                title = "Daily Run %s miles" % run.distance
-                date = run.date.date()
-                start_time = time(7,0,0)
-                finish_time = time(8,0,0)
-                start = datetime.combine(date, start_time).isoformat()
-                finish = datetime.combine(date, finish_time).isoformat()
-                event = {
-                    'summary': title,
-                    'start': {
-                               'dateTime': start,
-                               'timeZone': 'America/Los_Angeles'
-                    },
-                    'end': {
-                               'dateTime': finish,
-                               'timeZone': 'America/Los_Angeles'
-                    },
-                    'reminders': {
-                                'useDefault': False,
-                    },
-                }
+            for run in current_plan.runs[5:10]:
+                if run.distance > 0 and run.is_on_gCal == False:
+                    title = "Run %s miles" % run.distance
+                    date = run.date.date()
+                    start_time = plan.start_time
+                    finish_time = start_time + timedelta(hours=1)
+                    start_time = start_time.time()
+                    finish_time = finish_time.time()
+                    start = datetime.combine(date, start_time).isoformat()
+                    finish = datetime.combine(date, finish_time).isoformat()
+                    event = {
+                        'summary': title,
+                        'start': {
+                                   'dateTime': start,
+                                   'timeZone': 'America/Los_Angeles'
+                        },
+                        'end': {
+                                   'dateTime': finish,
+                                   'timeZone': 'America/Los_Angeles'
+                        },
+                        'reminders': {
+                                    'useDefault': False,
+                        },
+                    }
+                    event = calendar.events().insert(calendarId='primary', body=event).execute()
+                    run.is_on_gCal = True
 
-            event = calendar.events().insert(calendarId='primary', body=event).execute()
-            flash('Event created for: %s on %s' % (title, start_time))
-            print'Event created: %s' % (event.get('htmlLink'))
+                    flash('Added event to Google Calendar: %s on %s' % (title, date))
+                    print'Event created: %s' % (event.get('htmlLink'))
+                else:
+                     flash('There are no new runs to add to your Google Calendar.')
+            db.session.commit()
+        else:
+            flash('There are no new runs to add to your Google Calendar.')
 
     return redirect("/dashboard")
 
-@app.route('/oauth2callback')
-def oauth2callback():
-    try:
-        import argparse
-        flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-    except ImportError:
-        flags = None
-
+@app.route('/start_oauth')
+def start_oauth():
     flow = client.flow_from_clientsecrets(
         'client_secret.json',
         scope='https://www.googleapis.com/auth/calendar',
         redirect_uri=url_for('oauth2callback', _external=True))
-        # if flags:
-        #     credentials = tools.run_flow(flow, store, flags)
-        # print('Storing credentials to ' + credential_path)
+
+    # flow = websites you step through - front door: sends user to email page & asks permission to send info to calendar
+    auth_uri = flow.step1_get_authorize_url()
+    return redirect(auth_uri)
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    flow = client.flow_from_clientsecrets(
+        'client_secret.json',
+        scope='https://www.googleapis.com/auth/calendar',
+        redirect_uri=url_for('oauth2callback', _external=True))
     if 'code' not in request.args:
-        auth_uri = flow.step1_get_authorize_url()
-        return redirect(auth_uri)
-    else:
-        auth_code = request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        session['credentials'] = credentials.to_json()
-        return redirect('/add-to-google-calendar')
+        return "", 403
+
+    # answer from user re: using calendar, gives back oauth token to send info to calendar
+    auth_code = request.args.get('code')
+    credentials = flow.step2_exchange(auth_code)
+    session['credentials'] = credentials.to_json()
+    add_oauth_token_to_database(credentials)
+    
+    return redirect('/add-to-google-calendar')
+
+def add_oauth_token_to_database(credentials):
+    """Adds oauth token to database"""
+    runner_id = session.get('runner_id')
+    runner = Runner.query.get(runner_id)
+    runner.OAuth_token = credentials.to_json()
+    db.session.commit()
 
 @app.route('/opt-into-weekly-emails')
 def opt_into_weekly_emails():
@@ -384,6 +408,4 @@ if __name__ == "__main__":
     # Use the DebugToolbar
     DebugToolbarExtension(app)
 
-
-    
     app.run(port=5000, host='0.0.0.0')

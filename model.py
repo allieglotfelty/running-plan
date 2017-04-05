@@ -26,7 +26,7 @@ class Runner(db.Model):
     is_subscribed = db.Column(db.Boolean, default=False, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=True)
     timezone = db.Column(db.String(20), default='Pacific', nullable=True)
-    OAuth_token = db.Column(db.String(100), nullable=True)
+    OAuth_token = db.Column(db.String, nullable=True)
     photo = db.Column(db.String(200), nullable=True)
 
 
@@ -70,6 +70,7 @@ class Run(db.Model):
     date = db.Column(db.DateTime, nullable=False)
     distance = db.Column(db.Float, nullable=False)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
+    is_on_gCal = db.Column(db.Boolean, default=False, nullable=False)
     
     plan = db.relationship("Plan", backref=db.backref("runs", order_by=date))
 
@@ -86,9 +87,9 @@ def example_data():
 
     sally = Runner(email='sally@gmail.com', password='password', salt='sldeifwlopcSDUEo')
     plan = Plan(plan_id=1, runner_id=1, start_date="2017-03-29", end_date="2017-05-27", goal_distance=13.1, current_ability=6)
-    run1 = Run(run_id=1, plan_id=1, date="2017-04-27", distance=7, is_completed=True)
-    run2 = Run(run_id=2, plan_id=1, date="2017-04-28", distance=4, is_completed=False)
-    run3 = Run(run_id=3, plan_id=1, date="2017-04-29", distance=2, is_completed=False)
+    run1 = Run(run_id=1, plan_id=1, date="2017-04-27", distance=7, is_completed=True, is_on_gCal=False)
+    run2 = Run(run_id=2, plan_id=1, date="2017-04-28", distance=4, is_completed=False, is_on_gCal=False)
+    run3 = Run(run_id=3, plan_id=1, date="2017-04-29", distance=2, is_completed=False, is_on_gCal=False)
 
     db.session.add_all([sally, plan, run1, run2, run3])
     db.session.commit()

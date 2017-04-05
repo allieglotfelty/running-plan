@@ -12,7 +12,44 @@
 </form>
 
 <form action="/add-to-google-calendar">
-    <input type="submit" value="Add Runs to Google Calendar" name="add-to-gcal-button">
+    <input type="submit" value="Add Runs to Google Calendar" name="add-to-gcal-button"><br>
+    <select id="time-zone" name="time-zone">
+      <option value="Select your preferred timezone">Select your preferred timezone</option>
+      <option value="Pacific/Honolulu">(GMT-10:00) Hawaii Time</option>
+      <option value="America/Anchorage">(GMT-08:00) Alaska Time</option>
+      <option value="America/Los_Angeles">(GMT-07:00) Pacific Time</option>
+      <option value="America/Denver">(GMT-06:00) Mountain Time</option>
+      <option value="America/Phoenix">(GMT-07:00) Mountain Time - Arizona</option>
+      <option value="America/Chicago">(GMT-05:00) Central Time</option>
+      <option value="America/New_York">(GMT-04:00) Eastern Time</option>
+    </select>
+    <select id="cal-run-start-time" name="cal-run-start-time">
+      <option value="Select your preferred start time">Select your preferred start time</option>
+      <option value="4">4:00am</option>
+      <option value="5">5:00am</option>
+      <option value="6">6:00am</option>
+      <option value="7">7:00am</option>
+      <option value="8">8:00am</option>
+      <option value="9">9:00am</option>
+      <option value="10">10:00am</option>
+      <option value="11">11:00am</option>
+      <option value="12">12:00pm</option>
+      <option value="13">1:00pm</option>
+      <option value="14">2:00pm</option>
+      <option value="15">3:00pm</option>
+      <option value="16">4:00pm</option>
+      <option value="17">5:00pm</option>
+      <option value="18">6:00pm</option>
+      <option value="19">7:00pm</option>
+      <option value="20">8:00pm</option>
+      <option value="21">9:00pm</option>
+      <option value="22">10:00pm</option>
+      <option value="23">11:00pm</option>
+      <option value="24">12:00am</option>
+      <option value="1">1:00am</option>
+      <option value="2">2:00am</option>
+      <option value="3">3:00am</option>
+    </select>
 </form>
 
 <form action="/opt-into-weekly-emails">
@@ -27,8 +64,8 @@
 {% if plan %}
 
 <p>Countdown to Goal: {{ days_left_to_goal }} days</p>
-<p>Total Workouts Completed:</p><p id="total-workouts">{{ total_workouts_completed }}</p>
-<p>Total Miles Completed: </p> <p id="total-miles"> {{ total_miles_completed }}</p>
+<span>Total Workouts Completed: </span><span id="total-workouts">{{ total_workouts_completed }}</span><br>
+<span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br>
 <table id="plan-calendar" name="plan-calendar" border="1px">
     <thead id="plan-header">
       <tr>
@@ -49,12 +86,12 @@
             {% for run in plan.runs[(i)*7:7*(i+1)] %}
               {% if run.distance != 0.0 %}
                 {% if run.is_completed %}
-                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}" checked>{{ run.date }}: <br><br>{{ run.distance }}</td>
+                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}" checked>{{ run.date.date() }}: <br><br>{{ run.distance }} miles</td>
                 {% else %}
-                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}">{{ run.date }}: <br><br>{{ run.distance }}</td>
+                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}">{{ run.date.date() }}: <br><br>{{ run.distance }} miles</td>
                 {% endif %} 
               {% else %}
-                <td id="run{{ run.run_id }}">{{ run.date }}: <br><br>Off day!</td>
+                <td id="run{{ run.run_id }}">{{ run.date.date() }}: <br><br>Off day!</td>
               {% endif %}
             {% endfor %}
             </tr>
