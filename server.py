@@ -203,20 +203,21 @@ def display_runner_page():
     """Displays the runner's dashboard with current plan and tracking information."""
 
     runner_id = session.get('runner_id')
-
     runner = Runner.query.get(runner_id)
+
     if not runner:
         return redirect('/')
 
     today_date = datetime.today()
-    for plan in runner.plans:
-        if today_date < plan.end_date:
-            current_plan = plan
-            days_left_to_goal = calculate_days_to_goal(today_date, current_plan.end_date)
-            total_workouts_completed = calculate_total_workouts_completed(current_plan.runs)
-            total_miles_completed = calculate_total_miles_completed(current_plan.runs)
-        else:
-            flash("It seems like all of your plans have expired. Feel free to click and view and old plan or make a new one!")
+    
+    current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id, Plan.end_date > today_date).one()
+
+    if current_plan:
+        days_left_to_goal = calculate_days_to_goal(today_date, current_plan.end_date)
+        total_workouts_completed = calculate_total_workouts_completed(current_plan.runs)
+        total_miles_completed = calculate_total_miles_completed(current_plan.runs)
+    else:
+        flash("It seems like all of your plans have expired. Feel free to click and view and old plan or make a new one!")
     length_of_plan = len(current_plan.runs)
     weeks_in_plan = int(length_of_plan/7)
 
