@@ -1,7 +1,8 @@
 from flask import session
 from model import db, Runner, Plan, Run
-from datetime import datetime, date, timedelta, time
-import hashlib, binascii
+from datetime import datetime, timedelta
+import hashlib
+import binascii
 from random import choice
 from running_plan import build_plan_with_two_dates
 
@@ -34,7 +35,7 @@ def generate_salt():
 
 def calculate_days_to_goal(today_date, end_date):
     """Calculates how many days remain until the runner's goal to display on dashboard."""
-    
+
     return (end_date - today_date).days
 
 
@@ -42,7 +43,7 @@ def calculate_total_miles_completed(runs):
     """Calculates the total miles that the runner has completed so far to display on dashboard."""
     total_miles_completed = 0
     for run in runs:
-        if run.is_completed == True:
+        if run.is_completed:
             total_miles_completed += run.distance
 
     return total_miles_completed
@@ -52,7 +53,7 @@ def calculate_total_workouts_completed(runs):
     """Calculates the total workouts that the runner has completed so far to display on dashboard."""
     total_workouts_completed = 0
     for run in runs:
-        if run.is_completed == True:
+        if run.is_completed:
             total_workouts_completed += 1
 
     return total_workouts_completed
@@ -62,13 +63,13 @@ def add_plan_to_database(runner_id):
     """Adds a plan to the database and returns the plan object."""
 
     plan = Plan(runner_id=runner_id,
-                start_date=session.get('start_date'), 
+                start_date=session.get('start_date'),
                 end_date=session.get('end_date'),
                 goal_distance=session.get('goal_distance'),
                 current_ability=session.get('current_ability'),
                 )
     db.session.add(plan)
-    db.session.commit() 
+    db.session.commit()
 
     return plan
 
@@ -143,15 +144,15 @@ def generate_run_events_for_google_calendar(plan):
     run_events = []
 
     for run in runs[:5]:
-        if run.distance > 0 and run.is_on_gCal == False:
+        if run.distance > 0 and not run.is_on_gCal:
             title = "Run %s miles" % run.distance
             date = run.date.date()
-            
+
             start_time = plan.start_time
             finish_time = start_time + timedelta(hours=1)
             start_time = start_time.time()
             finish_time = finish_time.time()
-            
+
             start = datetime.combine(date, start_time).isoformat()
             finish = datetime.combine(date, finish_time).isoformat()
 
@@ -173,7 +174,7 @@ def generate_run_events_for_google_calendar(plan):
             run.is_on_gCal = True
 
     db.session.commit()
-    
+
     return run_events
 
 
@@ -183,4 +184,3 @@ def add_oauth_token_to_database(credentials):
     runner = Runner.query.get(runner_id)
     runner.OAuth_token = credentials.to_json()
     db.session.commit()
-

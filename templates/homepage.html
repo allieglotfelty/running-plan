@@ -16,8 +16,8 @@
   <form action="/plan.json" method="POST" id="planning-form" required>
     How far can you run today without stopping?:
       <select id="current-ability" name="current-ability" required>
-        <option value="---">---</option>
-        <option value="0">Less than a mile</option>
+        <option disabled value="---">---</option>
+        <option value="0.5">Less than a mile</option>
         <option value="1">1 mile</option>
         <option value="2">2 miles</option>
         <option value="3">3 miles</option>
@@ -47,7 +47,7 @@
       </select><br><br>
       What is your running goal (event or distance)?:
       <select id="goal-distance" name="goal-distance" required>
-        <option value="---">---</option>
+        <option disabled value="---">---</option>
         <option value="3.1">5K (3.1 miles)</option>
         <option value="5">5 miles</option>
         <option value="6.2">10K (6.2 miles)</option>
@@ -86,104 +86,7 @@
   <div id="calendar" hidden></div>
 
   <script>
-  "use strict";
-
   
-  function displayCalendar(evt) {
-    $(document).ready(function() {
-      // page is now ready, initialize the calendar...
-      $("#calendar").removeAttr("hidden");
-      $('#calendar').fullCalendar({
-          // put your options and callbacks here
-          firstDay: 1,
-          height: 600,
-          width: 100,
-          // events: run_events,
-          dayClick: function() {
-          alert('a day has been clicked!');
-          },
-      });
-      // function getPlanResultsForCalendar() {
-      //   var currentAbility = $("#current-ability").val();
-      //   var goalDistance = $("#goal-distance").val();
-      //   var goalDate = $("#goal-date").val();
-      //   $.post("/run-event", {"current-ability": currentAbility, 
-      //                          "goal-distance": goalDistance, 
-      //                          "goal-date": goalDate}, renderCalendar);
-      // }
-      // function renderCalendar(results) {
-      //   var run_events = [];
-      //   for (var i in results) {
-      //     run_events.push({title: results[i], start: moment(i).format(), allDay: true});
-      //   };
-      //   for (var j=0; j<run_events.length; j++) {
-      //     var run_event = run_events[j]
-      //     $('#calendar').fullCalendar('renderEvent', run_event, true);
-      //   };
-      // }
-    
-    });
-  }
-
-  var run_event_one = {title: 3, start: moment().format(), allDay: true};
-  $('#calendar').fullCalendar('renderEvent', run_event_one, true);
-
-  function showPlanResults(results) {
-    var runPlan = results
-    $("#run-info-chart").empty();
-
-    for (var week in runPlan) {
-      $("#run-info-chart").append('<tr>');
-      $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
-
-      var weeklyPlan = runPlan[week];
-      for (var date in weeklyPlan) {
-        var newDate = new Date(date);
-        var month = (newDate.getMonth()+1)+ "";
-        var day = newDate.getDate();
-        if (weeklyPlan[date]) {
-          $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
-        } else {
-          $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  off day</td>');
-        }
-      }
-      $("#run-info-chart").append('</tr>');
-    }
-    $("#plan-calendar").removeAttr("hidden");
-    
-  }
-
-  function getPlanResults(evt) {
-    evt.preventDefault();
-    var currentAbility = $("#current-ability").val();
-    var goalDistance = $("#goal-distance").val();
-    var goalDate = $("#goal-date").val();
-    $.post("/plan.json", {"current-ability": currentAbility, 
-                     "goal-distance": goalDistance, 
-                     "goal-date": goalDate}, showPlanResults);
-  }
-
-  function displaySignUpAndSaveButton(evt) {
-    evt.preventDefault();
-    $("#download-to-excel").removeAttr("hidden");
-    $("#sign-up-and-save").removeAttr("hidden");
-  }
-
-  function getPlanResultsForDownload(evt) {
-    var currentAbility = $("#current-ability").val();
-    var goalDistance = $("#goal-distance").val();
-    var goalDate = $("#goal-date").val();
-
-    // Routes to /download (download? below) with the following values from the DOM
-    window.location = 'download?current-ability=' + currentAbility + 
-                      '&goal-distance=' + goalDistance + '&goal-date=' + 
-                      goalDate;
-  }
-
-  $("#planning-form").on('submit', getPlanResults);
-  $("#planning-form").on('submit', displaySignUpAndSaveButton);
-  $("#download-to-excel").on('click', getPlanResultsForDownload);
-  $("#planning-form").on('submit', displayCalendar);
   </script>
 
 {% endblock %}
