@@ -5,7 +5,6 @@ from dateutil.relativedelta import *
 import StringIO
 
 today = datetime.today()
-today = today+relativedelta(days=-2)
 start_date = today+relativedelta(days=-2)
 end_date = "2017-05-27"
 enddate = datetime.strptime(end_date, "%Y-%m-%d")
@@ -14,55 +13,127 @@ enddate = datetime.strptime(end_date, "%Y-%m-%d")
 def round_quarter(x):
     return round(x * 4) / 4.0
 
-
-def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance):
-    """Generates plan using a list of lists, where each internal list includes
-    all the runs for the week at that index.
-
-    Long runs are incremented by the increment each week.
-    Mid-week runs are 10 percent or 20 percent of the long-run.
-    There are two off days with zero mileage. 
-
-    """
-
-    # Number of days from start date to goal
-    days_to_goal = (end_date - today_date).days
-
-    # Number of days in first week
-    start_date = today_date+relativedelta(days=+1)
-    start_date_day = start_date.weekday()
-    days_in_first_week = 7 - start_date_day
+def calculate_days_in_last_week(end_date):
     end_day = end_date.weekday()
     days_in_last_week = end_day + 1
+    return days_in_last_week
+
+def calculate_start_date(today_date):
+    start_date = today_date+relativedelta(days=+1)
+    return start_date
+
+def calculate_days_in_first_week(start_date):
+    start_date_day = start_date.weekday()
+    days_in_first_week = 7 - start_date_day
+    return days_in_first_week
+
+def calculate_number_of_weeks_to_goal(start_date, end_date): 
+    days_to_goal = (end_date - start_date).days
+    days_in_first_week = calculate_days_in_first_week(start_date)
+    days_in_last_week = calculate_days_in_last_week(end_date)
     weeks_to_goal = ((days_to_goal - days_in_first_week - days_in_last_week) / 7) + 1
+    return weeks_to_goal
 
-    print "There are %s days until the goal" % days_to_goal
-    print "The plan will start on %s" % start_date_day
-    print "There are %s days in the first week." % days_in_first_week
-    print "The plan will end on %s" % end_day
-    print "There are %s days in the last week" % days_in_last_week
-    print "There are %s weeks in between the first and last week." % weeks_to_goal
-
-
+def generate_first_week_of_runs(start_date_day, start_date, increment,current_ability):
     # Create run distances for first week
     long_run = float('%.2f' % (current_ability))
     mid_run = long_run/2
     short_run = long_run/4
 
-    # Create an empty dictionary to hold the runs each week
+    week_one = {}
+
+    # Create runs for first week if start date is something other than a Monday - base week
+    if start_date_day == 1:
+        week_one[str(start_date+relativedelta(days=-1))] = 0
+        week_one[str(start_date)] = short_run
+        week_one[str(start_date+relativedelta(days=+1))] = 0
+        week_one[str(start_date+relativedelta(days=+2))] = mid_run
+        week_one[str(start_date+relativedelta(days=+3))] = 0
+        week_one[str(start_date+relativedelta(days=+4))] = short_run
+        week_one[str(start_date+relativedelta(days=+5))] = long_run
+
+    elif start_date_day == 2:
+        week_one[str(start_date+relativedelta(days=-2))] = 0
+        week_one[str(start_date+relativedelta(days=-1))] = 0
+        week_one[str(start_date)] = short_run
+        week_one[str(start_date+relativedelta(days=+1))] = 0
+        week_one[str(start_date+relativedelta(days=+2))] = mid_run
+        week_one[str(start_date+relativedelta(days=+3))] = 0
+        week_one[str(start_date+relativedelta(days=+4))] = long_run
+       
+    elif start_date_day == 3:
+        week_one[str(start_date+relativedelta(days=-3))] = 0
+        week_one[str(start_date+relativedelta(days=-2))] = 0
+        week_one[str(start_date+relativedelta(days=-1))] = 0
+        week_one[str(start_date)] = short_run
+        week_one[str(start_date+relativedelta(days=+1))] = 0
+        week_one[str(start_date+relativedelta(days=+2))] = mid_run
+        week_one[str(start_date+relativedelta(days=+3))] = long_run
+        
+    elif start_date_day == 4:
+        week_one[str(start_date+relativedelta(days=-4))] = 0
+        week_one[str(start_date+relativedelta(days=-3))] = 0
+        week_one[str(start_date+relativedelta(days=-2))] = 0
+        week_one[str(start_date+relativedelta(days=-1))] = 0
+        week_one[str(start_date)] = short_run
+        week_one[str(start_date+relativedelta(days=+1))] = 0
+        week_one[str(start_date+relativedelta(days=+2))] = mid_run
+     
+    elif start_date_day == 5:
+        week_one[str(start_date+relativedelta(days=-5))] = 0
+        week_one[str(start_date+relativedelta(days=-4))] = 0
+        week_one[str(start_date+relativedelta(days=-3))] = 0
+        week_one[str(start_date+relativedelta(days=-2))] = 0
+        week_one[str(start_date+relativedelta(days=-1))] = 0
+        week_one[str(start_date)] = short_run
+        week_one[str(start_date+relativedelta(days=+1))] = 0
+       
+    else:
+        week_one[str(start_date+relativedelta(days=-6))] = 0
+        week_one[str(start_date+relativedelta(days=-5))] = 0
+        week_one[str(start_date+relativedelta(days=-4))] = 0
+        week_one[str(start_date+relativedelta(days=-3))] = 0
+        week_one[str(start_date+relativedelta(days=-2))] = 0
+        week_one[str(start_date+relativedelta(days=-1))] = 0
+        week_one[str(start_date)] = short_run
+
+    return week_one
+
+def generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, start_date, current_ability, increment, start_week):
+
+    for week in range(start_week, weeks_to_goal + 1):
+        weekly_plan[week] = {}
+        long_run = float('%.2f' % (current_ability + ((week - start_week) * increment)))
+        typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
+        for i in range(7):
+            weekly_plan[week][str(start_date+relativedelta(days=+i))] = round_quarter(typical_week[i])
+        start_date = start_date+relativedelta(weeks=+1)
+
+    return weekly_plan
+
+
+def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance):
+    """Generates a running plan that is a dictionary weeks as keys with a dictionary
+    of dates:distance key:value pairs as values.
+
+    Long runs are incremented by the increment each week.
+    Mid-week runs are 10 percent or 20 percent of the long-run.
+    There are two off days with zero mileage. 
+    """
+
+    start_date = calculate_start_date(today_date)
+    start_date_day = start_date.weekday()
+    end_day = end_date.weekday()
+
+    weeks_to_goal = calculate_number_of_weeks_to_goal(start_date, end_date)
+
     weekly_plan = {}
+    increment = (goal_distance - current_ability) / float(weeks_to_goal)
 
     # Create all runs if start date is a Monday
     if start_date_day == 0:
-        increment = (goal_distance - current_ability) / float(weeks_to_goal)
 
-        for week in range(1, weeks_to_goal + 1):
-            weekly_plan[week] = {}
-            long_run = float('%.2f' % (current_ability + ((week - 1) * increment)))
-            typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
-            for i in range(7):
-                weekly_plan[week][str(start_date+relativedelta(days=+i))] = round_quarter(typical_week[i])
-            start_date = start_date+relativedelta(weeks=+1)
+        weekly_plan = generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, start_date, current_ability, increment, 1)
 
         # Last full week will be the same as the first week
         for i in range(7):
@@ -71,83 +142,21 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
             typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
             weekly_plan[weeks_to_goal + 1][str(start_date+relativedelta(days=+i))] = round_quarter(typical_week[i]) 
     
-    # Create runs for first week if start date is something other than a Monday - base week
+    # Generate runs for weeks 2 to # of weeks
     else:
-        increment = (goal_distance - current_ability) / float(weeks_to_goal)
-        weekly_plan[1] = {}
-        if start_date_day == 1:
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
-            weekly_plan[1][str(start_date)] = short_run
-            weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
-            weekly_plan[1][str(start_date+relativedelta(days=+3))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=+4))] = short_run
-            weekly_plan[1][str(start_date+relativedelta(days=+5))] = long_run
-
-        elif start_date_day == 2:
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
-            weekly_plan[1][str(start_date)] = short_run
-            weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
-            weekly_plan[1][str(start_date+relativedelta(days=+3))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=+4))] = long_run
-           
-        elif start_date_day == 3:
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
-            weekly_plan[1][str(start_date)] = short_run
-            weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
-            weekly_plan[1][str(start_date+relativedelta(days=+3))] = long_run
-            
-        elif start_date_day == 4:
-            weekly_plan[1][str(start_date+relativedelta(days=-4))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
-            weekly_plan[1][str(start_date)] = short_run
-            weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=+2))] = mid_run
-         
-        elif start_date_day == 5:
-            weekly_plan[1][str(start_date+relativedelta(days=-5))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-4))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
-            weekly_plan[1][str(start_date)] = short_run
-            weekly_plan[1][str(start_date+relativedelta(days=+1))] = 0
-           
-        else:
-            weekly_plan[1][str(start_date+relativedelta(days=-6))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-5))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-4))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-3))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-2))] = 0
-            weekly_plan[1][str(start_date+relativedelta(days=-1))] = 0
-            weekly_plan[1][str(start_date)] = short_run
-
-        # Start date for first full week will be the Monday after the start_date
+        weekly_plan[1] = generate_first_week_of_runs(start_date_day, start_date, increment,current_ability)
+         # Start date for first full week will be the Monday after the start_date
         first_date = start_date+relativedelta(weekday=MO)
+        weekly_plan = generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, first_date, current_ability, increment, 2)
+        
 
-        # Generate runs for weeks 2 to # of weeks
-        for week in range(2, weeks_to_goal + 1):
-            weekly_plan[week] = {}
-            long_run = float('%.2f' % (current_ability + ((week - 2) * increment)))
-            typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
-            for i in range(7):
-                weekly_plan[week][str(first_date+relativedelta(days=+i))] = round_quarter(typical_week[i])
-            first_date = first_date+relativedelta(weeks=+1)
-
-        # Second to last week will be the same as the first week
-        second_to_last_week_monday = end_date+relativedelta(weekday=MO(-2))
-        weekly_plan[weeks_to_goal + 1] = {}
-        for i in range(7):
-            long_run = float(current_ability)
-            typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
-            weekly_plan[weeks_to_goal + 1][str(second_to_last_week_monday+relativedelta(days=i))] = round_quarter(typical_week[i]) 
+    # Second to last week will be the same as the first week
+    second_to_last_week_monday = end_date+relativedelta(weekday=MO(-2))
+    weekly_plan[weeks_to_goal + 1] = {}
+    for i in range(7):
+        long_run = float(current_ability)
+        typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
+        weekly_plan[weeks_to_goal + 1][str(second_to_last_week_monday+relativedelta(days=i))] = round_quarter(typical_week[i]) 
 
     # Generate last week of runs based on the number of days in the last week
     weekly_plan[weeks_to_goal + 2] = {}       

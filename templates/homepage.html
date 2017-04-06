@@ -129,13 +129,14 @@
   $('#calendar').fullCalendar('renderEvent', run_event_one, true);
 
   function showPlanResults(results) {
-    var RunPlan = results
+    var runPlan = results
     $("#run-info-chart").empty();
 
-    for (var week in RunPlan) {
+    for (var week in runPlan) {
       $("#run-info-chart").append('<tr>');
       $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
-      var weeklyPlan = RunPlan[week];
+
+      var weeklyPlan = runPlan[week];
       for (var date in weeklyPlan) {
         var newDate = new Date(date);
         var month = (newDate.getMonth()+1)+ "";
@@ -179,11 +180,10 @@
                       goalDate;
   }
 
-
   $("#planning-form").on('submit', getPlanResults);
   $("#planning-form").on('submit', displaySignUpAndSaveButton);
-  $("#planning-form").on('submit', displayCalendar);
   $("#download-to-excel").on('click', getPlanResultsForDownload);
+  $("#planning-form").on('submit', displayCalendar);
   </script>
 
 {% endblock %}
