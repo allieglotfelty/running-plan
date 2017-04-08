@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 import hashlib
 import binascii
 from random import choice
-from running_plan import build_plan_with_two_dates
+from running_plan import build_plan_with_two_dates, calculate_start_date
+from dateutil.relativedelta import *
+import math
 
 
 def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
@@ -18,7 +20,7 @@ def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
 
     session['current_ability'] = current_ability
     session['goal_distance'] = goal_distance
-    session['start_date'] = today_date + timedelta(days=1)
+    session['start_date'] = calculate_start_date(today_date)
     session['end_date'] = end_date
     session['weekly_plan'] = weekly_plan
 
@@ -99,8 +101,9 @@ def add_runs_to_database(weekly_plan, plan_id):
     for i in range(1, len(weekly_plan) + 1):
         for date in weekly_plan[str(i)]:
             distance = weekly_plan[str(i)][date]
-            run = Run(plan_id=plan_id, date=date, distance=distance)
-            db.session.add(run)
+            if distance > 0:
+                run = Run(plan_id=plan_id, date=date, distance=distance)
+                db.session.add(run)
     db.session.commit()
 
 
@@ -137,21 +140,24 @@ def update_runner_to_is_using_gCal(runner_id):
     db.session.commit()
 
 
-def generate_run_events_for_google_calendar(plan):
+
+def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
     """Generates plans to add to user's google calendar account."""
 
+    # start_time_datetime = datetime.strptime(chosen_start_time, '%H:%M')
     runs = plan.runs
     run_events = []
 
-    for run in runs[:5]:
+    for run in runs[15:20]:
         if run.distance > 0 and not run.is_on_gCal:
             title = "Run %s miles" % run.distance
             date = run.date.date()
 
-            start_time = plan.start_time
-            finish_time = start_time + timedelta(hours=1)
-            start_time = start_time.time()
-            finish_time = finish_time.time()
+            finish_time_datetime = chosen_start_time + timedelta(hours=1)
+            start_time = chosen_start_time.time()
+            # finish_time_datetime = start_time_datetime + timedelta(hours=1)
+            # start_time = start_time_datetime.time()
+            finish_time = finish_time_datetime.time()
 
             start = datetime.combine(date, start_time).isoformat()
             finish = datetime.combine(date, finish_time).isoformat()
@@ -160,11 +166,11 @@ def generate_run_events_for_google_calendar(plan):
                 'summary': title,
                 'start': {
                            'dateTime': start,
-                           'timeZone': 'America/Los_Angeles'
+                           'timeZone': timezone
                 },
                 'end': {
                            'dateTime': finish,
-                           'timeZone': 'America/Los_Angeles'
+                           'timeZone': timezone
                 },
                 'reminders': {
                             'useDefault': False,
@@ -184,3 +190,26 @@ def add_oauth_token_to_database(credentials):
     runner = Runner.query.get(runner_id)
     runner.OAuth_token = credentials.to_json()
     db.session.commit()
+
+
+def generate_running_dates(start_date, end_date):
+    """Generates a list of dates for the duration of the users running plan"""
+
+    first_monday = start_date - timedelta(days=start_date.weekday())
+    days_to_goal = (end_date - start_date).days + 7
+    dates = []
+
+    for i in range(days_to_goal):
+        date = first_monday+timedelta(days=+i)
+        dates.append(date.date())
+
+    return dates
+
+
+def calculate_weeks_in_plan(plan):
+    """Given a plan, calculate the number of weeks in that plan."""
+
+    days_to_goal = calculate_days_to_goal(plan.start_date, plan.end_date)
+    weeks_in_plan = int(math.ceil(days_to_goal / 7.0))
+
+    return weeks_in_plan

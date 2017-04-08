@@ -15,6 +15,7 @@ def round_quarter(x):
 
     return round(x * 4) / 4.0
 
+
 def calculate_days_in_last_week(end_date):
     """Calculates the number of days in the last week of the running plan."""
 
@@ -22,13 +23,19 @@ def calculate_days_in_last_week(end_date):
     days_in_last_week = end_day + 1
     return days_in_last_week
 
+
 def calculate_start_date(today_date):
-    """Calculates the start date for the running plan. For now, it will be the 
+    """Calculates the start date for the running plan. For now, it will be the
     day after the plan is generated.
     """
 
-    start_date = today_date+relativedelta(days=+1)
+    next_date = today_date+relativedelta(days=+1)
+    start_date_just_date = next_date.date()
+    start_time = datetime.strptime('00:00', '%H:%M').time()
+    start_date = datetime.combine(start_date_just_date, start_time)
+
     return start_date
+
 
 def calculate_days_in_first_week(start_date):
     """Calculate the number of days in the first week of the running plan."""
@@ -36,6 +43,7 @@ def calculate_days_in_first_week(start_date):
     start_date_day = start_date.weekday()
     days_in_first_week = 7 - start_date_day
     return days_in_first_week
+
 
 def calculate_number_of_weeks_to_goal(start_date, end_date): 
     """Calculate the number of full rounded weeks in the running plan."""
@@ -45,6 +53,7 @@ def calculate_number_of_weeks_to_goal(start_date, end_date):
     days_in_last_week = calculate_days_in_last_week(end_date)
     weeks_to_goal = ((days_to_goal - days_in_first_week - days_in_last_week) / 7) + 1
     return weeks_to_goal
+
 
 def generate_first_week_of_runs(start_date_day, start_date, increment,current_ability):
     """Generate the first week of runs for the running plan. This will depend on
@@ -116,6 +125,7 @@ def generate_first_week_of_runs(start_date_day, start_date, increment,current_ab
 
     return week_one
 
+
 def generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, start_date, current_ability, increment, start_week):
     """Generate the middle weeks of the running plan. This is where the runner
     is ramping his/her mileage by the calculated increment each week.
@@ -131,6 +141,7 @@ def generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, start_date, curren
 
     return (weekly_plan, start_date)
 
+
 def generate_second_to_last_week_of_plan(weekly_plan, weeks_to_goal, current_ability, start_date):
     """Generates the second to last week of the running plan. This week will be
     the same as the first week of the plan to help the runner taper mileage leading
@@ -144,6 +155,7 @@ def generate_second_to_last_week_of_plan(weekly_plan, weeks_to_goal, current_abi
         weekly_plan[weeks_to_goal + 1][str(start_date+relativedelta(days=+i))] = round_quarter(typical_week[i]) 
 
     return weekly_plan
+
 
 def generate_last_week_of_plan(weekly_plan, weeks_to_goal, goal_distance, current_ability, end_day, end_date):
     """Generates the last week of the running plan depending on when the event/
@@ -220,6 +232,7 @@ def generate_last_week_of_plan(weekly_plan, weeks_to_goal, goal_distance, curren
 
     return weekly_plan
 
+
 def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance):
     """Generates a running plan that is a dictionary weeks as keys with a dictionary
     of dates:distance key:value pairs as values.
@@ -277,7 +290,7 @@ def create_event_source(weekly_plan):
             event_source['eventBackgroundColor'] = 'red'
             event_data.append(event_source)
 
-    return event_data 
+    return event_data
 
 
 def create_excel_workbook(weekly_plan, output):
@@ -315,6 +328,7 @@ def create_excel_workbook(weekly_plan, output):
 
     workbook.close()
 
+
 def create_excel_text(weekly_plan):
     # Creates an instance of the StringIO class - a string object that holds a file in the form of a string buffer
     output = StringIO.StringIO()
@@ -324,6 +338,7 @@ def create_excel_text(weekly_plan):
 
     # Retrieves the entire contents of the "File"
     return output.getvalue()
+
 
 def create_excel_doc(weekly_plan):
     filename = 'RunningPlan9.xlsx'
@@ -341,7 +356,3 @@ def handle_edgecases(increment, goal_distance, current_ability):
     if (goal_distance * .8) <= current_ability:
         print """We believe that you already have the ability to achieve your goal. 
         If you would like to try a longer race or goal, we would be happy to assist you!"""
-
-
-
-
