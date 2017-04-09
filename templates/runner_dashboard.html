@@ -66,6 +66,12 @@
 <p>Countdown to Goal: {{ days_left_to_goal }} days</p>
 <span>Total Workouts Completed: </span><span id="total-workouts">{{ total_workouts_completed }}</span><br>
 <span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br>
+<h4 id="plan-name-title">{{ plan.name }}</h4>
+
+<form>
+<input id="plan-name-change-box" name="{{ plan.name }}" placeholder="update plan name here">
+<input type="submit" name="save" value="save"><br><br>
+</form>
 
 <table id="plan-calendar" name="plan-calendar" border="1px">
   <thead id="plan-header">

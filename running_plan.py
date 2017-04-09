@@ -300,23 +300,32 @@ def create_excel_workbook(weekly_plan, output):
     worksheet = workbook.add_worksheet('RunningPlan')
     # worksheet.write(row, col, some_data) rows & columns are zero indexed A1 is (0,0)
 
+    # Add bold format
+    bold = workbook.add_format({'bold': 1})
+    format_header = workbook.add_format({'bold': True, 'font_color': 'white', 'bg_color': '#5f5fc7', 'font_size': 14, 'align': 'center'})
+    format_table = workbook.add_format({'font_size': 12, 'border': 1, 'border_color': '#c2c2fb'})
     row = 0
     col = 1
-    weekdays = calendar.day_abbr
+    weekdays = calendar.day_name
 
     for day in weekdays:
-        worksheet.write(row, col, day)
+        worksheet.write(row, col, day, format_header)
+        # worksheet.set_column(row, col, 17)
         col += 1
 
     row = 1
     col = 0
     for i in range(1, len(weekly_plan) + 1):
         week = "Week %s" % i
-        worksheet.write(row, col, week)
-        print i
+        worksheet.write(row, col, week, format_header)
+        worksheet.set_column(row, col, 17)
         for day in sorted(weekly_plan[str(i)]):
-            worksheet.write(row, col + 1, "%s: %s" % (day[5:10], weekly_plan[str(i)][day]))
-            col +=1
+            if weekly_plan[str(i)][day]:
+                worksheet.write(row, col + 1, "%s:   %s miles" % (day[5:10], weekly_plan[str(i)][day]), format_table)
+                col += 1
+            else:
+                worksheet.write(row, col + 1, "%s:   %s" % (day[5:10], 'Off day!'), format_table)
+                col += 1
         row += 1
         col = 0
 
@@ -349,10 +358,13 @@ def handle_edgecases(increment, goal_distance, current_ability):
     """Handles any edge cases that the user might encounter."""
 
     if increment > 1:
-        print """We're sorry, but it will be very difficult for you to achieve 
+        return """We're sorry, but it will be very difficult for you to achieve 
         your goal in the time that you have. Please consider a race that 
         will provide you with more weeks for training."""
 
-    if (goal_distance * .8) <= current_ability:
-        print """We believe that you already have the ability to achieve your goal. 
+    elif (goal_distance * .8) <= current_ability:
+        return """We believe that you already have the ability to achieve your goal. 
         If you would like to try a longer race or goal, we would be happy to assist you!"""
+
+    else:
+        return None

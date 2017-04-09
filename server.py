@@ -9,7 +9,7 @@ from tzlocal import get_localzone
 from apiclient import discovery as gcal_client
 from oauth2client import client
 import httplib2
-from running_plan import create_excel_text
+from running_plan import create_excel_text, handle_edgecases, calculate_start_date, calculate_number_of_weeks_to_goal
 from server_utilities import *
 
 app = Flask(__name__)
@@ -24,12 +24,17 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage."""
 
+    # today = datetime.today()
+    # year_from_today = today + timedelta(365)
+    # date_today = datetime.strftime(today, '%Y-%m-%d')
+    # date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
+
     try:
         session['runner_id']
     except KeyError:
         return render_template("homepage.html")
 
-    return redirect("/dashboard")
+    return redirect("/dashboard", today=date_today, yearaway=date_year_from_today)
 
 
 @app.route('/plan.json', methods=["POST"])
@@ -37,20 +42,30 @@ def generate_plan():
     """Generates and displays a runner's plan based on the information
     they entered.
     """
-    
+ 
     raw_current_ability = request.form.get("current-ability")
     raw_goal_distance = request.form.get("goal-distance")
-    if raw_current_ability == "---":
-        flash("Please enter how far you can run without stopping. Then, click Generate Plan again!")
-        return
-    if raw_goal_distance == "---":
-        flash("Please enter a your running goal. Then, click Generate Plan again!")
-        return
+    # if raw_current_ability == "---":
+    #     flash("Please enter how far you can run without stopping. Then, click Generate Plan again!")
+    #     return
+    # if raw_goal_distance == "---":
+    #     flash("Please enter a your running goal. Then, click Generate Plan again!")
+    #     return
     raw_end_date = request.form.get("goal-date")
     today_date = datetime.today()
     weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
 
+    # start_date = calculate_start_date(today_date)
+    # weeks_to_goal = calculate_number_of_weeks_to_goal(start_date, raw_end_date)
+    # increment = (raw_goal_distance - raw_current_ability) / float(weeks_to_goal)
+
+    # edgecase = handle_edgecases(increment, raw_goal_distance, raw_current_ability)
+
+    # if not edgecase:
     return jsonify(weekly_plan)
+    # else:
+    #     flash(edgecase)
+    #     return redirect('/')
 
 
 # @app.route('/run-event', methods=["GET"])
