@@ -58,13 +58,7 @@
       <input type="date" id="goal-date" value="2017-06-03" name="goal-date"><br><br>
       <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!">
   </form><br>
-<!-- 
-  <dialog id="window">
-    <h3>Hello World!</h3>
-    <button id="exit">Exit</button>
-  </dialog>
-  <button id="show">Show dialog</button>
- -->
+
   <style>
     .modalDialog {
       position: fixed;
@@ -93,26 +87,47 @@
       padding: 5px 20px 13px 20px;
       background: #fff;
     }
+
+   .close {
+      background: #606061;
+      color: #FFFFFF;
+      line-height: 25px;
+      position: absolute;
+      right: -12px;
+      text-align: center;
+      top: -10px;
+      width: 24px;
+      text-decoration: none;
+      font-weight: bold;
+      -webkit-border-radius: 12px;
+      -moz-border-radius: 12px;
+      border-radius: 12px;
+      -moz-box-shadow: 1px 1px 3px #000;
+      -webkit-box-shadow: 1px 1px 3px #000;
+      box-shadow: 1px 1px 3px #000;
+    }
+
+    .close:hover { background: #00d9ff; }
   </style>
 
-  <!-- <a href="#openModal">sign-up</a>
-  <div id="openModal" class="modalDialog">
-    <div>
-      <a href="#close" title="Close" class="close">X</a>
-        <h2>Sign-up:</h2>
-        <form action="/sign-up-complete" id="sign-up" method="POST">
-          <label>Email:</label>
-          <input type="email" name="email" placeholder="email" required><br><br>
-          <label>Password:</label>
-          <input type="password" name="password" placeholder="password" required><br><br>
-          <input type="submit"> 
-      </form>
+    <a href="#openModal" id="sign-up" hidden>Save &amp Sign-up</a>
+    <div id="openModal" class="modalDialog">
+      <div>
+        <a href="#close" title="Close" class="close">X</a>
+          <h2>Sign-up:</h2>
+          <form action="/sign-up-complete" id="sign-up" method="POST">
+            <label>Email:</label>
+            <input type="email" name="email" placeholder="email" required><br><br>
+            <label>Password:</label>
+            <input type="password" name="password" placeholder="password" required><br><br>
+            <input type="submit"> 
+        </form>
+      </div>
     </div>
-  </div>
- -->
-  <form action="/sign-up">
+
+  <!-- <form action="/sign-up">
     <input type="submit" id="sign-up-and-save" name="sign-up-and-save" value="Save &amp Sign-up" hidden>
-  </form>
+  </form> -->
 
   <button type="submit" id="download-to-excel" name="download-to-excel" hidden>Download as .xlsx</button>
   
