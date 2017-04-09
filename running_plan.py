@@ -274,7 +274,12 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         # Generate last week of runs based on the number of days in the last week
         weekly_plan_final = generate_last_week_of_plan(weekly_plan_up_to_last_week, weeks_to_goal, goal_distance, current_ability, end_day, end_date)
 
+    # edgecase = handle_edgecases(increment, goal_distance, current_ability)
+
+    # if not edgecase:
     return weekly_plan_final
+    # else:
+    #     return edgecase
 
 
 def create_event_source(weekly_plan):

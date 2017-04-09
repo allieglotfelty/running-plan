@@ -45,12 +45,6 @@ def generate_plan():
  
     raw_current_ability = request.form.get("current-ability")
     raw_goal_distance = request.form.get("goal-distance")
-    # if raw_current_ability == "---":
-    #     flash("Please enter how far you can run without stopping. Then, click Generate Plan again!")
-    #     return
-    # if raw_goal_distance == "---":
-    #     flash("Please enter a your running goal. Then, click Generate Plan again!")
-    #     return
     raw_end_date = request.form.get("goal-date")
     today_date = datetime.today()
     weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)

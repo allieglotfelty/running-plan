@@ -58,7 +58,58 @@
       <input type="date" id="goal-date" value="2017-06-03" name="goal-date"><br><br>
       <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!">
   </form><br>
+<!-- 
+  <dialog id="window">
+    <h3>Hello World!</h3>
+    <button id="exit">Exit</button>
+  </dialog>
+  <button id="show">Show dialog</button>
+ -->
+  <style>
+    .modalDialog {
+      position: fixed;
+      font-family: Arial, Helvetica, sans-serif;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 99999;
+      opacity:0;
+      -webkit-transition: opacity 400ms ease-in;
+      -moz-transition: opacity 400ms ease-in;
+      transition: opacity 400ms ease-in;
+      pointer-events: none;
+    }
 
+    .modalDialog:target {
+      opacity:1;
+      pointer-events: auto;
+    }
+    .modalDialog > div {
+      width: 400px;
+      position: relative;
+      margin: 10% auto;
+      padding: 5px 20px 13px 20px;
+      background: #fff;
+    }
+  </style>
+
+  <!-- <a href="#openModal">sign-up</a>
+  <div id="openModal" class="modalDialog">
+    <div>
+      <a href="#close" title="Close" class="close">X</a>
+        <h2>Sign-up:</h2>
+        <form action="/sign-up-complete" id="sign-up" method="POST">
+          <label>Email:</label>
+          <input type="email" name="email" placeholder="email" required><br><br>
+          <label>Password:</label>
+          <input type="password" name="password" placeholder="password" required><br><br>
+          <input type="submit"> 
+      </form>
+    </div>
+  </div>
+ -->
   <form action="/sign-up">
     <input type="submit" id="sign-up-and-save" name="sign-up-and-save" value="Save &amp Sign-up" hidden>
   </form>
