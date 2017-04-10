@@ -24,17 +24,18 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage."""
 
-    # today = datetime.today()
-    # year_from_today = today + timedelta(365)
-    # date_today = datetime.strftime(today, '%Y-%m-%d')
-    # date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
+    today = datetime.today()
+    year_from_today = today + timedelta(365)
+    date_today = datetime.strftime(today, '%Y-%m-%d')
+    date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
+    distances = range(2, 26)
 
     try:
         session['runner_id']
     except KeyError:
-        return render_template("homepage.html")
+        return render_template("homepage.html", today=date_today, yearaway=date_year_from_today, distances=distances)
+    
     return redirect("/dashboard")
-    # return redirect("/dashboard", today=date_today, yearaway=date_year_from_today)
 
 
 @app.route('/plan.json', methods=["POST"])
