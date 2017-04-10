@@ -33,8 +33,8 @@ def index():
         session['runner_id']
     except KeyError:
         return render_template("homepage.html")
-
-    return redirect("/dashboard", today=date_today, yearaway=date_year_from_today)
+    return redirect("/dashboard")
+    # return redirect("/dashboard", today=date_today, yearaway=date_year_from_today)
 
 
 @app.route('/plan.json', methods=["POST"])
@@ -60,21 +60,6 @@ def generate_plan():
     # else:
     #     flash(edgecase)
     #     return redirect('/')
-
-
-# @app.route('/run-event', methods=["GET"])
-# def generate_run_event():
-#     """Gets running info for a particular date"""
-
-#     current_ability = float(request.form.get("current-ability"))
-#     goal_distance = float(request.form.get("goal-distance"))
-#     end_date = datetime.strptime(request.form.get("goal-date"), "%Y-%m-%d")
-#     today_date = datetime.today()
-#     weekly_plan = build_plan_no_weeks(today_date, end_date, current_ability, goal_distance)
-#     event_source = create_event_source(weekly_plan)
-
-#     # weekly_plan()
-#     pass
 
 
 @app.route('/download', methods=["GET"])
@@ -364,14 +349,20 @@ def oauth2callback():
         return redirect(url_for('add_runs_to_runners_google_calenadr_account'))
 
 
-# @app.route('/oauth2callback')
-# def oauth2callback():
-#     flow = client.flow_from_clientsecrets(
-#         'client_secret.json',
-#         scope='https://www.googleapis.com/auth/calendar',
-#         redirect_uri=url_for('oauth2callback', _external=True))
-#     if 'code' not in request.args:
-#         return "", 403
+@app.route('/update-plan-name.json', methods=["POST"])
+def update_plan_name():
+    """Update plan name in the database"""
+
+    new_name = request.form.get("newName")
+    plan_id = request.form.get("planId")
+    plan = Plan.query.get(plan_id)
+    plan.name = new_name
+    db.session.commit()
+
+    results = {'newName': new_name}
+
+    return jsonify(results)
+
 
 @app.route('/account-settings')
 def display_account_settings_page():

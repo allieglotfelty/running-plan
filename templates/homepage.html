@@ -15,14 +15,14 @@
   <form action="/plan.json" method="POST" id="planning-form">
     1. How far can you run today without stopping (or how far is your current long-run)?:
       <select id="current-ability" name="current-ability" required>
-        <option disabled value="---">---</option>
+        <option selected disabled value="---">---</option>
         <option value="0.5">Less than a mile</option>
         <option value="1">1 mile</option>
         <option value="2">2 miles</option>
         <option value="3">3 miles</option>
         <option value="4">4 miles</option>
         <option value="5">5 miles</option>
-        <option selected value="6">6 miles</option>
+        <option value="6">6 miles</option>
         <option value="7">7 miles</option>
         <option value="8">8 miles</option>
         <option value="9">9 miles</option>
@@ -46,12 +46,12 @@
       </select><br><br>
       2. What is your running goal (event or distance)?:
       <select id="goal-distance" name="goal-distance" required>
-        <option disabled value="---">---</option>
+        <option selected disabled value="---">---</option>
         <option value="3.1">5K (3.1 miles)</option>
         <option value="5">5 miles</option>
         <option value="6.2">10K (6.2 miles)</option>
         <option value="10">10 miles</option>
-        <option selected value="13.1">Half Marathon (13.1 miles)</option>
+        <option value="13.1">Half Marathon (13.1 miles)</option>
         <option value="26.2">Marathon (26.2 miles)</option>
       </select><br><br>
       3. When will your event/goal take place?

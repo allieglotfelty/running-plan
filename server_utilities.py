@@ -196,7 +196,7 @@ def generate_running_dates(start_date, end_date):
     """Generates a list of dates for the duration of the users running plan"""
 
     first_monday = start_date - timedelta(days=start_date.weekday())
-    days_to_goal = (end_date - start_date).days + 7
+    days_to_goal = (end_date - first_monday).days + 1
     dates = []
 
     for i in range(days_to_goal):

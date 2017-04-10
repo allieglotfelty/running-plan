@@ -66,11 +66,14 @@
 <p>Countdown to Goal: {{ days_left_to_goal }} days</p>
 <span>Total Workouts Completed: </span><span id="total-workouts">{{ total_workouts_completed }}</span><br>
 <span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br>
-<h4 id="plan-name-title">{{ plan.name }}</h4>
 
-<form>
-<input id="plan-name-change-box" name="{{ plan.name }}" placeholder="update plan name here">
-<input type="submit" name="save" value="save"><br><br>
+<h4 id="plan-name-title">{{ plan.name }}</h4>
+<button id="update-plan-name">Update Plan Name</button>
+
+<form id="plan-name-change-box" action="/update-plan-name.json" method="POST">
+  <input id="new-plan-name" placeholder="update plan name here" value="">
+  <input id="plan-id" name="{{ plan.plan_id }}" hidden>
+  <input type="submit" name="save" value="save"><br><br>
 </form>
 
 <table id="plan-calendar" name="plan-calendar" border="1px">
@@ -87,7 +90,7 @@
     </tr>
   </thead>
   <tbody id="run-info-chart">
-        {% for i in range(weeks_in_plan + 1) %}
+        {% for i in range(weeks_in_plan) %}
           <tr>
             <td>Week {{ i + 1 }}</td>
             {% for date in dates[(i)*7:7*(i+1)] %}
@@ -106,38 +109,5 @@
     </tbody>
   </table>
 {% endif %}
-
-<!-- <table id="plan-calendar" name="plan-calendar" border="1px">
-    <thead id="plan-header">
-      <tr>
-        <th>Week</th>
-        <th>Monday</th>
-        <th>Tuesday</th>
-        <th>Wednesday</th>
-        <th>Thursday</th>
-        <th>Friday</th>
-        <th>Saturday</th>
-        <th>Sunday</th>
-      </tr>
-    </thead>
-    <tbody id="run-info-chart">
-        {% for i in range(weeks_in_plan + 1) %}
-            <tr>
-            <td>Week {{ i + 1 }}</td>
-            {% for run in plan.runs[(i)*7:7*(i+1)] %}
-              {% if run.distance != 0.0 %}
-                {% if run.is_completed %}
-                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}" checked>{{ run.date.date() }}: <br><br>{{ run.distance }} miles</td>
-                {% else %}
-                  <td id="run{{ run.run_id }}"><input type="checkbox" id="{{ run.run_id }}" value="{{ run.run_id }}">{{ run.date.date() }}: <br><br>{{ run.distance }} miles</td>
-                {% endif %} 
-              {% else %}
-                <td id="run{{ run.run_id }}">{{ run.date.date() }}: <br><br>Off day!</td>
-              {% endif %}
-            {% endfor %}
-            </tr>
-        {% endfor %}
-    </tbody>
-  </table> -->
 
 {% endblock %}
