@@ -4,10 +4,11 @@ import calendar
 from dateutil.relativedelta import *
 import StringIO
 
-today = datetime.today()
-start_date = today+relativedelta(days=-2)
-end_date = "2017-05-27"
-enddate = datetime.strptime(end_date, "%Y-%m-%d")
+
+# today = datetime.today()
+# start_date = today+relativedelta(days=-2)
+# end_date = "2017-05-27"
+# enddate = datetime.strptime(end_date, "%Y-%m-%d")
 
 
 def round_quarter(x):
@@ -29,10 +30,9 @@ def calculate_start_date(today_date):
     day after the plan is generated.
     """
 
-    next_date = today_date+relativedelta(days=+1)
-    start_date_just_date = next_date.date()
-    start_time = datetime.strptime('00:00', '%H:%M').time()
-    start_date = datetime.combine(start_date_just_date, start_time)
+    start_date = today_date+relativedelta(days=+1)
+    # start_time = datetime.strptime('00:00', '%H:%M').time()
+    # start_date = datetime.combine(next_date, start_time)
 
     return start_date
 
@@ -147,12 +147,12 @@ def generate_second_to_last_week_of_plan(weekly_plan, weeks_to_goal, current_abi
     the same as the first week of the plan to help the runner taper mileage leading
     up to their goal / event.
     """
-    
+
     weekly_plan[weeks_to_goal + 1] = {}
     for i in range(7):
         long_run = float(current_ability)
         typical_week = [long_run/2, 0, long_run/4, long_run/2, 0, long_run/4, long_run]
-        weekly_plan[weeks_to_goal + 1][str(start_date+relativedelta(days=+i))] = round_quarter(typical_week[i]) 
+        weekly_plan[weeks_to_goal + 1][str(start_date+relativedelta(days=+i))] = round_quarter(typical_week[i])
 
     return weekly_plan
 
@@ -161,8 +161,8 @@ def generate_last_week_of_plan(weekly_plan, weeks_to_goal, goal_distance, curren
     """Generates the last week of the running plan depending on when the event/
     goal will take place.
     """
-    
-    weekly_plan[weeks_to_goal + 2] = {}       
+
+    weekly_plan[weeks_to_goal + 2] = {}
     if end_day == 1:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
@@ -239,12 +239,16 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
 
     Long runs are incremented by the increment each week.
     Mid-week runs are 10 percent or 20 percent of the long-run.
-    There are two off days with zero mileage. 
+    There are two off days with zero mileage.
     """
 
     start_date = calculate_start_date(today_date)
     start_date_day = start_date.weekday()
     end_day = end_date.weekday()
+
+    print "\n\n\n\n\n Today Date is %s\n\n\n" % today_date
+    print "\n\n\n\n\n Start Date is %s\n\n\n" % start_date
+
 
     weeks_to_goal = calculate_number_of_weeks_to_goal(start_date, end_date)
 
@@ -271,6 +275,9 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         # Second to last week will be the same as the first week
         weekly_plan_up_to_last_week = generate_second_to_last_week_of_plan(weekly_plan_up_to_second_to_last_week, weeks_to_goal, current_ability, second_to_last_week_monday)
         
+        # print "\n\n\n\n\n End date in build_plan_with_2_dates is %s\n\n\n" % end_date
+        # print "\n\n\n\n\n End day in build_plan_with_2_dates is %s\n\n\n" % end_date.weekday()
+
         # Generate last week of runs based on the number of days in the last week
         weekly_plan_final = generate_last_week_of_plan(weekly_plan_up_to_last_week, weeks_to_goal, goal_distance, current_ability, end_day, end_date)
 

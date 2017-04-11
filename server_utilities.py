@@ -1,12 +1,13 @@
 from flask import session
 from model import db, Runner, Plan, Run
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import hashlib
 import binascii
 from random import choice
 from running_plan import build_plan_with_two_dates, calculate_start_date
 from dateutil.relativedelta import *
 import math
+import pytz
 
 
 def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
@@ -14,8 +15,8 @@ def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
 
     current_ability = float(raw_current_ability)
     goal_distance = float(raw_goal_distance)
-    end_date = datetime.strptime(raw_end_date, "%Y-%m-%d")
-    today_date = datetime.today()
+    end_date = datetime.strptime(raw_end_date, "%Y-%m-%d").date()
+    today_date = calculate_today_date()
     weekly_plan = build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance)
 
     session['current_ability'] = current_ability
@@ -99,10 +100,10 @@ def add_runs_to_database(weekly_plan, plan_id):
     """Takes a plan and adds each run in the plan to the database."""
 
     for i in range(1, len(weekly_plan) + 1):
-        for date in weekly_plan[str(i)]:
-            distance = weekly_plan[str(i)][date]
+        for run_date in weekly_plan[str(i)]:
+            distance = weekly_plan[str(i)][run_date]
             if distance > 0:
-                run = Run(plan_id=plan_id, date=date, distance=distance)
+                run = Run(plan_id=plan_id, date=run_date, distance=distance)
                 db.session.add(run)
     db.session.commit()
 
@@ -150,7 +151,7 @@ def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
     for run in runs[15:20]:
         if run.distance > 0 and not run.is_on_gCal:
             title = "Run %s miles" % run.distance
-            date = run.date.date()
+            date = run.date
 
             finish_time_datetime = chosen_start_time + timedelta(hours=1)
             start_time = chosen_start_time.time()
@@ -199,8 +200,8 @@ def generate_running_dates(start_date, end_date):
     dates = []
 
     for i in range(days_to_goal):
-        date = first_monday+timedelta(days=+i)
-        dates.append(date.date())
+        run_date = first_monday+timedelta(days=+i)
+        dates.append(run_date)
 
     return dates
 
@@ -218,10 +219,19 @@ def get_users_who_need_reminder_texts():
     """Query database for all users who need to receive a text reminder."""
 
     # runners_with_texting = db.session.query.filter(Runner.is_subscribed_to_texts==True).all()
-    today_date = datetime.today()
+    today_date = date.today()
     runs_for_today = Run.query.filter_by(date=today_date).all()
 
     run = db.session.query(Runner).join(Plan).filter(Runner.is_subscribed_to_texts == True,
                                                                   Plan.end_date >= today_date).all()
+
+def calculate_today_date():
+    """Calculates current date in Pacific time."""
+
+    pacific = pytz.timezone('US/Pacific')
+    dt = datetime.now(tz=pacific)
+    today = dt.date()
+
+    return today
 
 

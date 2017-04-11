@@ -99,7 +99,7 @@
     </tr>
   </thead>
   <tbody id="run-info-chart">
-        {% for i in range(weeks_in_plan) %}
+        {% for i in range(weeks_in_plan + 1) %}
           <tr>
             <td>Week {{ i + 1 }}</td>
             {% for date in dates[(i)*7:7*(i+1)] %}

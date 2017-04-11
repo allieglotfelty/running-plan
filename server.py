@@ -5,6 +5,7 @@ from flask import Flask, jsonify, render_template, redirect, request, flash, ses
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db, db, Runner, Plan, Run
 from datetime import datetime, date, timedelta, time
+import pytz
 from tzlocal import get_localzone
 from apiclient import discovery as gcal_client
 from oauth2client import client
@@ -20,12 +21,11 @@ app.secret_key = "amcio9320e9wjadmclswep9q2-[ie290qfmvwnuq34op092iwopqk;dsmlcvq8
 
 app.jinja_env.undefined = StrictUndefined
 
-
 @app.route('/')
 def index():
     """Homepage."""
 
-    today = datetime.today()
+    today = calculate_today_date()
     year_from_today = today + timedelta(365)
     date_today = datetime.strftime(today, '%Y-%m-%d')
     date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
@@ -36,7 +36,7 @@ def index():
         session['runner_id']
     except KeyError:
         return render_template("homepage.html", today=date_today, yearaway=date_year_from_today, distances=distances)
-    
+
     return redirect("/dashboard")
 
 
@@ -45,30 +45,19 @@ def generate_plan():
     """Generates and displays a runner's plan based on the information
     they entered.
     """
- 
+
     raw_current_ability = request.form.get("current-ability")
     raw_goal_distance = request.form.get("goal-distance")
     raw_end_date = request.form.get("goal-date")
-    # today_date = datetime.today()
     weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
 
-    # start_date = calculate_start_date(today_date)
-    # weeks_to_goal = calculate_number_of_weeks_to_goal(start_date, raw_end_date)
-    # increment = (raw_goal_distance - raw_current_ability) / float(weeks_to_goal)
-
-    # edgecase = handle_edgecases(increment, raw_goal_distance, raw_current_ability)
-
-    # if not edgecase:
     return jsonify(weekly_plan)
-    # else:
-    #     flash(edgecase)
-    #     return redirect('/')
 
 
 @app.route('/download', methods=["GET"])
 def download_excel():
     """Creates an excel file and downloads it to the users computer."""
-    
+
     weekly_plan = session.get('weekly_plan')
 
     if not weekly_plan:
@@ -80,7 +69,7 @@ def download_excel():
 
     # Create a response object that takes in the excel_text (string of excel doc) and the mimetime (format) for the doc
     response = Response(response=excel_text, status=200, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    
+
     # Says the header will contain an attachement of the filename RunPlan.xlsx
     response.headers["Content-Disposition"] = "attachment; filename=RunPlan.xlsx"
 
@@ -128,7 +117,7 @@ def process_sign_up():
         current_plan.name = "Running Plan %s" % current_plan_id
         db.session.commit()
 
-        weekly_plan = session.get('weekly_plan') 
+        weekly_plan = session.get('weekly_plan')
         add_runs_to_database(weekly_plan, current_plan_id)
 
         return redirect('/dashboard')
@@ -136,7 +125,7 @@ def process_sign_up():
 
 @app.route('/login-complete', methods=["POST"])
 def process_login():
-    """Checks if user email and password exist on same account. 
+    """Checks if user email and password exist on same account.
     If so, logs them into their account. If not, flashes a message.
     """
 
@@ -181,10 +170,10 @@ def display_runner_page():
     if not runner:
         return redirect('/')
 
-    today_date = datetime.today()
+    today_date = calculate_today_date()
 
-    current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
-                                                              Plan.end_date >= today_date).one()
+    current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id,
+                                                              Plan.end_date>=today_date).one()
 
     dates = generate_running_dates(current_plan.start_date, current_plan.end_date)
 
@@ -198,9 +187,9 @@ def display_runner_page():
     weeks_in_plan = calculate_weeks_in_plan(current_plan)
     runs = {}
     for run in current_plan.runs:
-        runs[run.date.date()] = {'run_id': run.run_id,
-                                 'distance': run.distance, 
-                                 'is_completed': run.is_completed}
+        runs[run.date] = {'run_id': run.run_id,
+                          'distance': run.distance,
+                          'is_completed': run.is_completed}
 
     return render_template("runner_dashboard.html", plan=current_plan,
                                                     runs=runs,
@@ -300,7 +289,7 @@ def add_runs_to_runners_google_calenadr_account():
         runner_id = session.get('runner_id')
         update_runner_to_is_using_gCal(runner_id)
 
-        today_date = datetime.today()
+        today_date = calculate_today_date()
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
                                                                   Plan.end_date >= today_date).one()
 

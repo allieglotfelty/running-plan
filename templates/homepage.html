@@ -15,9 +15,9 @@
   <form action="/plan.json" method="POST" id="planning-form">
     1. How far can you run today without stopping (or how far is your current long-run)?:
       <select id="current-ability" name="current-ability" required>
-        <option selected disabled value="---">---</option>
+        <option disabled value="---">---</option>
         <option value="0.5">Less than a mile</option>
-        <option value="1">1 mile</option>
+        <option selected value="1">1 mile</option>
         {% for distance in distances %}
           <option value="{{ distance }}">{{ distance }} miles</option>
         {% endfor %}
@@ -28,7 +28,7 @@
         <option selected disabled value="---">---</option>
         <option value="3.1">5K (3.1 miles)</option>
         <option value="5">5 miles</option>
-        <option value="6.2">10K (6.2 miles)</option>
+        <option selected value="6.2">10K (6.2 miles)</option>
         <option value="10">10 miles</option>
         <option value="13.1">Half Marathon (13.1 miles)</option>
         <option value="26.2">Marathon (26.2 miles)</option>
