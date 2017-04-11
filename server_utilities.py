@@ -140,7 +140,6 @@ def update_runner_to_is_using_gCal(runner_id):
     db.session.commit()
 
 
-
 def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
     """Generates plans to add to user's google calendar account."""
 
@@ -213,3 +212,16 @@ def calculate_weeks_in_plan(plan):
     weeks_in_plan = int(math.ceil(days_to_goal / 7.0))
 
     return weeks_in_plan
+
+
+def get_users_who_need_reminder_texts():
+    """Query database for all users who need to receive a text reminder."""
+
+    # runners_with_texting = db.session.query.filter(Runner.is_subscribed_to_texts==True).all()
+    today_date = datetime.today()
+    runs_for_today = Run.query.filter_by(date=today_date).all()
+
+    run = db.session.query(Runner).join(Plan).filter(Runner.is_subscribed_to_texts == True,
+                                                                  Plan.end_date >= today_date).all()
+
+

@@ -24,6 +24,7 @@ class Runner(db.Model):
     salt = db.Column(db.String(16), nullable=False)
     is_using_gCal = db.Column(db.Boolean, default=False, nullable=True)
     is_subscribed = db.Column(db.Boolean, default=False, nullable=True)
+    # is_subscribed_to_texts = db.Column(db.Boolean, default=False, nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=True)
     timezone = db.Column(db.String(20), default='Pacific', nullable=True)
     OAuth_token = db.Column(db.String, nullable=True)

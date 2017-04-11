@@ -11,6 +11,7 @@ from oauth2client import client
 import httplib2
 from running_plan import create_excel_text, handle_edgecases, calculate_start_date, calculate_number_of_weeks_to_goal
 from server_utilities import *
+from twilio.twiml.messaging_response import MessagingResponse
 
 app = Flask(__name__)
 
@@ -28,6 +29,7 @@ def index():
     year_from_today = today + timedelta(365)
     date_today = datetime.strftime(today, '%Y-%m-%d')
     date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
+
     distances = range(2, 26)
 
     try:
@@ -47,7 +49,7 @@ def generate_plan():
     raw_current_ability = request.form.get("current-ability")
     raw_goal_distance = request.form.get("goal-distance")
     raw_end_date = request.form.get("goal-date")
-    today_date = datetime.today()
+    # today_date = datetime.today()
     weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
 
     # start_date = calculate_start_date(today_date)
@@ -85,18 +87,18 @@ def download_excel():
     return response
 
 
-@app.route('/sign-up')
-def display_sign_up_page():
-    """Sign-up Page."""
+# @app.route('/sign-up')
+# def display_sign_up_page():
+#     """Sign-up Page."""
 
-    weekly_plan = session.get('weekly_plan')
+#     weekly_plan = session.get('weekly_plan')
 
-    if not weekly_plan:
-        flash("Please complete all questions before trying to download your plan!")
-        return redirect('/')
+#     if not weekly_plan:
+#         flash("Please complete all questions before trying to sign-up!")
+#         return redirect('/')
 
-    else:
-        return render_template('registration.html')
+#     else:
+#         return render_template('registration.html')
 
 
 @app.route('/sign-up-complete', methods=["POST"])
@@ -171,6 +173,8 @@ def process_logout():
 def display_runner_page():
     """Displays the runner's dashboard with current plan and tracking information."""
 
+    times = range(1, 25)
+
     runner_id = session.get('runner_id')
     runner = Runner.query.get(runner_id)
 
@@ -180,7 +184,7 @@ def display_runner_page():
     today_date = datetime.today()
 
     current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
-                                                              Plan.end_date > today_date).one()
+                                                              Plan.end_date >= today_date).one()
 
     dates = generate_running_dates(current_plan.start_date, current_plan.end_date)
 
@@ -204,7 +208,8 @@ def display_runner_page():
                                                     days_left_to_goal=days_left_to_goal,
                                                     total_workouts_completed=total_workouts_completed,
                                                     total_miles_completed=total_miles_completed,
-                                                    dates=dates)
+                                                    dates=dates,
+                                                    times=times)
 
 
 @app.route('/update-run.json', methods=["POST"])
@@ -297,7 +302,7 @@ def add_runs_to_runners_google_calenadr_account():
 
         today_date = datetime.today()
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
-                                                                  Plan.end_date > today_date).one()
+                                                                  Plan.end_date >= today_date).one()
 
         if current_plan:
             if timezone and preferred_start_time:
@@ -375,6 +380,53 @@ def display_account_settings_page():
 def opt_into_weekly_emails():
     """Opts users into weekly emails and updates."""
     pass
+
+
+@app.route("/", methods=['GET', 'POST'])
+def hello_monkey():
+    """Respond to incoming calls with a simple text message."""
+
+    resp = MessagingResponse().message("Hello, Mobile Monkey")
+    return str(resp)
+
+
+
+# @app.route('/message')
+# def sms_survey():
+#     response = twiml.Response()
+
+#     survey = Survey.query.first()
+#     if survey_error(survey, response.message):
+#         return str(response)
+
+#     if 'question_id' in session:
+#         response.redirect(url_for('answer',
+#                                   question_id=session['question_id']))
+#     else:
+#         welcome_user(survey, response.message)
+#         redirect_to_first_question(response, survey)
+#     return str(response)
+
+
+# def redirect_to_first_question(response, survey):
+#     first_question = survey.questions.order_by('id').first()
+#     first_question_url = url_for('question', question_id=first_question.id)
+#     response.redirect(first_question_url, method='GET')
+
+
+# def welcome_user(survey, send_function):
+#     welcome_text = 'Welcome to the %s' % survey.title
+#     send_function(welcome_text)
+
+# @app.route('/question/<question_id>')
+# def question(question_id):
+#     question = Question.query.get(question_id)
+#     session['question_id'] = question.id
+#     if not is_sms_request():
+#         return voice_twiml(question)
+#     else:
+#         return sms_twiml(question)
+
 
 
 if __name__ == "__main__":
