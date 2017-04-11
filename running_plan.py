@@ -246,10 +246,6 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     start_date_day = start_date.weekday()
     end_day = end_date.weekday()
 
-    print "\n\n\n\n\n Today Date is %s\n\n\n" % today_date
-    print "\n\n\n\n\n Start Date is %s\n\n\n" % start_date
-
-
     weeks_to_goal = calculate_number_of_weeks_to_goal(start_date, end_date)
 
     weekly_plan = {}
@@ -260,21 +256,21 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
         weekly_plan_start, start_date = generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, start_date, current_ability, increment, 1)
         weekly_plan_up_to_last_week = generate_second_to_last_week_of_plan(weekly_plan_start, weeks_to_goal, current_ability, start_date)
         weekly_plan_final = generate_last_week_of_plan(weekly_plan_up_to_last_week, weeks_to_goal, goal_distance, current_ability, end_day, end_date)
-    
+
     # Generate runs for weeks 2 to # of weeks
     else:
         weekly_plan[1] = generate_first_week_of_runs(start_date_day, start_date, increment,current_ability)
-        
+
         # Start date for first full week will be the Monday after the start_date
         first_date = start_date+relativedelta(weekday=MO)
-        
+
         weekly_plan_up_to_second_to_last_week, start_date = generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, first_date, current_ability, increment, 2)
-        
+
         second_to_last_week_monday = end_date+relativedelta(weekday=MO(-2))
-        
+
         # Second to last week will be the same as the first week
         weekly_plan_up_to_last_week = generate_second_to_last_week_of_plan(weekly_plan_up_to_second_to_last_week, weeks_to_goal, current_ability, second_to_last_week_monday)
-        
+
         # print "\n\n\n\n\n End date in build_plan_with_2_dates is %s\n\n\n" % end_date
         # print "\n\n\n\n\n End day in build_plan_with_2_dates is %s\n\n\n" % end_date.weekday()
 
@@ -291,7 +287,7 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
 
 def create_event_source(weekly_plan):
     """Creates objects in correct format to feed into calendar."""
-    
+
     event_data = []
     for date in weekly_plan:
         if weekly_plan[date]:

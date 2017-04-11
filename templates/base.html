@@ -3,10 +3,10 @@
 <head>
   <title>{%block title%} {% endblock %}</title>
   <script
-      src="https://code.jquery.com/jquery-2.2.4.js"
-      integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-      crossorigin="anonymous">
-    </script>
+    src="https://code.jquery.com/jquery-2.2.4.js"
+    integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+    crossorigin="anonymous">
+  </script>
 
   <link rel='stylesheet' href='/static/fullcalendar-3.3.0/fullcalendar.css' />
   <script src='/static/fullcalendar-3.3.0/lib/jquery.min.js'></script>
@@ -28,6 +28,7 @@
     {% for message in get_flashed_messages() %}
         <li>{{ message }}</li>
     {% endfor %}
+    <p id="warning-complete-all-fields">Please complete all fields before clicking "Generate Plan!"</p>
     </ul>
   <hr>
   

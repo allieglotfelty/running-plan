@@ -215,15 +215,13 @@ def calculate_weeks_in_plan(plan):
     return weeks_in_plan
 
 
-def get_users_who_need_reminder_texts():
+def get_runs_for_reminder_texts():
     """Query database for all users who need to receive a text reminder."""
 
-    # runners_with_texting = db.session.query.filter(Runner.is_subscribed_to_texts==True).all()
-    today_date = date.today()
-    runs_for_today = Run.query.filter_by(date=today_date).all()
+    runs_for_today = db.session.query(Run).join(Plan).join(Runner).filter(Runner.is_subscribed_to_texts == True,
+                                                                          Run.date == today).all()
+    return runs_for_today
 
-    run = db.session.query(Runner).join(Plan).filter(Runner.is_subscribed_to_texts == True,
-                                                                  Plan.end_date >= today_date).all()
 
 def calculate_today_date():
     """Calculates current date in Pacific time."""

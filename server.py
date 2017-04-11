@@ -49,7 +49,10 @@ def generate_plan():
     raw_current_ability = request.form.get("current-ability")
     raw_goal_distance = request.form.get("goal-distance")
     raw_end_date = request.form.get("goal-date")
-    weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
+    try:
+        weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
+    except Exception, e:
+        weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
 
     return jsonify(weekly_plan)
 
@@ -59,10 +62,6 @@ def download_excel():
     """Creates an excel file and downloads it to the users computer."""
 
     weekly_plan = session.get('weekly_plan')
-
-    if not weekly_plan:
-        flash("Please complete all questions before trying to download your plan!")
-        return redirect('/')
 
     # weekly_plan = session.get('weekly_plan')
     excel_text = create_excel_text(weekly_plan)
@@ -371,12 +370,34 @@ def opt_into_weekly_emails():
     pass
 
 
-@app.route("/", methods=['GET', 'POST'])
-def hello_monkey():
-    """Respond to incoming calls with a simple text message."""
+@app.route('/sms-reminder')
+def send_sms_reminders():
+    """Gets a list of runs for the day and sends an sms reminder to the runners."""
 
-    resp = MessagingResponse().message("Hello, Mobile Monkey")
-    return str(resp)
+    # Your Account SID from twilio.com/console
+    account_sid = "ACa40c55b8472df2c9edc5db30907ef86e"
+    # Your Auth Token from twilio.com/console
+    auth_token  = "af131fa75a3b51ec3cb7f751191d0f2c"
+
+    client = Client(account_sid, auth_token)
+
+    runs_for_today = get_runs_for_reminder_texts()
+
+    for run_event in runs_for_today:
+        distance = run_event.distance
+        runner_phone = run_event.plan.runner.phone
+        message = client.messages.create(
+                                     to=runner_phone,
+                                     from_="+19785484823",
+                                     body="Did you complete your run today? (Reply Y/N)")
+        
+
+# @app.route("/", methods=['GET', 'POST'])
+# def hello_monkey():
+#     """Respond to incoming calls with a simple text message."""
+
+#     resp = MessagingResponse().message("Hello, Mobile Monkey")
+#     return str(resp)
 
 
 

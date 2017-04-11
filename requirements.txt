@@ -3,6 +3,7 @@ attrs==16.3.0
 blinker==1.4
 cffi==1.9.1
 click==6.7
+coverage==4.3.4
 cryptography==1.7.1
 enum34==1.1.6
 Flask==0.12

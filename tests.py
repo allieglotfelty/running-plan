@@ -16,16 +16,27 @@ class ServerTestsNoDB(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_homepage_after_generate_plan(self):
-        result = self.client.post("/plan.json", data= {"current-ability": 6, 
+        result = self.client.post("/plan.json", data={"current-ability": 6, 
                                                        "goal-distance": 13.1,
                                                        "goal-date": "2017-06-03"},
                                                        follow_redirects=True)
-        
+
         self.assertIn("13.1", result.data)
         self.assertIn("2017-06-03", result.data)
         self.assertEqual(result.status_code, 200)
 
-    def test_download(self):
+
+    def test_homepage_if_click_generate_plan_without_info(self):
+        result = self.client.post("/plan.json", data={"current-ability": "---",
+                                                       "goal-distance": "---",
+                                                       "goal-date": "2017-06-03"},
+                                                       follow_redirects=True)
+        self.assertNotIn("13.1", result.data)
+        self.assertIn("Please complete all fields", result.data)
+        self.assertEqual(result.status_code, 200)
+
+
+    def test_download_good_info(self):
         with self.client as c:
             with c.session_transaction() as sess:
                 sess['weekly_plan'] = {'1': {"2017-06-03": 13.1,
@@ -37,6 +48,7 @@ class ServerTestsNoDB(unittest.TestCase):
                                                      "goal-distance": 13.1,
                                                      "goal-date": "2017-06-03"})
         self.assertEqual(result.headers['Content-Type'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
     
     def test_sign_up(self):
         result = self.client.get("/sign-up")
