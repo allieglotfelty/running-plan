@@ -28,6 +28,12 @@ def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
     session['end_date'] = end_date
     session['weekly_plan'] = weekly_plan
 
+    # updated_vals = {
+    # "val1": 1,
+    # }
+
+    # session.update(updated_vals)
+
     return weekly_plan
 
 

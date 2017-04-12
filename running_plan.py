@@ -322,7 +322,7 @@ def create_excel_workbook(weekly_plan, output):
 
     # Add bold format
     bold = workbook.add_format({'bold': 1})
-    format_header = workbook.add_format({'bold': True, 'font_color': 'white', 'bg_color': '#5f5fc7', 'font_size': 14, 'align': 'center'})
+    format_header = workbook.add_format({'bold': True, 'font_color': 'white', 'bg_color': '#DC0D0D', 'font_size': 14, 'align': 'center'})
     format_table = workbook.add_format({'font_size': 12, 'border': 1, 'border_color': '#c2c2fb'})
     row = 0
     col = 1

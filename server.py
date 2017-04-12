@@ -12,7 +12,8 @@ from oauth2client import client
 import httplib2
 from running_plan import create_excel_text, handle_edgecases, calculate_start_date, calculate_number_of_weeks_to_goal
 from server_utilities import *
-from random import choice
+import random
+from twilio import twiml
 
 app = Flask(__name__)
 
@@ -37,7 +38,10 @@ def index():
     try:
         session['runner_id']
     except KeyError:
-        return render_template("homepage.html", today=date_today, yearaway=date_year_from_today, distances=distances)
+        return render_template("homepage.html",
+                                today=date_today,
+                                yearaway=date_year_from_today,
+                                distances=distances)
 
     return redirect("/dashboard")
 
@@ -75,20 +79,6 @@ def download_excel():
     response.headers["Content-Disposition"] = "attachment; filename=RunPlan.xlsx"
 
     return response
-
-
-# @app.route('/sign-up')
-# def display_sign_up_page():
-#     """Sign-up Page."""
-
-#     weekly_plan = session.get('weekly_plan')
-
-#     if not weekly_plan:
-#         flash("Please complete all questions before trying to sign-up!")
-#         return redirect('/')
-
-#     else:
-#         return render_template('registration.html')
 
 
 @app.route('/sign-up-complete', methods=["POST"])
@@ -423,14 +413,19 @@ def render_admin_page():
         redirect('/')   
 
 
-@app.route('/inbound-text')
+@app.route('/inbound-text', methods=["POST"])
 def receive_and_respond_to_inbound_text():
     """Receive and inbound text, update database and respond to the runner."""
 
-    response = request.args.get('response')
+    print request.form
+    number = request.form.get('From')
+    message_body = request.form.get('Body')
+    print message_body
 
-    positive_message_responses = ['Congrats! Keep up the great work!', 
-                                  'Great job! You are progressing nicely.', 
+    resp = MessagingResponse()
+
+    positive_message_responses = ['Congrats! Keep up the great work!',
+                                  'Great job! You are progressing nicely.',
                                   'Just keep running. Just keep running.',
                                   'You are a running master',
                                   'Way to go!',
@@ -438,72 +433,22 @@ def receive_and_respond_to_inbound_text():
 
     encouraging_negative_responses = ['Bummer, see if you can fit in your run later this week.',
                                       'Hope everything is okay.',
-                                      'If you are unable to run today, trying stretching instead.',
-                                      'We all have our off days. Try again tomorrow.']
+                                      'We all have our off days. Try again tomorrow.',
+                                      'Remember to make today your off day, and run tomorrow!']
 
-    positive_reply_choice = choice(positive_message_responses)
-    negative_reply_choice = choice(encouraging_negative_responses)
+    positive_reply_choice = random.choice(positive_message_responses)
+    negative_reply_choice = random.choice(encouraging_negative_responses)
 
-    if response == 'Y' or 'Yes' or 'yes':
-        reply = """
-            <?xml version="1.0" encoding="utf-8"?>
-            <Response>
-                <Message>""" + positive_reply_choice + """</Message>
-            </Response>
-            """
-    elif response == 'N' or 'No' or 'no':
-        reply = """
-            <?xml version="1.0" encoding="utf-8"?>
-            <Response>
-                <Message>""" + negative_reply_choice + """</Message>
-            </Response>
-            """
+    if message_body.lower() in ['y', 'yes']:
+        reply = positive_reply_choice + ' Your run has been logged.'
+    elif message_body.lower() in ['n', 'no']:
+        reply = negative_reply_choice
+    else:
+        reply = "Reply with one of the following: Y or N"
 
+    resp.message(reply)
 
-# @app.route("/", methods=['GET', 'POST'])
-# def hello_monkey():
-#     """Respond to incoming calls with a simple text message."""
-
-#     resp = MessagingResponse().message("Hello, Mobile Monkey")
-#     return str(resp)
-
-
-
-# @app.route('/message')
-# def sms_survey():
-#     response = twiml.Response()
-
-#     survey = Survey.query.first()
-#     if survey_error(survey, response.message):
-#         return str(response)
-
-#     if 'question_id' in session:
-#         response.redirect(url_for('answer',
-#                                   question_id=session['question_id']))
-#     else:
-#         welcome_user(survey, response.message)
-#         redirect_to_first_question(response, survey)
-#     return str(response)
-
-
-# def redirect_to_first_question(response, survey):
-#     first_question = survey.questions.order_by('id').first()
-#     first_question_url = url_for('question', question_id=first_question.id)
-#     response.redirect(first_question_url, method='GET')
-
-
-# def welcome_user(survey, send_function):
-#     welcome_text = 'Welcome to the %s' % survey.title
-#     send_function(welcome_text)
-
-# @app.route('/question/<question_id>')
-# def question(question_id):
-#     question = Question.query.get(question_id)
-#     session['question_id'] = question.id
-#     if not is_sms_request():
-#         return voice_twiml(question)
-#     else:
-#         return sms_twiml(question)
+    return str(resp)
 
 
 
