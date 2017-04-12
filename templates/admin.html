@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+
+<h1>Admin Page</h1>
+
+<form action="/send-sms-reminders" id="send-sms" method="POST">
+  <input type="date" id="run-date" name="run-date">  
+  <input type="submit" value="Send Text Reminders"> 
+</form>
+
+{% endblock %}

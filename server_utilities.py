@@ -8,6 +8,9 @@ from running_plan import build_plan_with_two_dates, calculate_start_date
 from dateutil.relativedelta import *
 import math
 import pytz
+from twilio.rest import Client
+from twilio.twiml.messaging_response import MessagingResponse
+
 
 
 def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
@@ -247,6 +250,31 @@ def update_runner_phone(runner_id, raw_phone):
     runner = Runner.query.get(runner_id)
     runner.phone = formatted_phone
     db.session.commit()
+
+def send_reminder_sms_messages(run_date):
+    """Send text messages to runners via Twilio."""
+
+    # Your Account SID from twilio.com/console
+    account_sid = "ACa40c55b8472df2c9edc5db30907ef86e"
+    # Your Auth Token from twilio.com/console
+    auth_token  = "af131fa75a3b51ec3cb7f751191d0f2c"
+
+    client = Client(account_sid, auth_token)
+
+    runs_for_date = get_runs_for_reminder_texts(run_date)
+    import pdb; pdb.set_trace()
+
+    for run_event in runs_for_date:
+        distance = run_event.distance
+        runner_phone = run_event.plan.runner.phone
+        runner_message = "%s Did you complete your %s mile run today? (Reply Y/N)" % (run_event.plan.runner.runner_id, distance)
+        message = client.messages.create(
+                                         to=runner_phone,
+                                         from_="+19785484823",
+                                         body=runner_message)
+
+
+
 
 
 

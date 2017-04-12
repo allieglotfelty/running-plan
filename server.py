@@ -12,8 +12,7 @@ from oauth2client import client
 import httplib2
 from running_plan import create_excel_text, handle_edgecases, calculate_start_date, calculate_number_of_weeks_to_goal
 from server_utilities import *
-from twilio.rest import Client
-from twilio.twiml.messaging_response import MessagingResponse
+from random import choice
 
 app = Flask(__name__)
 
@@ -408,26 +407,11 @@ def opt_out_of_text_reminders():
 def send_sms_reminders():
     """Gets a list of runs for the day and sends an sms reminder to the runners."""
 
-    # Your Account SID from twilio.com/console
-    account_sid = "ACa40c55b8472df2c9edc5db30907ef86e"
-    # Your Auth Token from twilio.com/console
-    auth_token  = "af131fa75a3b51ec3cb7f751191d0f2c"
-
-    client = Client(account_sid, auth_token)
-
     run_date = request.form.get("run-date")
-    runs_for_date = get_runs_for_reminder_texts(run_date)
-
-    for run_event in runs_for_date:
-        distance = run_event.distance
-        runner_phone = run_event.plan.runner.phone
-        runner_message = "Did you complete your %s mile run today? (Reply Y/N)" % distance
-        message = client.messages.create(
-                                         to=runner_phone,
-                                         from_="+19785484823",
-                                         body=runner_message)
+    send_reminder_sms_messages(run_date)
 
     return redirect('/admin')
+
 
 @app.route('/admin')
 def render_admin_page():
@@ -436,7 +420,45 @@ def render_admin_page():
     if session.get('admin'):
         return render_template('admin.html')
     else:
-        redirect('/')      
+        redirect('/')   
+
+
+@app.route('/inbound-text')
+def receive_and_respond_to_inbound_text():
+    """Receive and inbound text, update database and respond to the runner."""
+
+    response = request.args.get('response')
+
+    positive_message_responses = ['Congrats! Keep up the great work!', 
+                                  'Great job! You are progressing nicely.', 
+                                  'Just keep running. Just keep running.',
+                                  'You are a running master',
+                                  'Way to go!',
+                                  'Good job completing your run.']
+
+    encouraging_negative_responses = ['Bummer, see if you can fit in your run later this week.',
+                                      'Hope everything is okay.',
+                                      'If you are unable to run today, trying stretching instead.',
+                                      'We all have our off days. Try again tomorrow.']
+
+    positive_reply_choice = choice(positive_message_responses)
+    negative_reply_choice = choice(encouraging_negative_responses)
+
+    if response == 'Y' or 'Yes' or 'yes':
+        reply = """
+            <?xml version="1.0" encoding="utf-8"?>
+            <Response>
+                <Message>""" + positive_reply_choice + """</Message>
+            </Response>
+            """
+    elif response == 'N' or 'No' or 'no':
+        reply = """
+            <?xml version="1.0" encoding="utf-8"?>
+            <Response>
+                <Message>""" + negative_reply_choice + """</Message>
+            </Response>
+            """
+
 
 # @app.route("/", methods=['GET', 'POST'])
 # def hello_monkey():

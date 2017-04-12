@@ -162,6 +162,18 @@ def generate_last_week_of_plan(weekly_plan, weeks_to_goal, goal_distance, curren
     goal will take place.
     """
 
+    # last_week_structure = {
+    # 1: {3: small_run,
+    #     5: quarter_run,
+    #     6: big_run},
+    # 2: {
+
+    # }
+
+    # structure_to_enforce = last_week_structure[end_date]
+     
+
+
     weekly_plan[weeks_to_goal + 2] = {}
     if end_day == 1:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
@@ -169,7 +181,7 @@ def generate_last_week_of_plan(weekly_plan, weeks_to_goal, goal_distance, curren
             weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-1))] = 3.0
         else:
             weekly_plan[weeks_to_goal + 2][str(end_date+relativedelta(days=-1))] = 1.0
-        
+  
     elif end_day == 2:
         weekly_plan[weeks_to_goal + 2][str(end_date)] = goal_distance
         if goal_distance >= 10:
