@@ -12,6 +12,7 @@ from oauth2client import client
 import httplib2
 from running_plan import create_excel_text, handle_edgecases, calculate_start_date, calculate_number_of_weeks_to_goal
 from server_utilities import *
+from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
 app = Flask(__name__)
@@ -32,6 +33,8 @@ def index():
 
     distances = range(2, 26)
 
+    if session.get('admin'):
+        redirect('/admin')
     try:
         session['runner_id']
     except KeyError:
@@ -131,6 +134,9 @@ def process_login():
     raw_runner_email = request.form.get("email")
     raw_runner_password = request.form.get("password")
 
+    if raw_runner_email == 'admin@admin.com' and raw_runner_password == 'cheese':
+        session['admin'] = 'admin'
+        return redirect('/admin')
     try:
         runner_account = Runner.query.filter_by(email=raw_runner_email).one()
     except Exception, e:
@@ -190,7 +196,8 @@ def display_runner_page():
                           'distance': run.distance,
                           'is_completed': run.is_completed}
 
-    return render_template("runner_dashboard.html", plan=current_plan,
+    return render_template("runner_dashboard.html", runner=runner,
+                                                    plan=current_plan,
                                                     runs=runs,
                                                     weeks_in_plan=weeks_in_plan,
                                                     days_left_to_goal=days_left_to_goal,
@@ -370,7 +377,34 @@ def opt_into_weekly_emails():
     pass
 
 
-@app.route('/sms-reminder')
+@app.route('/opt-into-text-reminders.json', methods=["POST"])
+def opt_into_text_reminders():
+    """Opts the runner into receiving text reminders. Updates their phone number
+    and is_subscribed_to_texts in the database.
+    """
+
+    runner_id = request.form.get('runnerId')
+    raw_phone = request.form.get('phone')
+
+    update_runner_text_subscription(runner_id, True)
+    update_runner_phone(runner_id, raw_phone)
+
+    return jsonify({'success': 'success!'})
+
+
+@app.route('/opt-out-of-text-reminders.json', methods=["POST"])
+def opt_out_of_text_reminders():
+    """Opts the runner out of receiving text reminders and updates
+    is_subscribed_to_texts to false in the database.
+    """
+
+    runner_id = request.form.get('runnerId')
+    update_runner_text_subscription(runner_id, False)
+
+    return jsonify({'success': 'success!'})
+
+
+@app.route('/send-sms-reminders', methods=["POST"])
 def send_sms_reminders():
     """Gets a list of runs for the day and sends an sms reminder to the runners."""
 
@@ -381,16 +415,28 @@ def send_sms_reminders():
 
     client = Client(account_sid, auth_token)
 
-    runs_for_today = get_runs_for_reminder_texts()
+    run_date = request.form.get("run-date")
+    runs_for_date = get_runs_for_reminder_texts(run_date)
 
-    for run_event in runs_for_today:
+    for run_event in runs_for_date:
         distance = run_event.distance
         runner_phone = run_event.plan.runner.phone
+        runner_message = "Did you complete your %s mile run today? (Reply Y/N)" % distance
         message = client.messages.create(
-                                     to=runner_phone,
-                                     from_="+19785484823",
-                                     body="Did you complete your run today? (Reply Y/N)")
-        
+                                         to=runner_phone,
+                                         from_="+19785484823",
+                                         body=runner_message)
+
+    return redirect('/admin')
+
+@app.route('/admin')
+def render_admin_page():
+    """Displays the admin page."""
+
+    if session.get('admin'):
+        return render_template('admin.html')
+    else:
+        redirect('/')      
 
 # @app.route("/", methods=['GET', 'POST'])
 # def hello_monkey():

@@ -3,6 +3,7 @@
 {% block content %}
 
 
+<div id="runner-id" name="{{ plan.runner_id }}" hidden></div>
 <form action="/logout-complete">
     <input type="submit" value="Logout" name="logout-button">
 </form>
@@ -35,37 +36,31 @@
         <option value="{{ time }}:00">{{ time - 12 }}:00pm</option>
       {% endfor %}
       <option value="{{ times[23] }}:00">{{ times[23] - 12 }}:00am</option>
-      <!-- <option value="06:00">6:00am</option>
-      <option value="07:00">7:00am</option>
-      <option value="08:00">8:00am</option>
-      <option value="09:00">9:00am</option>
-      <option value="10:00">10:00am</option>
-      <option value="11:00">11:00am</option>
-      <option value="12:00">12:00pm</option>
-      <option value="13:00">1:00pm</option>
-      <option value="14:00">2:00pm</option>
-      <option value="15:00">3:00pm</option>
-      <option value="16:00">4:00pm</option>
-      <option value="17:00">5:00pm</option>
-      <option value="18:00">6:00pm</option>
-      <option value="19:00">7:00pm</option>
-      <option value="20:00">8:00pm</option>
-      <option value="21:00">9:00pm</option>
-      <option value="22:00">10:00pm</option>
-      <option value="23:00">11:00pm</option>
-      <option value="00:00">12:00am</option>
-      <option value="01:00">1:00am</option>
-      <option value="02:00">2:00am</option>
-      <option value="03:00">3:00am</option> -->
     </select>
     <input type="submit" value="Add Runs to Google Calendar" name="add-to-gcal-button">
 </form>
 
-<form action="/opt-into-weekly-emails">
-    <label>I would like to opt into weekly email run reminders:</label>
-    <input type="checkbox" name="opt-into-weekly-emails">
+<!-- <form action="/opt-into-weekly-emails">
+    <input type="checkbox" id="opt-into-weekly-emails">
+    <label>I would like to opt into weekly email run reminders</label>
 </form>
 
+<form action="/opt-into-text-reminders">
+    <input type="checkbox" id="opt-in-for-texts">
+    <label>I would like to opt into daily run reminders via text</label>
+</form> -->
+  {% if runner.is_subscribed_to_texts %}
+    <button id="opt-out-of-texts-button">Opt Out of Texts</button>
+  {% else %}
+    <button id="opt-into-texts-button">Opt Into Daily Reminder Texts</button>
+    <form action="/opt-into-text-reminders.json" method="POST" id="opt-in-for-texts-form">
+      <label>Enter phone number with only numbers ex: 5555555555</label>
+      <input type="text" id="phone-number" placeholder="phone number here" value="">
+      <!-- <input type="text" id="phone-number" placeholder="phone number here" pattern="/\d{10}/"> -->
+      <!-- <input id="runner-id" name="{{ plan.runner_id }}" hidden> -->
+      <input type="submit" name="save" value="save"><br><br>
+    </form>
+  {% endif %}
 
 
 <h1>Running Dashboard</h1>

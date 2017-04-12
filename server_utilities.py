@@ -215,12 +215,12 @@ def calculate_weeks_in_plan(plan):
     return weeks_in_plan
 
 
-def get_runs_for_reminder_texts():
+def get_runs_for_reminder_texts(run_date):
     """Query database for all users who need to receive a text reminder."""
 
-    runs_for_today = db.session.query(Run).join(Plan).join(Runner).filter(Runner.is_subscribed_to_texts == True,
-                                                                          Run.date == today).all()
-    return runs_for_today
+    runs_for_date = db.session.query(Run).join(Plan).join(Runner).filter(Runner.is_subscribed_to_texts == True,
+                                                                          Run.date == run_date).all()
+    return runs_for_date
 
 
 def calculate_today_date():
@@ -231,5 +231,22 @@ def calculate_today_date():
     today = dt.date()
 
     return today
+
+
+def update_runner_text_subscription(runner_id, is_subscribed):
+    """Updates the runner's subscription to receive text reminders in the database."""
+    
+    runner = Runner.query.get(runner_id)
+    runner.is_subscribed_to_texts = is_subscribed
+    db.session.commit()
+
+
+def update_runner_phone(runner_id, raw_phone):
+
+    formatted_phone = "+1%s" % raw_phone
+    runner = Runner.query.get(runner_id)
+    runner.phone = formatted_phone
+    db.session.commit()
+
 
 
