@@ -10,6 +10,7 @@ import math
 import pytz
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
+import os
 
 
 
@@ -260,27 +261,24 @@ def update_runner_phone(runner_id, raw_phone):
 def send_reminder_sms_messages(run_date):
     """Send text messages to runners via Twilio."""
 
-    # Your Account SID from twilio.com/console
-    account_sid = "ACa40c55b8472df2c9edc5db30907ef86e"
-    # Your Auth Token from twilio.com/console
-    auth_token  = "af131fa75a3b51ec3cb7f751191d0f2c"
+    ACCOUNT_SID = os.environ['TWILIO_ACCOUNT_SID']
+    AUTH_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
 
-    client = Client(account_sid, auth_token)
+    client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
     runs_for_date = get_runs_for_reminder_texts(run_date)
-    import pdb; pdb.set_trace()
 
-    for run_event in runs_for_date:
-        distance = run_event.distance
-        runner_phone = run_event.plan.runner.phone
-        runner_message = "%s Did you complete your %s mile run today? (Reply Y/N)" % (run_event.plan.runner.runner_id, distance)
-        message = client.messages.create(
-                                         to=runner_phone,
-                                         from_="+19785484823",
-                                         body=runner_message)
+    if runs_for_date:
+        for run_event in runs_for_date:
+            distance = run_event.distance
+            runner_phone = run_event.plan.runner.phone
+            print run_event.plan.runner.runner_id, run_event.plan.runner.phone
+            runner_message = "%s Don't forget your %s mile run today! Reply Y to log your run or N for words of encouragement." % (run_event.plan.runner.runner_id, distance)
 
-
-
-
-
+            message = client.messages.create(
+                                             to=runner_phone,
+                                             from_="+19785484823",
+                                             body=runner_message)
+    else:
+        print "No runs for today!"
 

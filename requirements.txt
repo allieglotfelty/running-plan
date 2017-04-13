@@ -27,9 +27,11 @@ PyJWT==1.4.2
 pyOpenSSL==16.2.0
 pyparsing==2.2.0
 python-dateutil==2.6.0
+python-http-client==2.2.1
 pytz==2017.2
 requests==2.13.0
 rsa==3.4.2
+sendgrid==4.0.0
 service-identity==16.0.0
 six==1.10.0
 SQLAlchemy==1.1.7

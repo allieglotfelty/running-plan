@@ -417,11 +417,9 @@ def render_admin_page():
 def receive_and_respond_to_inbound_text():
     """Receive and inbound text, update database and respond to the runner."""
 
-    print request.form
     number = request.form.get('From')
     message_body = request.form.get('Body')
-    print message_body
-
+    today_date = calculate_today_date()
     resp = MessagingResponse()
 
     positive_message_responses = ['Congrats! Keep up the great work!',
@@ -441,6 +439,11 @@ def receive_and_respond_to_inbound_text():
 
     if message_body.lower() in ['y', 'yes']:
         reply = positive_reply_choice + ' Your run has been logged.'
+        run = db.session.query(Run).join(Plan).join(Runner).filter(Runner.phone == number,
+                                                                   Runner.is_subscribed_to_texts == True,
+                                                                   Run.date == today_date).first()
+        update_run(run.run_id, True)
+
     elif message_body.lower() in ['n', 'no']:
         reply = negative_reply_choice
     else:
@@ -450,6 +453,13 @@ def receive_and_respond_to_inbound_text():
 
     return str(resp)
 
+
+@app.route('/send-emails')
+def send_weekly_emails():
+    """Gets list of users who have opted into weekly email sand then sends a 
+    weekly reminder email to them."""
+
+    
 
 
 if __name__ == "__main__":

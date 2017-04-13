@@ -18,3 +18,4 @@ cronjob_test_output.txt
 cronjob_tester.py
 htmlcov/
 text_cron.py
+secrets.sh
