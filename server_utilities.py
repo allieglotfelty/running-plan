@@ -3,7 +3,7 @@ from model import db, Runner, Plan, Run
 from datetime import datetime, timedelta, date
 import hashlib
 import binascii
-from random import choice
+import random
 from running_plan import build_plan_with_two_dates, calculate_start_date
 from dateutil.relativedelta import *
 import math
@@ -11,7 +11,8 @@ import pytz
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 import os
-
+import sendgrid
+from sendgrid.helpers.mail import *
 
 
 def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
@@ -279,6 +280,95 @@ def send_reminder_sms_messages(run_date):
                                              to=runner_phone,
                                              from_="+19785484823",
                                              body=runner_message)
+            return True
     else:
         print "No runs for today!"
+        return False
+
+def response_to_inbound_text(number, message_body):
+    """Response to an inbound text message to update run in database, send words
+    of encouragement or let the user know what to enter.
+    """
+
+    today_date = calculate_today_date()
+    resp = MessagingResponse()
+
+    positive_message_responses = ['Congrats! Keep up the great work!',
+                                  'Great job! You are progressing nicely.',
+                                  'Just keep running. Just keep running.',
+                                  'You are a running master',
+                                  'Way to go!',
+                                  'Good job completing your run.']
+
+    encouraging_negative_responses = ['Bummer, see if you can fit in your run later this week.',
+                                      'Hope everything is okay.',
+                                      'We all have our off days. Try again tomorrow.',
+                                      'Remember to make today your off day, and run tomorrow!']
+
+    positive_reply_choice = random.choice(positive_message_responses)
+    negative_reply_choice = random.choice(encouraging_negative_responses)
+
+    if message_body.lower() in ['y', 'yes']:
+        reply = positive_reply_choice + ' Your run has been logged.'
+        run = db.session.query(Run).join(Plan).join(Runner).filter(Runner.phone == number,
+                                                                   Runner.is_subscribed_to_texts == True,
+                                                                   Run.date == "2017-04-16").first()
+        update_run(run.run_id, True)
+
+    elif message_body.lower() in ['n', 'no']:
+        reply = negative_reply_choice
+    else:
+        reply = "Reply with one of the following: Y or N"
+
+    return resp.message(reply)
+
+def send_email_reminders():
+    """Send email messages to runners via SendGrid."""
+
+    sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
+
+    today_date = calculate_today_date()
+    next_sunday_date = today_date + timedelta(7)
+    runners_for_emails = Runner.query.filter_by(is_subscribed_to_email=True).all()
+
+    for runner in runners_for_emails:
+        email = runner.email
+        runner_id = runner.runner_id
+        runs_for_email = db.session.query(Run).join(Plan).join(Runner).filter(
+                                    (Runner.runner_id == runner_id)
+                                    & (Run.date > today_date)
+                                    & (Run.date <= next_sunday_date)
+                                    ).order_by(Run.date).all()
+        runs_to_add_to_email = ""
+
+        for run in runs_for_email:
+            date = datetime.strftime(run.date, "%A, %b %d:")
+            run_for_date = "<li>%s %s miles</li>" % (date, run.distance)
+            runs_to_add_to_email = runs_to_add_to_email + run_for_date
+
+        from_email = Email("alholmes37@gmail.com")
+        subject = "Weekly Run Reminder!"
+        to_email = Email("allie.glotfelty@gmail.com")
+        content = Content("text/html", """<html>
+                          <body>
+                            <h2>Happy Monday!</h2>
+                            <p>Here are your runs for this week:</p>
+                            <ul>""" + runs_to_add_to_email + """
+                            </ul>
+                            <p>We look forward to hearing about your progress!</p>
+                            <img src="https://media.giphy.com/media/SZ8ZhNzb86LFC/giphy.gif">
+                            <p> - The Run Holmes Team</p>
+                        </body>
+                        </html>""")
+
+        mail = Mail(from_email, subject, to_email, content)
+        response = sg.client.mail.send.post(request_body=mail.get())
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+
+
+# runs = db.session.query(Run).options(db.joinedload("plan").joinedload("runner")).filter( (Runner.runner_id == 1) 
+#     & (Run.date >= today_date) 
+#     & (Run.date <= sunday_date)).order_by(Run.date).all()
 

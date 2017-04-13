@@ -14,6 +14,9 @@ from running_plan import create_excel_text, handle_edgecases, calculate_start_da
 from server_utilities import *
 import random
 from twilio import twiml
+import sendgrid
+import os
+from sendgrid.helpers.mail import *
 
 app = Flask(__name__)
 
@@ -398,7 +401,10 @@ def send_sms_reminders():
     """Gets a list of runs for the day and sends an sms reminder to the runners."""
 
     run_date = request.form.get("run-date")
-    send_reminder_sms_messages(run_date)
+    if send_reminder_sms_messages(run_date):
+        flash("Messages sent successfully!")
+    else:
+        flash("No messages sent.")
 
     return redirect('/admin')
 
@@ -410,7 +416,7 @@ def render_admin_page():
     if session.get('admin'):
         return render_template('admin.html')
     else:
-        redirect('/')   
+        redirect('/')
 
 
 @app.route('/inbound-text', methods=["POST"])
@@ -419,47 +425,24 @@ def receive_and_respond_to_inbound_text():
 
     number = request.form.get('From')
     message_body = request.form.get('Body')
-    today_date = calculate_today_date()
-    resp = MessagingResponse()
-
-    positive_message_responses = ['Congrats! Keep up the great work!',
-                                  'Great job! You are progressing nicely.',
-                                  'Just keep running. Just keep running.',
-                                  'You are a running master',
-                                  'Way to go!',
-                                  'Good job completing your run.']
-
-    encouraging_negative_responses = ['Bummer, see if you can fit in your run later this week.',
-                                      'Hope everything is okay.',
-                                      'We all have our off days. Try again tomorrow.',
-                                      'Remember to make today your off day, and run tomorrow!']
-
-    positive_reply_choice = random.choice(positive_message_responses)
-    negative_reply_choice = random.choice(encouraging_negative_responses)
-
-    if message_body.lower() in ['y', 'yes']:
-        reply = positive_reply_choice + ' Your run has been logged.'
-        run = db.session.query(Run).join(Plan).join(Runner).filter(Runner.phone == number,
-                                                                   Runner.is_subscribed_to_texts == True,
-                                                                   Run.date == today_date).first()
-        update_run(run.run_id, True)
-
-    elif message_body.lower() in ['n', 'no']:
-        reply = negative_reply_choice
-    else:
-        reply = "Reply with one of the following: Y or N"
-
-    resp.message(reply)
+    resp = response_to_inbound_text(number, message_body)
 
     return str(resp)
 
 
-@app.route('/send-emails')
+@app.route('/send-emails', methods=["POST"])
 def send_weekly_emails():
-    """Gets list of users who have opted into weekly email sand then sends a 
+    """Gets list of users who have opted into weekly email sand then sends a
     weekly reminder email to them."""
 
-    
+    try:
+        send_email_reminders()
+    except Exception, e:
+        flash("Error in sending emails")
+
+    flash("Emails sent successfully!")
+
+    return redirect('/admin')
 
 
 if __name__ == "__main__":
