@@ -254,7 +254,7 @@ def add_start_time_to_session():
     return jsonify(message)
 
 @app.route('/add-to-google-calendar', methods=["POST", "GET"])
-def add_runs_to_runners_google_calenadr_account():
+def add_runs_to_runners_google_calendar_account():
     """Adds a runner's runs to their Google Calendar account."""
 
     # if request.method == "POST":
@@ -339,7 +339,7 @@ def oauth2callback():
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
         add_oauth_token_to_database(credentials)
-        return redirect(url_for('add_runs_to_runners_google_calenadr_account'))
+        return redirect(url_for('add_runs_to_runners_google_calendar_account'))
 
 
 @app.route('/update-plan-name.json', methods=["POST"])
@@ -443,6 +443,36 @@ def send_weekly_emails():
     flash("Emails sent successfully!")
 
     return redirect('/admin')
+
+
+@app.route('/dailymile-oauth2callback')
+def dailymile_oauth2callback():
+    """Flow stores application secrets and site access we are requesting.
+    Then, redirects the user to the authorization uri - site for them to login
+    and/or provide permissions for the application to access their protected
+    resources.
+    """
+
+    CLIENT_ID = os.environ['DAILYMILE_ACCOUNT_ID']
+
+    flow = client.flow_from_clientsecrets(
+        'secrets.sh',
+        scope='https://api.dailymile.com/oauth/authorize?',
+        redirect_uri=url_for('display_runner_page', _external=True)
+        )
+    if 'code' not in request.args:
+        # Send user to email page & asks permission to send info to calendar
+        auth_uri = flow.step1_get_authorize_url()
+        return redirect(auth_uri)
+    else:
+        # answer from user re: using calendar, gives back oauth token to send info to calendar
+        auth_code = request.args.get('code')
+        credentials = flow.step2_exchange(auth_code)
+        session['credentials'] = credentials.to_json()
+        add_oauth_token_to_database(credentials)
+        return redirect(url_for('add_runs_to_runners_google_calenadr_account'))
+
+
 
 
 if __name__ == "__main__":

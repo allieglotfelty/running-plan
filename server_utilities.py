@@ -44,7 +44,7 @@ def generate_salt():
 
     letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    return "".join(choice(letters) for i in range(16))
+    return "".join(random.choice(letters) for i in range(16))
 
 
 def calculate_days_to_goal(today_date, end_date):
@@ -230,7 +230,7 @@ def get_runs_for_reminder_texts(run_date):
     """Query database for all users who need to receive a text reminder."""
 
     runs_for_date = db.session.query(Run).join(Plan).join(Runner).filter(Runner.is_subscribed_to_texts == True,
-                                                                          Run.date == run_date).all()
+                                                                         Run.date == run_date).all()
     return runs_for_date
 
 
