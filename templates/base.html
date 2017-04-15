@@ -14,6 +14,9 @@
   <script src='/static/fullcalendar-3.3.0/fullcalendar.js'></script>
   <script src="static/run_plan.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js">
+  </script>
+
 <!--   <style>
   .off-day {
     background-color: #D3D3D3;
@@ -29,6 +32,8 @@
         <li>{{ message }}</li>
     {% endfor %}
     <p id="warning-complete-all-fields">Please complete all fields before clicking "Generate Plan!"</p>
+    <p id="your-email-subscription-has-been-updated">Your email subscription has been udpated! You will now receive weekly emails.</p>
+    <p id="you-will-no-longer-receive-emails">You are opted out of email reminders.</p>
     </ul>
   <hr>
   

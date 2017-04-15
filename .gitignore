@@ -19,3 +19,8 @@ cronjob_tester.py
 htmlcov/
 text_cron.py
 secrets.sh
+fullcalendar-3.3.0/
+.coverage
+sendgrid_cron_reply.txt
+twilio_text_output.tx
+twilio_text_output.txt

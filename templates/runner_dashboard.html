@@ -62,6 +62,19 @@
     </form>
   {% endif %}
 
+  {% if runner.is_subscribed_to_email %}
+    <button id="opt-out-of-email-button">Opt Out of Emails</button>
+  {% else %}
+    <button id="opt-into-email-button">Opt Into Weekly Emails</button>
+    <form action="/opt-into-email-reminders.json" method="POST" id="opt-into-email-form">
+      <label>Would you like to receive weekly email reminders about your runs?</label>
+      <input type="radio" value="yes" name="email-sub">Yes
+      <input type="radio" value="no" name="email-sub">No
+      <input type="submit" name="save" value="save"><br><br>
+    </form>
+  {% endif %}
+
+
 
 <h1>Running Dashboard</h1>
 
@@ -70,6 +83,12 @@
 <p>Countdown to Goal: {{ days_left_to_goal }} days</p>
 <span>Total Workouts Completed: </span><span id="total-workouts">{{ total_workouts_completed }}</span><br>
 <span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br>
+
+<div class="workouts-chart">
+  <canvas id="donutChart" style="{height:50px}"></canvas>
+  <div id="donutLegend" class="chart-legend"></div>
+<div>
+
 
 <h4 id="plan-name-title">{{ plan.name }}</h4>
 <button id="update-plan-name">Update Plan Name</button>

@@ -226,6 +226,41 @@ def update_run__and_dashboard_as_incompleted():
 
     return jsonify(result_data)
 
+
+@app.route('/workout-info.json', methods=["GET"])
+def return_workout_info_for_doughnut_chart():
+    """Get info for workout doughnut chart."""
+
+    today_date = calculate_today_date()
+    runner_id = session.get('runner_id')
+    count_total_plan_runs = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
+                                                                                 Plan.end_date>=today_date).count()
+    count_plan_runs_completed = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==1, 
+                                                                                     Plan.end_date>=today_date, 
+                                                                                  Run.is_completed==True).count()
+    workouts_remaining = count_total_plan_runs - count_plan_runs_completed
+    
+    data_dict = {
+                "labels": [
+                    "Total Workouts Completed", 
+                    "Workouts Remaining"
+                ],
+                "datasets": [
+                    {
+                        "data": [count_plan_runs_completed, workouts_remaining],
+                        "backgroundColor": [
+                            "#FF6384",
+                            "#7f55d4"
+                        ],
+                        "hoverBackgroundColor": [
+                            "#36A2EB",
+                            "blue"
+                        ]
+                    }]
+            }
+
+    return jsonify(data_dict)
+
 @app.route('/add-timezone-to-session', methods=["GET"])
 def add_timezone_to_session():
     """Adds the users selected timezone to the session to be
@@ -444,6 +479,32 @@ def send_weekly_emails():
 
     return redirect('/admin')
 
+@app.route('/opt-into-email-reminders.json', methods=["POST"])
+def opt_into_email_reminders():
+    """Updates runner in database to receive text reminders."""
+
+    response = request.form.get("subscription")
+    runner_id = request.form.get("runnerId")
+
+    if response == 'yes':
+        runner = Runner.query.get(runner_id)
+        runner.is_subscribed_to_email = True
+        db.session.commit()
+        return jsonify({"response": 'yes'})
+    else:
+        return jsonify({"response": 'no'})
+
+@app.route('/opt-out-of-email-reminders.json', methods=["POST"])
+def opt_out_of_email_reminders():
+    """Opt user out of emails by updating the database."""
+
+    runner_id = request.form.get("runnerId")
+    runner = Runner.query.get(runner_id)
+    runner.is_subscribed_to_email = False
+    db.session.commit()
+
+    return jsonify({"response": "done"})
+
 
 @app.route('/dailymile-oauth2callback')
 def dailymile_oauth2callback():
@@ -454,11 +515,30 @@ def dailymile_oauth2callback():
     """
 
     CLIENT_ID = os.environ['DAILYMILE_ACCOUNT_ID']
+    DAILYMILE_SECRET = os.environ['DAILYMILE_SECRET']
+
+
+    oauth = OAuth()
+
+    dmile = oauth.remote_app(
+        'dailymile',
+        consumer_key=CLIENT_ID,
+        consumer_secret=DAILYMILE_SECRET,
+        request_token_params={'scope': 'email,statuses_to_me_read'},
+        base_url='https://api.weibo.com/2/',
+        authorize_url='https://api.weibo.com/oauth2/authorize',
+        request_token_url=None,
+        access_token_method='POST',
+        access_token_url='https://api.weibo.com/oauth2/access_token',
+
+        # force to parse the response in applcation/json
+        content_type='application/json',
+    )
 
     flow = client.flow_from_clientsecrets(
         'secrets.sh',
         scope='https://api.dailymile.com/oauth/authorize?',
-        redirect_uri=url_for('display_runner_page', _external=True)
+        redirect_uri=url_for('display_runner_page')
         )
     if 'code' not in request.args:
         # Send user to email page & asks permission to send info to calendar
