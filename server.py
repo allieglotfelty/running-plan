@@ -49,21 +49,29 @@ def index():
     return redirect("/dashboard")
 
 
-@app.route('/plan.json', methods=["POST"])
+@app.route('/plan.json', methods=["GET"])
 def generate_plan():
     """Generates and displays a runner's plan based on the information
     they entered.
     """
 
-    raw_current_ability = request.form.get("current-ability")
-    raw_goal_distance = request.form.get("goal-distance")
-    raw_end_date = request.form.get("goal-date")
-    try:
-        weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
-    except Exception, e:
-        weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
+    raw_current_ability = request.args.get("current-ability")
+    raw_goal_distance = request.args.get("goal-distance")
+    raw_end_date = request.args.get("goal-date")
 
-    return jsonify(weekly_plan)
+    # try:
+    weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
+    # except Exception, e:
+    #     weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
+    results = jsonify(weekly_plan)
+    # response = Response(status=200)
+    # response.mimetype = "application/json"
+
+    # response.headers["Content-Type"] = "text/html"
+    # print results
+    # print response.headers
+    # print response.mimetype
+    return results
 
 
 @app.route('/download', methods=["GET"])
@@ -82,6 +90,19 @@ def download_excel():
     response.headers["Content-Disposition"] = "attachment; filename=RunPlan.xlsx"
 
     return response
+
+@app.route('/sign-up')
+def display_sign_up_page():
+    """Sign-up Page."""
+
+    weekly_plan = session.get('weekly_plan')
+
+    if not weekly_plan:
+        flash("Please complete all questions before trying to sign-up!")
+        return redirect('/')
+
+    else:
+        return render_template('registration.html')
 
 
 @app.route('/sign-up-complete', methods=["POST"])
@@ -233,9 +254,10 @@ def return_workout_info_for_doughnut_chart():
 
     today_date = calculate_today_date()
     runner_id = session.get('runner_id')
+    print runner_id
     count_total_plan_runs = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
                                                                                  Plan.end_date>=today_date).count()
-    count_plan_runs_completed = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==1, 
+    count_plan_runs_completed = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
                                                                                      Plan.end_date>=today_date, 
                                                                                   Run.is_completed==True).count()
     workouts_remaining = count_total_plan_runs - count_plan_runs_completed
@@ -249,12 +271,47 @@ def return_workout_info_for_doughnut_chart():
                     {
                         "data": [count_plan_runs_completed, workouts_remaining],
                         "backgroundColor": [
-                            "#FF6384",
-                            "#7f55d4"
+                            "#FFED82",
+                            "#B0E85F"
                         ],
                         "hoverBackgroundColor": [
-                            "#36A2EB",
-                            "blue"
+                            "#37E8E4",
+                            "0E60FF"
+                        ]
+                    }]
+            }
+
+    return jsonify(data_dict)
+
+
+@app.route('/mileage-info.json', methods=["GET"])
+def return_total_miles_info_for_doughnut_chart():
+    """Get info for mileage doughnut chart."""
+
+    today_date = calculate_today_date()
+    runner_id = session.get('runner_id')
+    runs_in_plan = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
+                                                                                 Plan.end_date>=today_date).all()
+
+    total_mileage = calculate_total_mileage(runs_in_plan)
+    total_miles_completed = calculate_total_miles_completed(runs_in_plan)
+    miles_remaining = total_mileage - total_miles_completed
+
+    data_dict = {
+                "labels": [
+                    "Total Miles Completed",
+                    "Total Miles Remaining"
+                ],
+                "datasets": [
+                    {
+                        "data": [total_miles_completed, miles_remaining],
+                        "backgroundColor": [
+                            "#37E8E4",
+                            "#B0E85F"
+                        ],
+                        "hoverBackgroundColor": [
+                            "#FFED82",
+                            "0E60FF"
                         ]
                     }]
             }
@@ -470,12 +527,11 @@ def send_weekly_emails():
     """Gets list of users who have opted into weekly email sand then sends a
     weekly reminder email to them."""
 
-    try:
-        send_email_reminders()
-    except Exception, e:
-        flash("Error in sending emails")
-
-    flash("Emails sent successfully!")
+    runners = send_email_reminders()
+    if runners:
+        flash("Emails sent successfully!")
+    else:
+        flash("No emails to send.")
 
     return redirect('/admin')
 

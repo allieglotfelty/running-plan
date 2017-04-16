@@ -2,26 +2,21 @@
 <html>
 <head>
   <title>{%block title%} {% endblock %}</title>
-  <script
-    src="https://code.jquery.com/jquery-2.2.4.js"
-    integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
-    crossorigin="anonymous">
-  </script>
-
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <link rel='stylesheet' href='/static/fullcalendar-3.3.0/fullcalendar.css' />
   <script src='/static/fullcalendar-3.3.0/lib/jquery.min.js'></script>
   <script src='/static/fullcalendar-3.3.0/lib/moment.min.js'></script>
   <script src='/static/fullcalendar-3.3.0/fullcalendar.js'></script>
-  <script src="static/run_plan.js"></script>
+  
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js">
   </script>
 
-<!--   <style>
-  .off-day {
-    background-color: #D3D3D3;
-  }
-</style> -->
+  <style>
+    /*.off-day {
+      background-color: #D3D3D3;
+    }*/
+  </style>
 </head>
 
 <body>
@@ -39,5 +34,12 @@
   
   {% block content %} put your content here {% endblock %}
 
+  <script
+    src="https://code.jquery.com/jquery-2.2.4.js"
+    integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+    crossorigin="anonymous">
+  </script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="static/run_plan.js"></script>
 </body>
 </html>

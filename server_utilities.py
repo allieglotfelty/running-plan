@@ -332,7 +332,7 @@ def send_email_reminders():
     runners_for_emails = Runner.query.filter_by(is_subscribed_to_email=True).all()
 
     for runner in runners_for_emails:
-        email = runner.email
+        runner_email = runner.email
         runner_id = runner.runner_id
         runs_for_email = db.session.query(Run).join(Plan).join(Runner).filter(
                                     (Runner.runner_id == runner_id)
@@ -346,9 +346,9 @@ def send_email_reminders():
             run_for_date = "<li>%s %s miles</li>" % (date, run.distance)
             runs_to_add_to_email = runs_to_add_to_email + run_for_date
 
-        from_email = Email("alholmes37@gmail.com")
+        from_email = Email("runholmesplanner@gmail.com")
         subject = "Weekly Run Reminder!"
-        to_email = Email("allie.glotfelty@gmail.com")
+        to_email = Email(runner_email)
         content = Content("text/html", """<html>
                           <body>
                             <h2>Happy Monday!</h2>
@@ -360,15 +360,33 @@ def send_email_reminders():
                             <p> - The Run Holmes Team</p>
                         </body>
                         </html>""")
-
         mail = Mail(from_email, subject, to_email, content)
         response = sg.client.mail.send.post(request_body=mail.get())
         print(response.status_code)
         print(response.body)
         print(response.headers)
 
+    return runners_for_emails
 
-# runs = db.session.query(Run).options(db.joinedload("plan").joinedload("runner")).filter( (Runner.runner_id == 1) 
-#     & (Run.date >= today_date) 
-#     & (Run.date <= sunday_date)).order_by(Run.date).all()
 
+def calculate_total_mileage(runs_in_plan):
+    """Calculate the total miles in the runner's current plan."""
+
+    total_mileage = 0
+
+    for run in runs_in_plan:
+        total_mileage = total_mileage + run.distance
+
+    return total_mileage
+
+
+def calculate_total_miles_completed(runs_in_plan):
+    """Calculate the total miles completed in the runner's current plan."""
+
+    total_miles_completed = 0
+
+    for run in runs_in_plan:
+        if run.is_completed:
+            total_miles_completed = total_miles_completed + run.distance
+
+    return total_miles_completed

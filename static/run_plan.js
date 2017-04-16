@@ -12,38 +12,39 @@ $(document).ready(function() {
 
   function showPlanResults(results) {
     var runPlan = results;
-    if ('response' in runPlan) {
-      $('#warning-complete-all-fields').show().delay(5000).queue(function() {
-        $(this).hide();
-      });
-    } else {
-      $("#run-info-chart").empty();
+    console.log(runPlan);
+    // if ('response' in runPlan) {
+    //   $('#warning-complete-all-fields').show().delay(5000).queue(function() {
+    //     $(this).hide();
+    //   });
+    // } else {
+    $("#run-info-chart").empty();
 
-      for (var week in runPlan) {
-        $("#run-info-chart").append('<tr>');
-        $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
+    for (var week in runPlan) {
+      $("#run-info-chart").append('<tr>');
+      $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
 
-        var weeklyPlan = runPlan[week];
-        for (var date in weeklyPlan) {
-          // var newDate = new Date(date);
-          // var month = (newDate.getMonth()+1)+ "";
-          // var day = newDate.getDate();
-          if (weeklyPlan[date]) {
-            // $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
-            $("#run-info-chart").append('<td>  ' + date + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
-          } else {
-            // $("#run-info-chart").append('<td class="off-day">  ' + month + "/" + day + '<br><br>  off day</td>');
-            $("#run-info-chart").append('<td class="off-day">  ' + date + '<br><br>  off day</td>');
-          }
+      var weeklyPlan = runPlan[week];
+      for (var date in weeklyPlan) {
+        // var newDate = new Date(date);
+        // var month = (newDate.getMonth()+1)+ "";
+        // var day = newDate.getDate();
+        if (weeklyPlan[date]) {
+          // $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
+          $("#run-info-chart").append('<td>  ' + date + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
+        } else {
+          // $("#run-info-chart").append('<td class="off-day">  ' + month + "/" + day + '<br><br>  off day</td>');
+          $("#run-info-chart").append('<td class="off-day">  ' + date + '<br><br>  off day</td>');
         }
-        $("#run-info-chart").append('</tr>');
       }
-      $("#plan-calendar").removeAttr("hidden");
-      $("#generate-plan").attr('value', 'Update Plan');
-      $("#download-to-excel").removeAttr("hidden");
-      $("#sign-up").removeAttr("hidden");
-      $("#warning-complete-all-fields").empty();
+      $("#run-info-chart").append('</tr>');
     }
+    $("#plan-calendar").removeAttr("hidden");
+    $("#generate-plan").attr('value', 'Update Plan');
+    $("#download-to-excel").removeAttr("hidden");
+    $("#sign-up").removeAttr("hidden");
+    $("#warning-complete-all-fields").empty();
+    // }
   }
 
   function getPlanResults(evt) {
@@ -51,7 +52,7 @@ $(document).ready(function() {
     var currentAbility = $("#current-ability").val();
     var goalDistance = $("#goal-distance").val();
     var goalDate = $("#goal-date").val();
-    $.post("/plan.json", {"current-ability": currentAbility,
+    $.get("/plan.json", {"current-ability": currentAbility,
                           "goal-distance": goalDistance,
                           "goal-date": goalDate}, showPlanResults);
     }
@@ -77,6 +78,8 @@ $(document).ready(function() {
             $("#total-miles").html(results['total_miles_completed']);
             $("#total-workouts").html(results['total_workouts_completed']);
           });
+          $.get("/workout-info.json", displayWorkoutInfo);
+          $.get("/mileage-info.json", displayMileageInfo);
       } else {
           $(this).attr("checked", false);
           $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
@@ -84,6 +87,8 @@ $(document).ready(function() {
             $("#total-miles").html(results['total_miles_completed']);
             $("#total-workouts").html(results['total_workouts_completed']);
           });
+          $.get("/workout-info.json", displayWorkoutInfo);
+          $.get("/mileage-info.json", displayMileageInfo);
       }
     });
 
@@ -216,9 +221,9 @@ $(document).ready(function() {
   }
 
   // For workout chart
-  var options = { responsive: true };
+  var workoutOptions = { responsive: true };
 
-  var ctx_donut = $("#donutChart").get(0).getContext("2d");
+  var ctx_donut = $("#donutChartWorkouts").get(0).getContext("2d");
 
   $.get("/workout-info.json", displayWorkoutInfo);
 
@@ -226,9 +231,25 @@ $(document).ready(function() {
     var myDonutChart = new Chart(ctx_donut, {
                                             type: 'doughnut',
                                             data: data,
-                                            options: options
+                                            options: workoutOptions
                                           });
-    $('#donutLegend').html(myDonutChart.generateLegend());
+    // $('#donutLegend').html(myDonutChart.generateLegend());
+  }
+
+  // For workout chart
+  var mileageOptions = { responsive: true };
+
+  var ctx_donut_2 = $("#donutChartMileage").get(0).getContext("2d");
+
+  $.get("/mileage-info.json", displayMileageInfo);
+
+  function displayMileageInfo(data) {
+    var myDonutChart = new Chart(ctx_donut_2, {
+                                            type: 'doughnut',
+                                            data: data,
+                                            options: mileageOptions
+                                          });
+    // $('#donutLegend').html(myDonutChart.generateLegend());
   }
 
 
