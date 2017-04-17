@@ -8,7 +8,186 @@
     <input type="submit" value="Logout" name="logout-button">
 </form>
 
-<form action="/account-settings">
+<style>
+    .modalDialog {
+      position: fixed;
+      font-family: Arial, Helvetica, sans-serif;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 99999;
+      opacity:0;
+      -webkit-transition: opacity 400ms ease-in;
+      -moz-transition: opacity 400ms ease-in;
+      transition: opacity 400ms ease-in;
+      pointer-events: none;
+    }
+
+    .modalDialog:target {
+      opacity:1;
+      pointer-events: auto;
+    }
+    .modalDialog > div {
+      width: 600px;
+      position: relative;
+      margin: 10% auto;
+      padding: 20px 20px 20px 20px;
+      background: #fff;
+    }
+
+   .close {
+      background: #606061;
+      color: #FFFFFF;
+      line-height: 25px;
+      position: absolute;
+      right: -12px;
+      text-align: center;
+      top: -10px;
+      width: 24px;
+      text-decoration: none;
+      font-weight: bold;
+      -webkit-border-radius: 12px;
+      -moz-border-radius: 12px;
+      border-radius: 12px;
+      -moz-box-shadow: 1px 1px 3px #000;
+      -webkit-box-shadow: 1px 1px 3px #000;
+      box-shadow: 1px 1px 3px #000;
+    }
+
+    .close:hover { background: #00d9ff; }
+
+        /* The switch - the box around the slider */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    /* Hide default HTML checkbox */
+    .switch input {display:none;}
+
+    /* The slider */
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+
+    <a href="#openModal" id="account-settings">Account Settings</a>
+    <div id="openModal" class="modalDialog">
+      <div>
+        <a href="#close" title="Close" class="close">X</a>
+          <h2>Accountability Settings:</h2>
+          <form action="/update-account" id="update-account" method="POST">
+          <hr>
+          <h3>Receive Text Reminders</h3>
+      <!--       {% if runner.is_subscribed_to_texts %}
+              <label class="switch">
+                <input type="checkbox" checked>
+                <div class="slider round"></div>
+            {% else %}
+              <label class="switch">
+                <input type="checkbox">
+                <div class="slider round"></div>
+            {% endif %}
+            <hr> -->
+              <input type="checkbox" id="text">
+              <label>Enter phone number with only numbers ex: 5555555555</label>
+              <input type="text" id="phone-number" placeholder="phone number here" value="">
+            <hr>
+            <h3>Weekly Email Reminders</h3>
+    <!--         {% if runner.is_subscribed_to_email %}
+              <label class="switch">
+                <input type="checkbox" checked>
+                <div class="slider round"></div>
+            {% else %} -->
+             <!--  <label class="switch">
+                <input type="checkbox">
+                <div class="slider round"></div>       --> 
+             <!--    <input type="radio" value="yes" name="email-sub">Yes
+                <input type="radio" value="no" name="email-sub">No -->
+                <input type="checkbox" id="email">
+                <label>Yes, I would like to receive weekly email reminders.</label>
+            {% endif %}
+            <hr>
+            <h3>Add Runs to Google Calendar</h3>
+            <input type="checkbox" id="email">
+            <select id="time-zone" name="time-zone">
+              <option value="Select your preferred timezone">Select your preferred timezone</option>
+              <option value="Pacific/Honolulu">(GMT-10:00) Hawaii Time</option>
+              <option value="America/Anchorage">(GMT-08:00) Alaska Time</option>
+              <option value="America/Los_Angeles">(GMT-07:00) Pacific Time</option>
+              <option value="America/Denver">(GMT-06:00) Mountain Time</option>
+              <option value="America/Phoenix">(GMT-07:00) Mountain Time - Arizona</option>
+              <option value="America/Chicago">(GMT-05:00) Central Time</option>
+              <option value="America/New_York">(GMT-04:00) Eastern Time</option>
+          </select>
+          <select id="cal-run-start-time" name="cal-run-start-time">
+            <option selected disabled value="Select your preferred start time">Select your preferred start time</option>
+            {% for time in times[0:10] %}
+              <option value="0{{ time }}:00">{{ time }}:00am</option>
+            {% endfor %}
+            {% for time in times[10:11] %}
+              <option value="{{ time }}:00">{{ time }}:00am</option>
+            {% endfor %}
+            <option value="{{ times[11] }}:00">{{ times[11] }}:00pm</option>
+            {% for time in times[12:23] %}
+              <option value="{{ time }}:00">{{ time - 12 }}:00pm</option>
+            {% endfor %}
+            <option value="{{ times[23] }}:00">{{ times[23] - 12 }}:00am</option>
+          </select>
+          <input type="submit" value="Save">
+        </form>
+      </div>
+    </div>
+
+
+<!-- <form action="/account-settings">
     <input type="submit" value="Account Settings" name="account-settings-button">
 </form>
 
@@ -38,7 +217,10 @@
       <option value="{{ times[23] }}:00">{{ times[23] - 12 }}:00am</option>
     </select>
     <input type="submit" value="Add Runs to Google Calendar" name="add-to-gcal-button">
-</form>
+</form> -->
+
+
+<!-- NOT TO UNCOMMENT: -->
 
 <!-- <form action="/opt-into-weekly-emails">
     <input type="checkbox" id="opt-into-weekly-emails">
@@ -49,16 +231,18 @@
     <input type="checkbox" id="opt-in-for-texts">
     <label>I would like to opt into daily run reminders via text</label>
 </form> -->
-  {% if runner.is_subscribed_to_texts %}
+
+<!-- TO UNCOMMENT:  -->
+  <!-- {% if runner.is_subscribed_to_texts %}
     <button id="opt-out-of-texts-button">Opt Out of Texts</button>
   {% else %}
     <button id="opt-into-texts-button">Opt Into Daily Reminder Texts</button>
     <form action="/opt-into-text-reminders.json" method="POST" id="opt-in-for-texts-form">
       <label>Enter phone number with only numbers ex: 5555555555</label>
       <input type="text" id="phone-number" placeholder="phone number here" value="">
-      <!-- <input type="text" id="phone-number" placeholder="phone number here" pattern="/\d{10}/"> -->
+      <!- <input type="text" id="phone-number" placeholder="phone number here" pattern="/\d{10}/"> -->
       <!-- <input id="runner-id" name="{{ plan.runner_id }}" hidden> -->
-      <input type="submit" name="save" value="save"><br><br>
+     <!--  <input type="submit" name="save" value="save"><br><br>
     </form>
   {% endif %}
 
@@ -72,8 +256,7 @@
       <input type="radio" value="no" name="email-sub">No
       <input type="submit" name="save" value="save"><br><br>
     </form>
-  {% endif %}
-
+  {% endif %} -->
 
 
 <h1>Running Dashboard</h1>
