@@ -23,18 +23,18 @@ def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
     end_date = datetime.strptime(raw_end_date, "%Y-%m-%d").date()
     today_date = calculate_today_date()
     weekly_plan = build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance)
+    start_date = calculate_start_date(today_date)
 
-    session['current_ability'] = current_ability
-    session['goal_distance'] = goal_distance
-    session['start_date'] = calculate_start_date(today_date)
-    session['end_date'] = end_date
-    session['weekly_plan'] = weekly_plan
+    updated_vals = {
+                    'current_ability': current_ability,
+                    'goal_distance': goal_distance,
+                    'start_date': start_date,
+                    'end_date': end_date,
+                    'weekly_plan': weekly_plan
+                    }
 
-    # updated_vals = {
-    # "val1": 1,
-    # }
-
-    # session.update(updated_vals)
+    session.update(updated_vals)
+    print session
 
     return weekly_plan
 
