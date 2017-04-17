@@ -4,11 +4,11 @@ $(document).ready(function() {
 
   $("#plan-name-change-box").hide();
   $("#warning-complete-all-fields").hide();
-  $("#opt-in-for-texts-form").hide();
+  // $("#opt-in-for-texts-form").hide();
   // $("#opt-out-of-texts-button").hide();
-  $("#opt-into-email-form").hide();
-  $("#your-email-subscription-has-been-updated").hide();
-  $("#you-will-no-longer-receive-emails").hide();
+  // $("#opt-into-email-form").hide();
+  // $("#your-email-subscription-has-been-updated").hide();
+  // $("#you-will-no-longer-receive-emails").hide();
 
   function showPlanResults(results) {
     var runPlan = results;
@@ -222,11 +222,8 @@ $(document).ready(function() {
 
   // For workout chart
   var workoutOptions = { responsive: true };
-
   var ctx_donut = $("#donutChartWorkouts").get(0).getContext("2d");
-
   $.get("/workout-info.json", displayWorkoutInfo);
-
   function displayWorkoutInfo(data) {
     var myDonutChart = new Chart(ctx_donut, {
                                             type: 'doughnut',
@@ -236,13 +233,10 @@ $(document).ready(function() {
     // $('#donutLegend').html(myDonutChart.generateLegend());
   }
 
-  // For workout chart
+  // For mileage chart
   var mileageOptions = { responsive: true };
-
   var ctx_donut_2 = $("#donutChartMileage").get(0).getContext("2d");
-
   $.get("/mileage-info.json", displayMileageInfo);
-
   function displayMileageInfo(data) {
     var myDonutChart = new Chart(ctx_donut_2, {
                                             type: 'doughnut',

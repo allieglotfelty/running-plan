@@ -144,11 +144,11 @@ def gather_info_to_update_dashboard(run_id):
     return result_data
 
 
-def update_runner_to_is_using_gCal(runner_id):
+def update_runner_to_is_using_gCal(runner_id, Bool):
     """Updates a runner in the database to is_using_gCal is True."""
 
     runner = Runner.query.get(runner_id)
-    runner.is_using_gCal = True
+    runner.is_using_gCal = Bool
     db.session.commit()
 
 
@@ -252,6 +252,14 @@ def update_runner_text_subscription(runner_id, is_subscribed):
     db.session.commit()
 
 
+def update_runner_email_subscription(runner_id, is_subscribed):
+    """Updates the runner's subscription to receive email reminders in the database."""
+    
+    runner = Runner.query.get(runner_id)
+    runner.is_subscribed_to_email = is_subscribed
+    db.session.commit()
+
+
 def update_runner_phone(runner_id, raw_phone):
 
     formatted_phone = "+1%s" % raw_phone
@@ -321,6 +329,7 @@ def response_to_inbound_text(number, message_body):
         reply = "Reply with one of the following: Y or N"
 
     return resp.message(reply)
+
 
 def send_email_reminders():
     """Send email messages to runners via SendGrid."""

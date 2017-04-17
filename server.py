@@ -160,7 +160,6 @@ def process_login():
 
     if runner_account and runner_account.password == hashed_password:
         session["runner_id"] = runner_account.runner_id
-        flash("You have successfully logged in!")
         return redirect('/dashboard')
     else:
         flash("Email or Password is incorrect. Please try again!")
@@ -172,7 +171,6 @@ def process_logout():
     """Logout user and clear their session."""
 
     session.clear()
-    flash("You have successfully logged out!")
     return redirect("/")
 
 
@@ -377,7 +375,7 @@ def add_runs_to_runners_google_calendar_account():
         calendar = gcal_client.build('calendar', 'v3', http_auth)
 
         runner_id = session.get('runner_id')
-        update_runner_to_is_using_gCal(runner_id)
+        update_runner_to_is_using_gCal(runner_id, True)
 
         today_date = calculate_today_date()
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
@@ -452,28 +450,34 @@ def update_plan_name():
 @app.route('/update-account', methods=["POST"])
 def update_account_settings():
     """Update user account settings based on preferences specified."""
+
+    runner_id = session.get('runner_id')
+    runner = Runner.query.get(runner_id)
+
     opt_email = request.form.get("opt-email")
     opt_text = request.form.get("opt-text")
     phone = request.form.get("phone-number")
-    gcal = request.form.get("opt-gcal")
+    opt_gcal = request.form.get("opt-gcal")
     timezone = request.form.get("time-zone")
     start_time = request.form.get("cal-run-start-time")
 
+    if runner.is_subscribed_to_email is not opt_email:
+        update_runner_email_subscription(runner_id, opt_email)
+    if runner.is_subscribed_to_texts is not opt_text:
+        update_runner_text_subscription(runner_id, opt_text)
+    if runner.is_using_gCal is not opt_gcal:
+        update_runner_to_is_using_gCal(runner_id, opt_gcal)
+        return redirect('/add-to-google-calendar')
+
+
     print "Opt_email is %s" % opt_email
     print "Opt_text is %s" % opt_text
-    print "gcal is %s" % gcal
+    print "Opt_gcal is %s" % opt_gcal
     print "phone is %s" % phone
     print "timezone is %s" % timezone
     print "start_time is %s" % start_time
 
     return redirect("/dashboard")
-
-
-
-@app.route('/opt-into-weekly-emails')
-def opt_into_weekly_emails():
-    """Opts users into weekly emails and updates."""
-    pass
 
 
 @app.route('/opt-into-text-reminders.json', methods=["POST"])
@@ -550,6 +554,7 @@ def send_weekly_emails():
 
     return redirect('/admin')
 
+
 @app.route('/opt-into-email-reminders.json', methods=["POST"])
 def opt_into_email_reminders():
     """Updates runner in database to receive text reminders."""
@@ -564,6 +569,7 @@ def opt_into_email_reminders():
         return jsonify({"response": 'yes'})
     else:
         return jsonify({"response": 'no'})
+
 
 @app.route('/opt-out-of-email-reminders.json', methods=["POST"])
 def opt_out_of_email_reminders():
