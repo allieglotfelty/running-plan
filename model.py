@@ -1,7 +1,8 @@
 """Models and database functions for Run Plan project."""
 
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, date
+import pytz
 
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
@@ -27,9 +28,19 @@ class Runner(db.Model):
     is_subscribed_to_texts = db.Column(db.Boolean, default=False, nullable=True)
     phone = db.Column(db.String(12), nullable=True)
     is_active = db.Column(db.Boolean, default=True, nullable=True)
-    timezone = db.Column(db.String(20), default='Pacific', nullable=True)
+    timezone = db.Column(db.String(20), default='US/Pacific', nullable=True)
     OAuth_token = db.Column(db.String, nullable=True)
     photo = db.Column(db.String(200), nullable=True)
+
+
+    def calculate_today_date_for_runner(self):
+        """Calculates current date in Pacific time."""
+
+        runner_timezone = pytz.timezone(self.timezone)
+        dt = datetime.now(tz=runner_timezone)
+        today = dt.date()
+
+        return today
 
 
     def __repr__(self):
@@ -56,6 +67,38 @@ class Plan(db.Model):
     start_time = db.Column(db.DateTime, default=start_time_default, nullable=True)
 
     runner = db.relationship("Runner", backref=db.backref("plans"))
+
+    def calculate_total_miles_completed(self):
+        """Calculates the total miles that the runner has completed so far to
+        display on dashboard.
+        """
+
+        total_miles_completed = 0
+        for run in self.runs:
+            if run.is_completed:
+                total_miles_completed += run.distance
+
+        return total_miles_completed
+
+    def calculate_total_workouts_completed(self):
+        """Calculates the total workouts that the runner has completed so far
+        to display on dashboard.
+        """
+
+        total_workouts_completed = 0
+        for run in self.runs:
+            if run.is_completed:
+                total_workouts_completed += 1
+
+        return total_workouts_completed
+
+    def calculate_days_to_goal(self):
+        """Calculates how many days remain until the runner's goal to 
+        display on dashboard.
+        """
+
+        return (plan.end_date - today_date).days
+
 
     def __repr__(self):
         """Provide helpful representation when printed."""

@@ -49,6 +49,7 @@ $(document).ready(function() {
 
   function getPlanResults(evt) {
     evt.preventDefault();
+    console.log("Running getPlanResults");
     var currentAbility = $("#current-ability").val();
     var goalDistance = $("#goal-distance").val();
     var goalDate = $("#goal-date").val();
@@ -92,7 +93,7 @@ $(document).ready(function() {
       }
     });
 
-    function planNameUpdated(results) {
+  function planNameUpdated(results) {
     $("#plan-name-change-box").hide();
     var title = $("#plan-name-title");
     title.html(results['newName']);
@@ -112,7 +113,7 @@ $(document).ready(function() {
 
  // For workout chart
   var workoutOptions = { responsive: true };
-  var ctx_donut = $("#donutChartWorkouts").get(0).getContext("2d");
+  var ctx_donut = $("#donutChartWorkouts");
   $.get("/workout-info.json", displayWorkoutInfo);
   function displayWorkoutInfo(data) {
     var myDonutChart = new Chart(ctx_donut, {
@@ -125,7 +126,7 @@ $(document).ready(function() {
 
   // For mileage chart
   var mileageOptions = { responsive: true };
-  var ctx_donut_2 = $("#donutChartMileage").get(0).getContext("2d");
+  var ctx_donut_2 = $("#donutChartMileage");
   $.get("/mileage-info.json", displayMileageInfo);
   function displayMileageInfo(data) {
     var myDonutChart = new Chart(ctx_donut_2, {
@@ -137,7 +138,7 @@ $(document).ready(function() {
   }
 
 
-  $("#planning-form").on('submit', getPlanResults);
+  $("#generate-plan").on('click', getPlanResults);
   $("#download-to-excel").on('click', getPlanResultsForDownload);
   $("#update-plan-name").on('click', showUpdatePlanNameBox);
   $("#plan-name-change-box").on('submit', updatePlanName);

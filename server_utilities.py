@@ -21,8 +21,11 @@ def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
     current_ability = float(raw_current_ability)
     goal_distance = float(raw_goal_distance)
     end_date = datetime.strptime(raw_end_date, "%Y-%m-%d").date()
-    today_date = calculate_today_date()
-    weekly_plan = build_plan_with_two_dates(today_date, end_date, current_ability, goal_distance)
+    today_date = calculate_today_date_pacific()
+    weekly_plan = build_plan_with_two_dates(today_date, 
+                                            end_date, 
+                                            current_ability, 
+                                            goal_distance)
     start_date = calculate_start_date(today_date)
 
     updated_vals = {
@@ -47,30 +50,58 @@ def generate_salt():
     return "".join(random.choice(letters) for i in range(16))
 
 
-def calculate_days_to_goal(today_date, end_date):
-    """Calculates how many days remain until the runner's goal to display on dashboard."""
+def generate_hashed_password(runner_password, salt):
+    """Takes in a users password, hashes it and returns a hashed version of it"""
 
-    return (end_date - today_date).days
+    binary_password = hashlib.pbkdf2_hmac('sha256', runner_password, salt, 100000)
+    hex_password = binascii.hexlify(binary_password)
 
-
-def calculate_total_miles_completed(runs):
-    """Calculates the total miles that the runner has completed so far to display on dashboard."""
-    total_miles_completed = 0
-    for run in runs:
-        if run.is_completed:
-            total_miles_completed += run.distance
-
-    return total_miles_completed
+    return hex_password
 
 
-def calculate_total_workouts_completed(runs):
-    """Calculates the total workouts that the runner has completed so far to display on dashboard."""
-    total_workouts_completed = 0
-    for run in runs:
-        if run.is_completed:
-            total_workouts_completed += 1
+def add_runner_to_database(email, password, salt):
+    """Adds a runner to the database and returns the runner object"""
 
-    return total_workouts_completed
+    runner = Runner(email=email, password=password, salt=salt)
+    db.session.add(runner)
+    db.session.commit()
+
+    return runner
+
+
+# def calculate_days_to_goal(today_date, end_date):
+#     """Calculates how many days remain until the runner's goal to display on dashboard."""
+
+#     return (end_date - today_date).days
+
+
+# def calculate_total_miles_completed(runs):
+#     """Calculates the total miles that the runner has completed so far to display on dashboard."""
+#     total_miles_completed = 0
+#     for run in runs:
+#         if run.is_completed:
+#             total_miles_completed += run.distance
+
+#     return total_miles_completed
+
+
+# def calculate_total_workouts_completed(runs):
+#     """Calculates the total workouts that the runner has completed so far to display on dashboard."""
+#     total_workouts_completed = 0
+#     for run in runs:
+#         if run.is_completed:
+#             total_workouts_completed += 1
+
+#     return total_workouts_completed
+
+def calculate_today_date_pacific():
+    """Calculates current date in Pacific time."""
+
+    pacific = pytz.timezone('US/Pacific')
+    dt = datetime.now(tz=pacific)
+    today = dt.date()
+
+    return today
 
 
 def add_plan_to_database(runner_id):
@@ -86,25 +117,6 @@ def add_plan_to_database(runner_id):
     db.session.commit()
 
     return plan
-
-
-def add_runner_to_database(email, password, salt):
-    """Adds a runner to the database and returns the runner object"""
-
-    runner = Runner(email=email, password=password, salt=salt)
-    db.session.add(runner)
-    db.session.commit()
-
-    return runner
-
-
-def generate_hashed_password(runner_password, salt):
-    """Takes in a users password, hashes it and returns a hashed version of it"""
-
-    binary_password = hashlib.pbkdf2_hmac('sha256', runner_password, salt, 100000)
-    hex_password = binascii.hexlify(binary_password)
-
-    return hex_password
 
 
 def add_runs_to_database(weekly_plan, plan_id):
@@ -133,10 +145,9 @@ def gather_info_to_update_dashboard(run_id):
     run = Run.query.get(run_id)
     plan_id = run.plan_id
     plan = Plan.query.get(plan_id)
-    runs = plan.runs
 
-    total_miles_completed = calculate_total_miles_completed(runs)
-    total_workouts_completed = calculate_total_workouts_completed(runs)
+    total_miles_completed = plan.calculate_total_miles_completed()
+    total_workouts_completed = plan.calculate_total_workouts_completed()
     result_data = {'total_miles_completed': total_miles_completed,
                    'total_workouts_completed': total_workouts_completed,
                    'run_id': run_id}
@@ -160,7 +171,7 @@ def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
     run_events = []
 
     for run in runs[15:20]:
-        if run.distance > 0 and not run.is_on_gCal:
+        if not run.is_on_gCal:
             title = "Run %s miles" % run.distance
             date = run.date
 
@@ -234,16 +245,6 @@ def get_runs_for_reminder_texts(run_date):
     return runs_for_date
 
 
-def calculate_today_date():
-    """Calculates current date in Pacific time."""
-
-    pacific = pytz.timezone('US/Pacific')
-    dt = datetime.now(tz=pacific)
-    today = dt.date()
-
-    return today
-
-
 def update_runner_text_subscription(runner_id, is_subscribed):
     """Updates the runner's subscription to receive text reminders in the database."""
     
@@ -261,6 +262,7 @@ def update_runner_email_subscription(runner_id, is_subscribed):
 
 
 def update_runner_phone(runner_id, raw_phone):
+    """Updates the runner's phone number in the database"""
 
     formatted_phone = "+1%s" % raw_phone
     runner = Runner.query.get(runner_id)
@@ -297,8 +299,9 @@ def response_to_inbound_text(number, message_body):
     """Response to an inbound text message to update run in database, send words
     of encouragement or let the user know what to enter.
     """
+    runner = Runner.query.filter_by(phone=number).first()
+    today_date = runner.calculate_today_date_for_runner()
 
-    today_date = calculate_today_date()
     resp = MessagingResponse()
 
     positive_message_responses = ['Congrats! Keep up the great work!',
@@ -320,7 +323,7 @@ def response_to_inbound_text(number, message_body):
         reply = positive_reply_choice + ' Your run has been logged.'
         run = db.session.query(Run).join(Plan).join(Runner).filter(Runner.phone == number,
                                                                    Runner.is_subscribed_to_texts == True,
-                                                                   Run.date == "2017-04-16").first()
+                                                                   Run.date == today_date).first()
         update_run(run.run_id, True)
 
     elif message_body.lower() in ['n', 'no']:
@@ -336,7 +339,7 @@ def send_email_reminders():
 
     sg = sendgrid.SendGridAPIClient(apikey=os.environ.get('SENDGRID_API_KEY'))
 
-    today_date = calculate_today_date()
+    today_date = calculate_today_date_pacific()
     next_sunday_date = today_date + timedelta(7)
     runners_for_emails = Runner.query.filter_by(is_subscribed_to_email=True).all()
 
@@ -389,13 +392,13 @@ def calculate_total_mileage(runs_in_plan):
     return total_mileage
 
 
-def calculate_total_miles_completed(runs_in_plan):
-    """Calculate the total miles completed in the runner's current plan."""
+# def calculate_total_miles_completed(runs_in_plan):
+#     """Calculate the total miles completed in the runner's current plan."""
 
-    total_miles_completed = 0
+#     total_miles_completed = 0
 
-    for run in runs_in_plan:
-        if run.is_completed:
-            total_miles_completed = total_miles_completed + run.distance
+#     for run in runs_in_plan:
+#         if run.is_completed:
+#             total_miles_completed = total_miles_completed + run.distance
 
-    return total_miles_completed
+#     return total_miles_completed

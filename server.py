@@ -29,7 +29,7 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage."""
 
-    today = calculate_today_date()
+    today = calculate_today_date_pacific()
     year_from_today = today + timedelta(365)
     date_today = datetime.strftime(today, '%Y-%m-%d')
     date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
@@ -186,7 +186,7 @@ def display_runner_page():
     if not runner:
         return redirect('/')
 
-    today_date = calculate_today_date()
+    today_date = runner.calculate_today_date_for_runner()
 
     current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id,
                                                               Plan.end_date>=today_date).one()
@@ -195,8 +195,8 @@ def display_runner_page():
 
     if current_plan:
         days_left_to_goal = calculate_days_to_goal(today_date, current_plan.end_date)
-        total_workouts_completed = calculate_total_workouts_completed(current_plan.runs)
-        total_miles_completed = calculate_total_miles_completed(current_plan.runs)
+        total_workouts_completed = current_plan.calculate_total_workouts_completed()
+        total_miles_completed = current_plan.calculate_total_miles_completed()
     else:
         flash("It seems like all of your plans have expired. Feel free to click and view and old plan or make a new one!")
 
@@ -250,9 +250,11 @@ def update_run__and_dashboard_as_incompleted():
 def return_workout_info_for_doughnut_chart():
     """Get info for workout doughnut chart."""
 
-    today_date = calculate_today_date()
+
     runner_id = session.get('runner_id')
-    print runner_id
+    runner = Runner.query.get(runner_id)
+    today_date = runner.calculate_today_date_for_runnner()
+
     count_total_plan_runs = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
                                                                                  Plan.end_date>=today_date).count()
     count_plan_runs_completed = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
@@ -286,13 +288,17 @@ def return_workout_info_for_doughnut_chart():
 def return_total_miles_info_for_doughnut_chart():
     """Get info for mileage doughnut chart."""
 
-    today_date = calculate_today_date()
     runner_id = session.get('runner_id')
+    runner = Runner.query.get(runner_id)
+    today_date = runner.calculate_today_date_for_runnner()
+
+    current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
+                                                              Plan.end_date>=today_date).first()
     runs_in_plan = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
-                                                                                 Plan.end_date>=today_date).all()
+                                                                        Plan.end_date>=today_date).all()
 
     total_mileage = calculate_total_mileage(runs_in_plan)
-    total_miles_completed = calculate_total_miles_completed(runs_in_plan)
+    total_miles_completed = current_plan.calculate_total_miles_completed()
     miles_remaining = total_mileage - total_miles_completed
 
     data_dict = {
@@ -375,9 +381,10 @@ def add_runs_to_runners_google_calendar_account():
         calendar = gcal_client.build('calendar', 'v3', http_auth)
 
         runner_id = session.get('runner_id')
+        runner = Runner.query.session.get(runner_id)
         update_runner_to_is_using_gCal(runner_id, True)
 
-        today_date = calculate_today_date()
+        today_date = runner.calculate_today_date_for_runner()
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
                                                                   Plan.end_date >= today_date).one()
 
