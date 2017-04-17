@@ -449,10 +449,25 @@ def update_plan_name():
     return jsonify(results)
 
 
-@app.route('/account-settings')
-def display_account_settings_page():
-    """Displays the account settings page to allow users to update their account settings."""
-    pass
+@app.route('/update-account', methods=["POST"])
+def update_account_settings():
+    """Update user account settings based on preferences specified."""
+    opt_email = request.form.get("opt-email")
+    opt_text = request.form.get("opt-text")
+    phone = request.form.get("phone-number")
+    gcal = request.form.get("opt-gcal")
+    timezone = request.form.get("time-zone")
+    start_time = request.form.get("cal-run-start-time")
+
+    print "Opt_email is %s" % opt_email
+    print "Opt_text is %s" % opt_text
+    print "gcal is %s" % gcal
+    print "phone is %s" % phone
+    print "timezone is %s" % timezone
+    print "start_time is %s" % start_time
+
+    return redirect("/dashboard")
+
 
 
 @app.route('/opt-into-weekly-emails')
