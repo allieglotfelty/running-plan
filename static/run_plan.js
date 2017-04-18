@@ -13,11 +13,11 @@ $(document).ready(function() {
   function showPlanResults(results) {
     var runPlan = results;
     console.log(runPlan);
-    // if ('response' in runPlan) {
-    //   $('#warning-complete-all-fields').show().delay(5000).queue(function() {
-    //     $(this).hide();
-    //   });
-    // } else {
+    if ('response' in runPlan) {
+      $('#warning-complete-all-fields').show().delay(5000).queue(function() {
+        $(this).hide();
+      });
+    } else {
     $("#run-info-chart").empty();
 
     for (var week in runPlan) {
@@ -44,7 +44,7 @@ $(document).ready(function() {
     $("#download-to-excel").removeAttr("hidden");
     $("#sign-up").removeAttr("hidden");
     $("#warning-complete-all-fields").empty();
-    // }
+    }
   }
 
   function getPlanResults(evt) {
@@ -92,6 +92,12 @@ $(document).ready(function() {
           $.get("/mileage-info.json", displayMileageInfo);
       }
     });
+  
+  $('input[type=radio][name=opt-text]').change(function() {
+    if (this.value === 'True') {
+      $("#phone-number").prop('required', true);
+    }
+  });
 
   function planNameUpdated(results) {
     $("#plan-name-change-box").hide();
@@ -142,6 +148,7 @@ $(document).ready(function() {
   $("#download-to-excel").on('click', getPlanResultsForDownload);
   $("#update-plan-name").on('click', showUpdatePlanNameBox);
   $("#plan-name-change-box").on('submit', updatePlanName);
+
 
   // function addEventsToGoogleCal(results) {
   //   console.log("Events added to Google Calendar");

@@ -310,6 +310,7 @@ def return_total_miles_info_for_doughnut_chart():
 
     return jsonify(data_dict)
 
+
 @app.route('/add-timezone-to-session', methods=["GET"])
 def add_timezone_to_session():
     """Adds the users selected timezone to the session to be
@@ -336,6 +337,7 @@ def add_start_time_to_session():
     message = {'message': 'start time updated'}
 
     return jsonify(message)
+
 
 @app.route('/add-to-google-calendar', methods=["POST", "GET"])
 def add_runs_to_runners_google_calendar_account():
@@ -469,12 +471,22 @@ def update_account_settings():
 
     if runner.is_subscribed_to_email is not opt_email:
         runner.update_email_subscription(opt_email)
+
     if runner.is_subscribed_to_texts is not opt_text:
         runner.update_text_subscription(opt_text)
+        runner.update_phone(phone)
+
     if runner.is_using_gCal is not opt_gcal:
         runner.update_is_using_gCal(opt_gcal)
         return redirect('/add-to-google-calendar')
 
+    if timezone:
+        runner.update_timezone(timezone)
+
+    if start_time:
+        current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
+                                                                  Plan.end_date >= today_date).one()
+        current_plan.start_time = start_time
 
     print "Opt_email is %s" % opt_email
     print "Opt_text is %s" % opt_text

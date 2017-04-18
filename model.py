@@ -79,6 +79,12 @@ class Runner(db.Model):
         db.session.commit()
 
 
+    def update_timezone(self, new_timezone):
+        """Updates the runner's timezone to the database."""
+
+        self.timezone = new_timezone
+        db.session.commit()
+
     def __repr__(self):
         """Provide helpful representation when printed."""
 
@@ -201,6 +207,13 @@ class Plan(db.Model):
             dates.append(run_date)
 
         return dates
+
+
+    def update_start_time(self, start_time):
+        """Updates the plan's start time to the database."""
+
+        self.start_time = start_time
+        db.session.commit()
 
 
     def __repr__(self):
