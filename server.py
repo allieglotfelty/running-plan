@@ -80,7 +80,9 @@ def download_excel():
     excel_text = create_excel_text(weekly_plan)
 
     # Create a response object that takes in the excel_text (string of excel doc) and the mimetime (format) for the doc
-    response = Response(response=excel_text, status=200, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response = Response(response=excel_text, 
+                        status=200, 
+                        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     # Says the header will contain an attachement of the filename RunPlan.xlsx
     response.headers["Content-Disposition"] = "attachment; filename=RunPlan.xlsx"
@@ -343,14 +345,8 @@ def add_start_time_to_session():
 def add_runs_to_runners_google_calendar_account():
     """Adds a runner's runs to their Google Calendar account."""
 
-    # if request.method == "POST":
-    #     timezone = request.form.get("time-zone")
-    #     preferred_start_time = request.form.get("cal-run-start-time")
-    #     session['timezone'] = timezone
-    #     session['preferred_start_time'] = preferred_start_time
-
-    timezone = session.get('timezone')
-    preferred_start_time = session.get('preferred_start_time')
+    # timezone = session.get('timezone')
+    # preferred_start_time = session.get('preferred_start_time')
 
     # If there are no credentials in the current session, redirect to get oauth permisssions
     if not session.get('credentials'):
@@ -377,35 +373,21 @@ def add_runs_to_runners_google_calendar_account():
         today_date = runner.calculate_today_date_for_runner()
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
                                                                   Plan.end_date >= today_date).one()
+        timezone = runner.timezone
+        preferred_start_time = current_plan.start_time
 
         if current_plan:
-            if timezone and preferred_start_time:
-                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
-                                                                                      timezone,
-                                                                                      preferred_start_time)
-                del session['timezone']
-                del session['preferred_start_time']
-            elif timezone and not preferred_start_time:
-                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
-                                                                                      timezone,
-                                                                                      current_plan.start_time)
-                del session['timezone']
-            elif preferred_start_time and not timezone:
-                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
-                                                                                      "America/Los_Angeles",
-                                                                                      preferred_start_time)
-                del session['preferred_start_time']
-            else:
-                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
-                                                                                      "America/Los_Angeles",
-                                                                                      current_plan.start_time)
+            run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
+                                                                                  timezone,
+                                                                                  preferred_start_time)
             if not run_events:
                 flash('There are no new runs to add to your Google Calendar.')
             else:
                 for event in run_events:
                     event_to_add = calendar.events().insert(calendarId='primary', body=event).execute()
-                    flash('Added event to Google Calendar: %s on %s' % (event['summary'], event['start']['dateTime']))
+                    # flash('Added event to Google Calendar: %s on %s' % (event['summary'], event['start']['dateTime']))
                     print'Event created: %s' % (event_to_add.get('htmlLink'))
+                flash('Added all running events to your Google Calendar.')
         else:
             flash('There are no new runs to add to your Google Calendar.')
 
@@ -469,6 +451,13 @@ def update_account_settings():
     timezone = request.form.get("time-zone")
     start_time = request.form.get("cal-run-start-time")
 
+    print "Opt_email is %s" % opt_email
+    print "Opt_text is %s" % opt_text
+    print "Opt_gcal is %s" % opt_gcal
+    print "phone is %s" % phone
+    print "timezone is %s" % timezone
+    print "start_time is %s" % start_time
+
     if runner.is_subscribed_to_email is not opt_email:
         runner.update_email_subscription(opt_email)
 
@@ -487,13 +476,6 @@ def update_account_settings():
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
                                                                   Plan.end_date >= today_date).one()
         current_plan.start_time = start_time
-
-    print "Opt_email is %s" % opt_email
-    print "Opt_text is %s" % opt_text
-    print "Opt_gcal is %s" % opt_gcal
-    print "phone is %s" % phone
-    print "timezone is %s" % timezone
-    print "start_time is %s" % start_time
 
     return redirect("/dashboard")
 

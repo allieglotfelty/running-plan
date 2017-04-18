@@ -96,6 +96,15 @@ $(document).ready(function() {
   $('input[type=radio][name=opt-text]').change(function() {
     if (this.value === 'True') {
       $("#phone-number").prop('required', true);
+    } else {
+      $("#phone-number").prop('required', false);
+    }
+  });
+
+  $('input[type=radio][name=opt-gcal]').change(function() {
+    if (this.value === 'True') {
+      $("#time-zone").prop('required', true);
+      $("#cal-run-start-time").prop('required', true);
     }
   });
 

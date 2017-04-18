@@ -96,7 +96,6 @@ def add_plan_to_database(runner_id):
 def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
     """Generates plans to add to user's google calendar account."""
 
-    # start_time_datetime = datetime.strptime(chosen_start_time, '%H:%M')
     runs = plan.runs
     run_events = []
 
@@ -107,8 +106,6 @@ def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
 
             finish_time_datetime = chosen_start_time + timedelta(hours=1)
             start_time = chosen_start_time.time()
-            # finish_time_datetime = start_time_datetime + timedelta(hours=1)
-            # start_time = start_time_datetime.time()
             finish_time = finish_time_datetime.time()
 
             start = datetime.combine(date, start_time).isoformat()
