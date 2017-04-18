@@ -9,6 +9,7 @@ $(document).ready(function() {
   $("#opt-into-email-form").hide();
   $("#your-email-subscription-has-been-updated").hide();
   $("#you-will-no-longer-receive-emails").hide();
+  $("#options-below").hide();
 
   function showPlanResults(results) {
     var runPlan = results;
@@ -69,8 +70,7 @@ $(document).ready(function() {
                       goalDate;
   }
 
-  $('input:checkbox').change(
-    function(){
+  $('input:checkbox.workout').change(function() {
       var runId = $(this).attr('id');
       if ($(this).is(":checked")) {
           $(this).attr("checked", true);
@@ -79,8 +79,6 @@ $(document).ready(function() {
             $("#total-miles").html(results['total_miles_completed']);
             $("#total-workouts").html(results['total_workouts_completed']);
           });
-          $.get("/workout-info.json", displayWorkoutInfo);
-          $.get("/mileage-info.json", displayMileageInfo);
       } else {
           $(this).attr("checked", false);
           $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
@@ -88,25 +86,35 @@ $(document).ready(function() {
             $("#total-miles").html(results['total_miles_completed']);
             $("#total-workouts").html(results['total_workouts_completed']);
           });
-          $.get("/workout-info.json", displayWorkoutInfo);
-          $.get("/mileage-info.json", displayMileageInfo);
       }
     });
   
-  $('input[type=radio][name=opt-text]').change(function() {
-    if (this.value === 'True') {
-      $("#phone-number").prop('required', true);
+  $('input[type=checkbox][name=opt-text]').change(function() {
+    if ($(this).is(":checked")) {
+      $("#phone").prop('required', true);
+      $("#phone").text( function(i, text) {
+          return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
+      });
     } else {
       $("#phone-number").prop('required', false);
     }
   });
 
-  $('input[type=radio][name=opt-gcal]').change(function() {
-    if (this.value === 'True') {
-      $("#time-zone").prop('required', true);
-      $("#cal-run-start-time").prop('required', true);
+  $('input[type=checkbox][name=opt-gcal]').change(function() {
+    if ($(this).is(":checked")) {
+      $("#options-below").show();
+    } else {
+      $("#options-below").hide();
     }
   });
+
+  var phones = [{ "mask": "(###) ###-####"}];
+    $('#phone').inputmask({
+                            mask: phones,
+                            greedy: false,
+                            definitions: { '#': { validator: "[0-9]", cardinality: 1}} }
+    );
+
 
   function planNameUpdated(results) {
     $("#plan-name-change-box").hide();
@@ -124,32 +132,6 @@ $(document).ready(function() {
 
   function showUpdatePlanNameBox() {
     $("#plan-name-change-box").show();
-  }
-
- // For workout chart
-  var workoutOptions = { responsive: true };
-  var ctx_donut = $("#donutChartWorkouts");
-  $.get("/workout-info.json", displayWorkoutInfo);
-  function displayWorkoutInfo(data) {
-    var myDonutChart = new Chart(ctx_donut, {
-                                            type: 'doughnut',
-                                            data: data,
-                                            options: workoutOptions
-                                          });
-    // $('#donutLegend').html(myDonutChart.generateLegend());
-  }
-
-  // For mileage chart
-  var mileageOptions = { responsive: true };
-  var ctx_donut_2 = $("#donutChartMileage");
-  $.get("/mileage-info.json", displayMileageInfo);
-  function displayMileageInfo(data) {
-    var myDonutChart = new Chart(ctx_donut_2, {
-                                            type: 'doughnut',
-                                            data: data,
-                                            options: mileageOptions
-                                          });
-    // $('#donutLegend').html(myDonutChart.generateLegend());
   }
 
 

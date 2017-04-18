@@ -387,7 +387,7 @@ def add_runs_to_runners_google_calendar_account():
                     event_to_add = calendar.events().insert(calendarId='primary', body=event).execute()
                     # flash('Added event to Google Calendar: %s on %s' % (event['summary'], event['start']['dateTime']))
                     print'Event created: %s' % (event_to_add.get('htmlLink'))
-                flash('Added all running events to your Google Calendar.')
+                flash('All running events have been added to your Google Calendar.')
         else:
             flash('There are no new runs to add to your Google Calendar.')
 
@@ -443,39 +443,64 @@ def update_account_settings():
 
     runner_id = session.get('runner_id')
     runner = Runner.query.get(runner_id)
-
+    today_date = runner.calculate_today_date_for_runner()
+    current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
+                                                              Plan.end_date >= today_date).one()
     opt_email = request.form.get("opt-email")
     opt_text = request.form.get("opt-text")
     phone = request.form.get("phone-number")
     opt_gcal = request.form.get("opt-gcal")
     timezone = request.form.get("time-zone")
     start_time = request.form.get("cal-run-start-time")
+    start_time_formatted = datetime.strptime(start_time, '%H:%M:%S')
 
+    # opt_gcal = bool(opt_gcal)
+    print "Type opt_email is %s" % type(str(opt_email))
+    print "Type of opt_gcal is %s" % type(str(opt_gcal))
     print "Opt_email is %s" % opt_email
     print "Opt_text is %s" % opt_text
     print "Opt_gcal is %s" % opt_gcal
     print "phone is %s" % phone
     print "timezone is %s" % timezone
     print "start_time is %s" % start_time
+    print "current_plan.start_time.time() is %s" % current_plan.start_time
+    print "are starttimes the same? %s" % (current_plan.start_time == start_time_formatted)
+    print "runner.is_using_gCal is %s" % runner.is_using_gCal
+    print "runner.is_using_gCal is not equal to opt_gcal? %s" % (opt_gcal is not runner.is_using_gCal)
+    print "type of runner.is_using_gCal is %s" % type(runner.is_using_gCal)
+    print "type of opt_gcal is %s" % type(opt_gcal)
 
-    if runner.is_subscribed_to_email is not opt_email:
-        runner.update_email_subscription(opt_email)
-
-    if runner.is_subscribed_to_texts is not opt_text:
-        runner.update_text_subscription(opt_text)
+    if not runner.is_subscribed_to_texts and opt_text == 'on':
+        runner.update_text_subscription(True)
         runner.update_phone(phone)
+        print "runner's text was added"
 
-    if runner.is_using_gCal is not opt_gcal:
-        runner.update_is_using_gCal(opt_gcal)
+    if runner.is_subscribed_to_texts and not opt_text:
+        runner.update_text_subscription(False)
+        print "runner's text was canceled"
+
+    if not runner.is_subscribed_to_email and opt_email == 'on':
+        runner.update_email_subscription(True)
+        print "runner is now subscribed to weekly emails"
+
+    if runner.is_subscribed_to_email and not opt_email:
+        runner.update_email_subscription(False)
+        print "runner is no longer subscribed to weekly emails"
+
+    if not runner.is_using_gCal and opt_gcal == 'on':
+        runner.update_is_using_gCal(True)
+        print "runner is now using google calendar"
+
+        if timezone is not runner.timezone:
+            runner.update_timezone(timezone)
+
+        if start_time is not current_plan.start_time:
+            current_plan.update_start_time(start_time)
+
         return redirect('/add-to-google-calendar')
 
-    if timezone:
-        runner.update_timezone(timezone)
-
-    if start_time:
-        current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
-                                                                  Plan.end_date >= today_date).one()
-        current_plan.start_time = start_time
+    if runner.is_using_gCal and not opt_gcal:
+        runner.update_is_using_gCal(True)
 
     return redirect("/dashboard")
 

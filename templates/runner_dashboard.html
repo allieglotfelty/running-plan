@@ -65,49 +65,59 @@
       <div>
         <a href="#close" title="Close" class="close">X</a>
           <h2>Accountability Settings</h2>
+          <!-- <p id="phone-error">You must enter a valid phone number!</p>
+          <p id="text-updated">Your text subscription has been updated!</p> -->
           <form action="/update-account" id="update-account" method="POST">
           <hr>
           <div>
             <h3>Daily Text Reminders</h3>
               {% if runner.is_subscribed_to_texts %}
-                <input type="radio" value="True" name="opt-text" class="opt-text" checked="checked"> Yes
-                <input type="radio" value="False" name="opt-text"> No
-                <input type="text" id="phone-number" name="phone-number" placeholder="{{ runner.phone }}">
-                <label>Only enter digits ex: 5555555555</label>
+                <input type="checkbox" class="opt-text" name="opt-text" checked="checked">
+                <!-- <input type="radio" value="True" name="opt-text" class="opt-text" checked="checked"> Yes
+                <input type="radio" value="False" name="opt-text"> No -->
+                <input type="text" name="phone-number" value="{{ runner.phone[2:] }}">
+                <label>Update Phone: Only enter digits ex: 5555555555</label>
               {% else %}
-                <input type="radio" value="True" name="opt-text" class="opt-text"> Yes
-                <input type="radio" value="False" name="opt-text" checked="checked"> No
-                <input type="text" id="phone-number" name="phone-number" placeholder="phone number here">
-                <label>Only enter digits ex: 5555555555</label>
+                <input type="checkbox" class="opt-text" name="opt-text">
+               <!--  <input type="radio" value="True" name="opt-text" class="opt-text"> Yes
+                <input type="radio" value="False" name="opt-text" checked="checked"> No -->
+                <label>&nbsp I would like to receive text reminders on days that I have a run.</label>
+                <input type="text" class="phone-number" id="phone" name="phone-number" placeholder="phone number here">
+                <label class="phone-number">Only enter digits ex: 5555555555</label>
               {% endif %}
-              <label>&nbsp I would like to receive text reminders on days that I have a run.</label>
           </div>
           <hr>
           <div>
             <h3>Weekly Email Reminders</h3>
               {% if runner.is_subscribed_to_email %}
-                <input type="radio" value="True" name="opt-email" class="opt-email" checked="checked"> Yes
-                <input type="radio" value="False" name="opt-email"> No
+                <input type="checkbox" class="opt-email" name="opt-email" checked="checked">
+             <!--    <input type="radio" value="True" name="opt-email" class="opt-email" checked="checked"> Yes
+                <input type="radio" value="False" name="opt-email"> No -->
               {% else %}
-                <input type="radio" value="True" name="opt-email" class="opt-email"> Yes
-                <input type="radio" value="False" name="opt-email" checked="checked"> No
+                <input type="checkbox" class="opt-email" name="opt-email">
+           <!--      <input type="radio" value="True" name="opt-email" class="opt-email"> Yes
+                <input type="radio" value="False" name="opt-email" checked="checked"> No -->
               {% endif %}
               <label>&nbsp I would like to receive weekly email reminders.</label>
           </div>
           <hr>
           <div>
             <h3>Google Calendar</h3>
-            <!-- <input type="checkbox" id="opt-gcal" name="opt-gcal" value="True"> -->
             {% if runner.is_using_gCal %}
-              <input type="radio" value="True" name="opt-gcal" checked="checked"> Yes
-              <input type="radio" value="False" name="opt-gcal"> No
+              <input type="checkbox" class="opt-gcal" name="opt-gcal" checked="checked">
+              <!-- <input type="radio" value="True" name="opt-gcal" checked="checked"> Yes
+              <input type="radio" value="False" name="opt-gcal"> No -->
             {% else %}
-              <input type="radio" value="True" name="opt-gcal"> Yes
-              <input type="radio" value="False" name="opt-gcal" checked="checked"> No
+              <input type="checkbox" class="opt-gcal" name="opt-gcal">
+              <!-- <input type="radio" value="True" name="opt-gcal"> Yes
+              <input type="radio" value="False" name="opt-gcal" checked="checked"> No -->
             {% endif %}
-            <label>&nbsp I would like to add my runs to my Google Calendar.</label>
+            <label>&nbsp I would like to add my runs to my Google Calendar.</label><br>
+            <p id="options-below">Don't forget to update your timezone and start time below before clicking save!</p>
+            <label>Timezone</label>
             <select id="time-zone" name="time-zone">
-              <option selected disabled value="None">Select your preferred timezone</option>
+              <option disabled value="None">Select your preferred timezone</option>
+              <option selected value="{{ runner.timezone }}">{{ runner.timezone }}</option>
               <option value="Pacific/Honolulu">(GMT-10:00) Hawaii Time</option>
               <option value="America/Anchorage">(GMT-08:00) Alaska Time</option>
               <option value="America/Los_Angeles">(GMT-07:00) Pacific Time</option>
@@ -115,20 +125,22 @@
               <option value="America/Phoenix">(GMT-07:00) Mountain Time - Arizona</option>
               <option value="America/Chicago">(GMT-05:00) Central Time</option>
               <option value="America/New_York">(GMT-04:00) Eastern Time</option>
-            </select>
+            </select><br>
+            <label>Start Time</label>
             <select id="cal-run-start-time" name="cal-run-start-time">
-              <option selected disabled value="Select your preferred start time">Select your preferred start time</option>
+              <option selected value="{{ plan.start_time.time() }}">{{ plan.start_time.time() }}</option>
+              <option disabled value="Select your preferred start time">Select your preferred start time</option>
               {% for time in times[0:10] %}
-                <option value="0{{ time }}:00">{{ time }}:00am</option>
+                <option value="0{{ time }}:00:00">{{ time }}:00am</option>
               {% endfor %}
               {% for time in times[10:11] %}
-                <option value="{{ time }}:00">{{ time }}:00am</option>
+                <option value="{{ time }}:00:00">{{ time }}:00am</option>
               {% endfor %}
-              <option value="{{ times[11] }}:00">{{ times[11] }}:00pm</option>
+              <option value="{{ times[11] }}:00:00">{{ times[11] }}:00pm</option>
               {% for time in times[12:23] %}
-                <option value="{{ time }}:00">{{ time - 12 }}:00pm</option>
+                <option value="{{ time }}:00:00">{{ time - 12 }}:00pm</option>
               {% endfor %}
-              <option value="{{ times[23] }}:00">{{ times[23] - 12 }}:00am</option>
+              <option value="{{ times[23] }}:00:00">{{ times[23] - 12 }}:00am</option>
             </select>
           </div><hr>
           <input type="submit" value="Save">
@@ -184,9 +196,9 @@
             {% for date in dates[(i)*7:7*(i+1)] %}
               {% if date in runs %}
                 {% if runs[date]['is_completed'] == True %}
-                  <td><input type="checkbox" id="{{ runs[date]['run_id'] }}" value="{{ date }}" checked>  {{ date.month }}/{{ date.day }}: <br><br> {{ runs[date]['distance'] }} miles</td>
+                  <td><input type="checkbox" id="{{ runs[date]['run_id'] }}" value="{{ date }}" class="workout" checked>  {{ date.month }}/{{ date.day }}: <br><br> {{ runs[date]['distance'] }} miles</td>
                 {% else %}
-                  <td><input type="checkbox" id="{{ runs[date]['run_id'] }}" value="{{ date }}">  {{ date.month }}/{{ date.day }}: <br><br> {{ runs[date]['distance'] }} miles</td>
+                  <td><input type="checkbox" id="{{ runs[date]['run_id'] }}" value="{{ date }}" class="workout">  {{ date.month }}/{{ date.day }}: <br><br> {{ runs[date]['distance'] }} miles</td>
                 {% endif %}  
               {% else %}    
                 <td id="{{ date }}" class="off-day">{{ date.month }}/{{ date.day }} <br><br>Off day!</td>
@@ -198,4 +210,9 @@
   </table>
 {% endif %}
 
+{% endblock %}
+
+{% block javascript %}
+  <script src="static/dashboard_charts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.1.62/jquery.inputmask.bundle.js"></script>
 {% endblock %}

@@ -212,7 +212,8 @@ class Plan(db.Model):
     def update_start_time(self, start_time):
         """Updates the plan's start time to the database."""
 
-        self.start_time = start_time
+        start_time_formatted = datetime.strptime(start_time, '%H:%M:%S')
+        self.start_time = start_time_formatted
         db.session.commit()
 
 
