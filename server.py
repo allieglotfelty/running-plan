@@ -11,7 +11,7 @@ from apiclient import discovery as gcal_client
 from oauth2client import client
 import httplib2
 from running_plan import create_excel_text, handle_edgecases, calculate_start_date, calculate_number_of_weeks_to_goal
-from server_utilities import *
+import server_utilities
 import random
 from twilio import twiml
 import sendgrid
@@ -29,7 +29,7 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage."""
 
-    today = calculate_today_date_pacific()
+    today = server_utilities.calculate_today_date_pacific()
     year_from_today = today + timedelta(365)
     date_today = datetime.strftime(today, '%Y-%m-%d')
     date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
@@ -59,18 +59,14 @@ def generate_plan():
     raw_goal_distance = request.args.get("goal-distance")
     raw_end_date = request.args.get("goal-date")
 
-    # try:
-    weekly_plan = generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date)
-    # except Exception, e:
-    #     weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
+    try:
+        weekly_plan = server_utilities.generate_weekly_plan(raw_current_ability,
+                                                            raw_goal_distance,
+                                                            raw_end_date)
+    except Exception, e:
+        weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
     results = jsonify(weekly_plan)
-    # response = Response(status=200)
-    # response.mimetype = "application/json"
 
-    # response.headers["Content-Type"] = "text/html"
-    # print results
-    # print response.headers
-    # print response.mimetype
     return results
 
 
@@ -91,19 +87,6 @@ def download_excel():
 
     return response
 
-@app.route('/sign-up')
-def display_sign_up_page():
-    """Sign-up Page."""
-
-    weekly_plan = session.get('weekly_plan')
-
-    if not weekly_plan:
-        flash("Please complete all questions before trying to sign-up!")
-        return redirect('/')
-
-    else:
-        return render_template('registration.html')
-
 
 @app.route('/sign-up-complete', methods=["POST"])
 def process_sign_up():
@@ -118,22 +101,25 @@ def process_sign_up():
         return redirect('/')
 
     else:
-        salt = generate_salt()
-        hashed_password = generate_hashed_password(raw_runner_password, salt)
+        salt = server_utilities.generate_salt()
+        hashed_password = server_utilities.generate_hashed_password(raw_runner_password,
+                                                                    salt)
 
-        current_runner = add_runner_to_database(raw_runner_email, hashed_password, salt)
+        current_runner = server_utilities.add_runner_to_database(raw_runner_email,
+                                                                 hashed_password,
+                                                                 salt)
 
         current_runner_id = current_runner.runner_id
         session['runner_id'] = current_runner_id
 
-        current_plan = add_plan_to_database(current_runner_id)
+        current_plan = server_utilities.add_plan_to_database(current_runner_id)
 
         current_plan_id = current_plan.plan_id
         current_plan.name = "Running Plan %s" % current_plan_id
         db.session.commit()
 
         weekly_plan = session.get('weekly_plan')
-        add_runs_to_database(weekly_plan, current_plan_id)
+        current_plan.add_runs_to_database(weekly_plan)
 
         return redirect('/dashboard')
 
@@ -156,7 +142,8 @@ def process_login():
         runner_account = False
 
     if runner_account:
-        hashed_password = generate_hashed_password(raw_runner_password, runner_account.salt)
+        hashed_password = server_utilities.generate_hashed_password(raw_runner_password,
+                                                                    runner_account.salt)
 
     if runner_account and runner_account.password == hashed_password:
         session["runner_id"] = runner_account.runner_id
@@ -191,16 +178,16 @@ def display_runner_page():
     current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id,
                                                               Plan.end_date>=today_date).one()
 
-    dates = generate_running_dates(current_plan.start_date, current_plan.end_date)
+    dates = current_plan.generate_running_dates()
 
     if current_plan:
-        days_left_to_goal = calculate_days_to_goal(today_date, current_plan.end_date)
+        days_left_to_goal = current_plan.calculate_days_to_goal()
         total_workouts_completed = current_plan.calculate_total_workouts_completed()
         total_miles_completed = current_plan.calculate_total_miles_completed()
     else:
         flash("It seems like all of your plans have expired. Feel free to click and view and old plan or make a new one!")
 
-    weeks_in_plan = calculate_weeks_in_plan(current_plan)
+    weeks_in_plan = current_plan.calculate_weeks_in_plan()
     runs = {}
     for run in current_plan.runs:
         runs[run.date] = {'run_id': run.run_id,
@@ -226,8 +213,10 @@ def update_run_and_dashboard_as_completed():
     """
 
     run_id = request.form.get("run-id")
-    update_run(run_id, True)
-    result_data = gather_info_to_update_dashboard(run_id)
+    run = Run.query.get(run_id)
+    run.update_run(True)
+    plan = run.plan
+    result_data = plan.gather_info_to_update_dashboard()
 
     return jsonify(result_data)
 
@@ -240,8 +229,9 @@ def update_run__and_dashboard_as_incompleted():
     """
 
     run_id = request.form.get("run-id")
-    update_run(run_id, False)
-    result_data = gather_info_to_update_dashboard(run_id)
+    run = Run.query.get(run_id)
+    run.update_run(False)
+    result_data = run.plan.gather_info_to_update_dashboard()
 
     return jsonify(result_data)
 
@@ -250,10 +240,10 @@ def update_run__and_dashboard_as_incompleted():
 def return_workout_info_for_doughnut_chart():
     """Get info for workout doughnut chart."""
 
-
     runner_id = session.get('runner_id')
+    print "runner_id is %s" % runner_id
     runner = Runner.query.get(runner_id)
-    today_date = runner.calculate_today_date_for_runnner()
+    today_date = runner.calculate_today_date_for_runner()
 
     count_total_plan_runs = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
                                                                                  Plan.end_date>=today_date).count()
@@ -264,7 +254,7 @@ def return_workout_info_for_doughnut_chart():
     
     data_dict = {
                 "labels": [
-                    "Total Workouts Completed", 
+                    "Total Workouts Completed",
                     "Workouts Remaining"
                 ],
                 "datasets": [
@@ -290,14 +280,12 @@ def return_total_miles_info_for_doughnut_chart():
 
     runner_id = session.get('runner_id')
     runner = Runner.query.get(runner_id)
-    today_date = runner.calculate_today_date_for_runnner()
+    today_date = runner.calculate_today_date_for_runner()
 
     current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
                                                               Plan.end_date>=today_date).first()
-    runs_in_plan = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
-                                                                        Plan.end_date>=today_date).all()
 
-    total_mileage = calculate_total_mileage(runs_in_plan)
+    total_mileage = current_plan.calculate_total_mileage()
     total_miles_completed = current_plan.calculate_total_miles_completed()
     miles_remaining = total_mileage - total_miles_completed
 
@@ -381,8 +369,8 @@ def add_runs_to_runners_google_calendar_account():
         calendar = gcal_client.build('calendar', 'v3', http_auth)
 
         runner_id = session.get('runner_id')
-        runner = Runner.query.session.get(runner_id)
-        update_runner_to_is_using_gCal(runner_id, True)
+        runner = Runner.query.get(runner_id)
+        runner.update_is_using_gCal(True)
 
         today_date = runner.calculate_today_date_for_runner()
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
@@ -390,17 +378,25 @@ def add_runs_to_runners_google_calendar_account():
 
         if current_plan:
             if timezone and preferred_start_time:
-                run_events = generate_run_events_for_google_calendar(current_plan, timezone, preferred_start_time)
+                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
+                                                                                      timezone,
+                                                                                      preferred_start_time)
                 del session['timezone']
                 del session['preferred_start_time']
             elif timezone and not preferred_start_time:
-                run_events = generate_run_events_for_google_calendar(current_plan, timezone, current_plan.start_time)
+                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
+                                                                                      timezone,
+                                                                                      current_plan.start_time)
                 del session['timezone']
             elif preferred_start_time and not timezone:
-                run_events = generate_run_events_for_google_calendar(current_plan, "America/Los_Angeles", preferred_start_time)
+                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
+                                                                                      "America/Los_Angeles",
+                                                                                      preferred_start_time)
                 del session['preferred_start_time']
             else:
-                run_events = generate_run_events_for_google_calendar(current_plan, "America/Los_Angeles", current_plan.start_time)
+                run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
+                                                                                      "America/Los_Angeles",
+                                                                                      current_plan.start_time)
             if not run_events:
                 flash('There are no new runs to add to your Google Calendar.')
             else:
@@ -435,7 +431,10 @@ def oauth2callback():
         auth_code = request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
-        add_oauth_token_to_database(credentials)
+
+        runner_id = session.get('runner_id')
+        runner = Runner.query.get(runner_id)
+        runner.add_oauth_token_to_database(credentials)
         return redirect(url_for('add_runs_to_runners_google_calendar_account'))
 
 
@@ -469,11 +468,11 @@ def update_account_settings():
     start_time = request.form.get("cal-run-start-time")
 
     if runner.is_subscribed_to_email is not opt_email:
-        update_runner_email_subscription(runner_id, opt_email)
+        runner.update_email_subscription(opt_email)
     if runner.is_subscribed_to_texts is not opt_text:
-        update_runner_text_subscription(runner_id, opt_text)
+        runner.update_text_subscription(opt_text)
     if runner.is_using_gCal is not opt_gcal:
-        update_runner_to_is_using_gCal(runner_id, opt_gcal)
+        runner.update_is_using_gCal(opt_gcal)
         return redirect('/add-to-google-calendar')
 
 
@@ -495,9 +494,10 @@ def opt_into_text_reminders():
 
     runner_id = request.form.get('runnerId')
     raw_phone = request.form.get('phone')
+    runner = Runner.query.get(runner_id)
 
-    update_runner_text_subscription(runner_id, True)
-    update_runner_phone(runner_id, raw_phone)
+    runner.update_text_subscription(True)
+    runner.update_phone(raw_phone)
 
     return jsonify({'success': 'success!'})
 
@@ -509,7 +509,7 @@ def opt_out_of_text_reminders():
     """
 
     runner_id = request.form.get('runnerId')
-    update_runner_text_subscription(runner_id, False)
+    runner.update_text_subscription(False)
 
     return jsonify({'success': 'success!'})
 
@@ -519,7 +519,7 @@ def send_sms_reminders():
     """Gets a list of runs for the day and sends an sms reminder to the runners."""
 
     run_date = request.form.get("run-date")
-    if send_reminder_sms_messages(run_date):
+    if server_utilities.send_reminder_sms_messages(run_date):
         flash("Messages sent successfully!")
     else:
         flash("No messages sent.")
@@ -543,7 +543,7 @@ def receive_and_respond_to_inbound_text():
 
     number = request.form.get('From')
     message_body = request.form.get('Body')
-    resp = response_to_inbound_text(number, message_body)
+    resp = server_utilities.response_to_inbound_text(number, message_body)
 
     return str(resp)
 
@@ -553,7 +553,7 @@ def send_weekly_emails():
     """Gets list of users who have opted into weekly email sand then sends a
     weekly reminder email to them."""
 
-    runners = send_email_reminders()
+    runners = server_utilities.send_email_reminders()
     if runners:
         flash("Emails sent successfully!")
     else:
@@ -633,10 +633,11 @@ def dailymile_oauth2callback():
         auth_code = request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         session['credentials'] = credentials.to_json()
-        add_oauth_token_to_database(credentials)
+
+        runner_id = session.get('runner_id')
+        runner = Runner.query.get(runner_id)
+        runner.add_oauth_token_to_database(credentials)
         return redirect(url_for('add_runs_to_runners_google_calenadr_account'))
-
-
 
 
 if __name__ == "__main__":

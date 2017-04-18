@@ -6,7 +6,6 @@ import binascii
 import random
 from running_plan import build_plan_with_two_dates, calculate_start_date
 from dateutil.relativedelta import *
-import math
 import pytz
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
@@ -69,31 +68,6 @@ def add_runner_to_database(email, password, salt):
     return runner
 
 
-# def calculate_days_to_goal(today_date, end_date):
-#     """Calculates how many days remain until the runner's goal to display on dashboard."""
-
-#     return (end_date - today_date).days
-
-
-# def calculate_total_miles_completed(runs):
-#     """Calculates the total miles that the runner has completed so far to display on dashboard."""
-#     total_miles_completed = 0
-#     for run in runs:
-#         if run.is_completed:
-#             total_miles_completed += run.distance
-
-#     return total_miles_completed
-
-
-# def calculate_total_workouts_completed(runs):
-#     """Calculates the total workouts that the runner has completed so far to display on dashboard."""
-#     total_workouts_completed = 0
-#     for run in runs:
-#         if run.is_completed:
-#             total_workouts_completed += 1
-
-#     return total_workouts_completed
-
 def calculate_today_date_pacific():
     """Calculates current date in Pacific time."""
 
@@ -117,50 +91,6 @@ def add_plan_to_database(runner_id):
     db.session.commit()
 
     return plan
-
-
-def add_runs_to_database(weekly_plan, plan_id):
-    """Takes a plan and adds each run in the plan to the database."""
-
-    for i in range(1, len(weekly_plan) + 1):
-        for run_date in weekly_plan[str(i)]:
-            distance = weekly_plan[str(i)][run_date]
-            if distance > 0:
-                run = Run(plan_id=plan_id, date=run_date, distance=distance)
-                db.session.add(run)
-    db.session.commit()
-
-
-def update_run(run_id, is_completed):
-    """Updates run is_complete to true or false, commits updated run to database.
-    """
-    run = Run.query.get(run_id)
-    run.is_completed = is_completed
-    db.session.commit()
-
-
-def gather_info_to_update_dashboard(run_id):
-    """Updates the total miles and total workouts completed on a user's dashboard."""
-
-    run = Run.query.get(run_id)
-    plan_id = run.plan_id
-    plan = Plan.query.get(plan_id)
-
-    total_miles_completed = plan.calculate_total_miles_completed()
-    total_workouts_completed = plan.calculate_total_workouts_completed()
-    result_data = {'total_miles_completed': total_miles_completed,
-                   'total_workouts_completed': total_workouts_completed,
-                   'run_id': run_id}
-
-    return result_data
-
-
-def update_runner_to_is_using_gCal(runner_id, Bool):
-    """Updates a runner in the database to is_using_gCal is True."""
-
-    runner = Runner.query.get(runner_id)
-    runner.is_using_gCal = Bool
-    db.session.commit()
 
 
 def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
@@ -206,37 +136,6 @@ def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
     return run_events
 
 
-def add_oauth_token_to_database(credentials):
-    """Adds oauth token to database"""
-    runner_id = session.get('runner_id')
-    runner = Runner.query.get(runner_id)
-    runner.OAuth_token = credentials.to_json()
-    db.session.commit()
-
-
-def generate_running_dates(start_date, end_date):
-    """Generates a list of dates for the duration of the users running plan"""
-
-    first_monday = start_date - timedelta(days=start_date.weekday())
-    days_to_goal = (end_date - first_monday).days + 1
-    dates = []
-
-    for i in range(days_to_goal):
-        run_date = first_monday+timedelta(days=+i)
-        dates.append(run_date)
-
-    return dates
-
-
-def calculate_weeks_in_plan(plan):
-    """Given a plan, calculate the number of weeks in that plan."""
-
-    days_to_goal = calculate_days_to_goal(plan.start_date, plan.end_date)
-    weeks_in_plan = int(math.ceil(days_to_goal / 7.0))
-
-    return weeks_in_plan
-
-
 def get_runs_for_reminder_texts(run_date):
     """Query database for all users who need to receive a text reminder."""
 
@@ -244,30 +143,6 @@ def get_runs_for_reminder_texts(run_date):
                                                                          Run.date == run_date).all()
     return runs_for_date
 
-
-def update_runner_text_subscription(runner_id, is_subscribed):
-    """Updates the runner's subscription to receive text reminders in the database."""
-    
-    runner = Runner.query.get(runner_id)
-    runner.is_subscribed_to_texts = is_subscribed
-    db.session.commit()
-
-
-def update_runner_email_subscription(runner_id, is_subscribed):
-    """Updates the runner's subscription to receive email reminders in the database."""
-    
-    runner = Runner.query.get(runner_id)
-    runner.is_subscribed_to_email = is_subscribed
-    db.session.commit()
-
-
-def update_runner_phone(runner_id, raw_phone):
-    """Updates the runner's phone number in the database"""
-
-    formatted_phone = "+1%s" % raw_phone
-    runner = Runner.query.get(runner_id)
-    runner.phone = formatted_phone
-    db.session.commit()
 
 def send_reminder_sms_messages(run_date):
     """Send text messages to runners via Twilio."""
@@ -294,6 +169,7 @@ def send_reminder_sms_messages(run_date):
     else:
         print "No runs for today!"
         return False
+
 
 def response_to_inbound_text(number, message_body):
     """Response to an inbound text message to update run in database, send words
@@ -379,26 +255,3 @@ def send_email_reminders():
         print(response.headers)
 
     return runners_for_emails
-
-
-def calculate_total_mileage(runs_in_plan):
-    """Calculate the total miles in the runner's current plan."""
-
-    total_mileage = 0
-
-    for run in runs_in_plan:
-        total_mileage = total_mileage + run.distance
-
-    return total_mileage
-
-
-# def calculate_total_miles_completed(runs_in_plan):
-#     """Calculate the total miles completed in the runner's current plan."""
-
-#     total_miles_completed = 0
-
-#     for run in runs_in_plan:
-#         if run.is_completed:
-#             total_miles_completed = total_miles_completed + run.distance
-
-#     return total_miles_completed
