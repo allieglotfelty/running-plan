@@ -33,6 +33,13 @@ $(document).ready(function() {
     $.get("/mileage-info.json", displayMileageInfo);
   }
 
+  var phones = [{ "mask": "(###) ###-####"}];
+    $('.phone').inputmask({
+                            mask: phones,
+                            greedy: false,
+                            definitions: { '#': { validator: "[0-9]", cardinality: 1}} }
+  );
+
   $('input:checkbox.workout').change(updateDoughnutChartInfo);
   $(".run.incompleted-run").on("dblclick", updateDoughnutChartInfo);
   $(".run.completed-run").on("dblclick", updateDoughnutChartInfo);

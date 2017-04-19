@@ -15,26 +15,6 @@ class ServerTestsNoDB(unittest.TestCase):
         self.assertIn("What is your running goal", result.data)
         self.assertEqual(result.status_code, 200)
 
-    def test_homepage_after_generate_plan(self):
-        result = self.client.post("/plan.json", data={"current-ability": 2, 
-                                                       "goal-distance": 13.1,
-                                                       "goal-date": "2017-12-03"},
-                                                       follow_redirects=True)
-
-        self.assertIn("13.1", result.data)
-        self.assertIn("2017-12-03", result.data)
-        self.assertEqual(result.status_code, 200)
-
-
-    def test_homepage_if_click_generate_plan_without_info(self):
-        result = self.client.post("/plan.json", data={"current-ability": "---",
-                                                       "goal-distance": "---",
-                                                       "goal-date": "2017-06-03"},
-                                                       follow_redirects=True)
-        self.assertNotIn("13.1", result.data)
-        self.assertIn("Please complete all fields", result.data)
-        self.assertEqual(result.status_code, 200)
-
 
     def test_download_good_info(self):
         with self.client as c:
@@ -52,9 +32,18 @@ class ServerTestsNoDB(unittest.TestCase):
 
     def test_logout(self):
         result = self.client.get("/logout-complete", follow_redirects=True)
-        self.assertIn("What is your running goal", result.data)
-        self.assertIn("You have successfully logged out!", result.data)
+        self.assertIn("Generate Plan!", result.data)
         self.assertEqual(result.status_code, 200)
+
+    # def test_send_sms_with_messages_to_send(self):
+    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-30"},
+    #                                                            follow_redirects=True)
+    #     self.assertIn("Messages sent successfully!", result.data)
+
+    # def test_send_sms_with_no_messages_to_send(self):
+    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-27"},
+    #                                                            follow_redirects=True)
+    #     self.assertIn("No messages sent.", result.data)
 
 
 class ServerTestsWithDB(unittest.TestCase):
@@ -139,6 +128,7 @@ class ServerTestsWithDB(unittest.TestCase):
         self.assertIn('"total_miles_completed": 11.0', result.data)
         self.assertEqual(result.status_code, 200)
 
+
     def test_update_incomplete_run(self):
         """Test that a user can unclick a run they actually didn't complete."""
 
@@ -153,32 +143,140 @@ class ServerTestsWithDB(unittest.TestCase):
         self.assertIn('"total_miles_completed": 0', result.data)
         self.assertEqual(result.status_code, 200)
 
-    def test_if_timezone_in_session(self):
-        """Test that the timezone was effectively saved to the session."""
+    def test_workout_chart(self):
+        """Test that the workout chartjs chart renders properly."""
 
         with self.client as c:
             with c.session_transaction() as sess:
-                session = {}
+                sess['runner_id'] = 1
 
-        result = self.client.get("/add-timezone-to-session",
-                                 data={"time-zone": "America/Anchorage"}
-                                 )
-        self.assertIn('"message": "timezone updated"', result.data)
-        self.assertEqual(result.status_code, 200)
+        result = self.client.get("/workout-info.json")
 
-    def test_if_start_time_in_session(self):
-        """Test that the start time was effectively saved to the session."""
+        self.assertIn("Workouts Remaining", result.data)
+
+
+    def test_mileage_chart(self):
+        """Test that the mileage chartjs chart renders properly."""
 
         with self.client as c:
             with c.session_transaction() as sess:
-                session = {}
+                sess['runner_id'] = 1
 
-        result = self.client.get("/add-start-time-to-session",
-                                 data={"cal-run-start-time": "09:00"}
-                                 )
-        print result
-        self.assertIn('"message": "start time updated"', result.data)
+        result = self.client.get("/mileage-info.json")
+
+        self.assertIn("Total Miles Remaining", result.data)
+
+
+    def test_update_account_adding_email(self):
+        """Test that the runner's account updates properly when they sign-up to
+        receive emails on the Accountability Settings form.
+        """
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 1
+
+        result = self.client.post("/update-account", data={"opt-email": "on"}, follow_redirects=True)
+
+        self.assertIn("You are now subscribed to receive weekly emails.", result.data)
+        self.assertIn('<input type="checkbox" class="opt-email" name="opt-email" checked="checked">', result.data)
+
+
+    def test_update_account_text(self):
+        """Test that the runner's account updates properly when they sign-up to
+        receive text messages on the Accountability Settings form.
+        """
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 1
+
+        result = self.client.post("/update-account", data={"opt-text": "on",
+                                                           "phone-number": '(603) 275-0521'},
+                                                           follow_redirects=True)
+
+        self.assertIn("You are now signed-up to receive text message reminders.", result.data)
+        self.assertIn('<input type="checkbox" class="opt-text" name="opt-text" checked="checked">', result.data)
+
+
+    def test_update_account_timezone(self):
+        """Test that the runner's account updates properly when they update
+        their timezone on the Accountability Settings form.
+        """
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 1
+
+        result = self.client.post("/update-account", data={"time-zone": "America/Anchorage"},
+                                                           follow_redirects=True)
+
+        self.assertIn('<option selected value="America/Anchorage">America/Anchorage</option>', result.data)
+
+
+    def test_update_account_start_time(self):
+        """Test that the runner's account updates properly when they update
+        their start time on the Accountability Settings form.
+        """
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 1
+
+        result = self.client.post("/update-account", data={"cal-run-start-time": "04:00:00"},
+                                                           follow_redirects=True)
+
+        self.assertIn('<option selected value="04:00:00">04:00:00</option>', result.data)
+
+    def test_update_account_removing_email(self):
+        """Test that the runner's account updates properly when they unsign-up to
+        receive emails on the Accountability Settings form.
+        """
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 2
+
+        result = self.client.post("/update-account", data={"opt-email": None}, follow_redirects=True)
+
+        self.assertIn("You are no longer subscribed to weekly emails.", result.data)
+        self.assertIn('<input type="checkbox" class="opt-email" name="opt-email">', result.data)
+
+
+    def test_update_account_removing_text(self):
+        """Test that the runner's account updates properly when they unsign-up to
+        receive texts on the Accountability Settings form.
+        """
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 2
+
+        result = self.client.post("/update-account", data={"opt-text": None}, follow_redirects=True)
+
+        self.assertIn("You will no longer receive text message reminders.", result.data)
+        self.assertIn('<input type="checkbox" class="opt-text" name="opt-text">', result.data)
+
+
+    def test_update_account_removing_gcal(self):
+        """Test that the runner's account updates properly when they unsign-up to
+        add runs to their Google Calendar on the Accountability Settings form.
+        """
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 2
+
+        result = self.client.post("/update-account", data={"opt-gcal": None}, follow_redirects=True)
+
+        self.assertIn('<input type="checkbox" class="opt-gcal" name="opt-gcal">', result.data)
+
+
+    def test_admin(self):
+        """Test that admin page renders properly."""
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['admin'] = 'admin'
+
+        result = self.client.get("/admin")
+        self.assertIn("<h1>Admin Page</h1>", result.data)
         self.assertEqual(result.status_code, 200)
+
+
 
 if __name__ == "__main__":
     unittest.main()

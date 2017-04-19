@@ -252,3 +252,12 @@ def send_email_reminders():
         print(response.headers)
 
     return runners_for_emails
+
+
+def is_admin(password):
+    """Checks if the user who logged in is an admin."""
+
+    admin_salt = 'EdHqqrZbJPxjpKfX'
+    hashed_password = generate_hashed_password(password, admin_salt)
+
+    return hashed_password == '7652c53ed89bf85a6da936f614bb32c9274706b7dbafe2a5fe68bbeebf24d9e1'

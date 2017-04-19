@@ -159,13 +159,6 @@ $(document).ready(function() {
     }
   });
 
-  var phones = [{ "mask": "(###) ###-####"}];
-    $('.phone').inputmask({
-                            mask: phones,
-                            greedy: false,
-                            definitions: { '#': { validator: "[0-9]", cardinality: 1}} }
-    );
-
 
   function planNameUpdated(results) {
     $("#plan-name-change-box").hide();

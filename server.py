@@ -65,6 +65,7 @@ def generate_plan():
                                                             raw_end_date)
     except Exception, e:
         weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
+
     results = jsonify(weekly_plan)
 
     return results
@@ -135,7 +136,7 @@ def process_login():
     raw_runner_email = request.form.get("email")
     raw_runner_password = request.form.get("password")
 
-    if raw_runner_email == 'admin@admin.com' and raw_runner_password == 'cheese':
+    if raw_runner_email == 'admin@admin.com' and server_utilities.is_admin(raw_runner_password):
         session['admin'] = 'admin'
         return redirect('/admin')
     try:
@@ -316,34 +317,6 @@ def return_total_miles_info_for_doughnut_chart():
     return jsonify(data_dict)
 
 
-@app.route('/add-timezone-to-session', methods=["GET"])
-def add_timezone_to_session():
-    """Adds the users selected timezone to the session to be
-    added to their Google Calendar.
-    """
-
-    timezone = request.args.get("time-zone")
-    session['timezone'] = timezone
-    message = {'message': 'timezone updated'}
-
-    return jsonify(message)
-
-
-@app.route('/add-start-time-to-session', methods=["GET"])
-def add_start_time_to_session():
-    """Adds the users selected run start time to the session to be
-    added to their Google Calendar.
-    """
-
-    entered_start_time = request.args.get("cal-run-start-time")
-    formatted_start_time = datetime.strptime(entered_start_time, '%H:%M')
-    session['preferred_start_time'] = formatted_start_time
-
-    message = {'message': 'start time updated'}
-
-    return jsonify(message)
-
-
 @app.route('/add-to-google-calendar', methods=["POST", "GET"])
 def add_runs_to_runners_google_calendar_account():
     """Adds a runner's runs to their Google Calendar account."""
@@ -464,8 +437,9 @@ def update_account_settings():
         runner.update_phone(phone)
         flash("Your phone number has been updated.")
 
-    if timezone is not runner.timezone:
-        runner.update_timezone(timezone)
+    if timezone:
+        if timezone is not runner.timezone:
+            runner.update_timezone(timezone)
 
     if start_time:
         start_time_formatted = datetime.strptime(str(start_time), '%H:%M:%S')
@@ -498,34 +472,6 @@ def update_account_settings():
         runner.update_is_using_gCal(False)
 
     return redirect("/dashboard")
-
-
-@app.route('/opt-into-text-reminders.json', methods=["POST"])
-def opt_into_text_reminders():
-    """Opts the runner into receiving text reminders. Updates their phone number
-    and is_subscribed_to_texts in the database.
-    """
-
-    runner_id = request.form.get('runnerId')
-    raw_phone = request.form.get('phone')
-    runner = Runner.query.get(runner_id)
-
-    runner.update_text_subscription(True)
-    runner.update_phone(raw_phone)
-
-    return jsonify({'success': 'success!'})
-
-
-@app.route('/opt-out-of-text-reminders.json', methods=["POST"])
-def opt_out_of_text_reminders():
-    """Opts the runner out of receiving text reminders and updates
-    is_subscribed_to_texts to false in the database.
-    """
-
-    runner_id = request.form.get('runnerId')
-    runner.update_text_subscription(False)
-
-    return jsonify({'success': 'success!'})
 
 
 @app.route('/send-sms-reminders', methods=["POST"])
@@ -574,84 +520,6 @@ def send_weekly_emails():
         flash("No emails to send.")
 
     return redirect('/admin')
-
-
-@app.route('/opt-into-email-reminders.json', methods=["POST"])
-def opt_into_email_reminders():
-    """Updates runner in database to receive text reminders."""
-
-    response = request.form.get("subscription")
-    runner_id = request.form.get("runnerId")
-
-    if response == 'yes':
-        runner = Runner.query.get(runner_id)
-        runner.is_subscribed_to_email = True
-        db.session.commit()
-        return jsonify({"response": 'yes'})
-    else:
-        return jsonify({"response": 'no'})
-
-
-@app.route('/opt-out-of-email-reminders.json', methods=["POST"])
-def opt_out_of_email_reminders():
-    """Opt user out of emails by updating the database."""
-
-    runner_id = request.form.get("runnerId")
-    runner = Runner.query.get(runner_id)
-    runner.is_subscribed_to_email = False
-    db.session.commit()
-
-    return jsonify({"response": "done"})
-
-
-@app.route('/dailymile-oauth2callback')
-def dailymile_oauth2callback():
-    """Flow stores application secrets and site access we are requesting.
-    Then, redirects the user to the authorization uri - site for them to login
-    and/or provide permissions for the application to access their protected
-    resources.
-    """
-
-    CLIENT_ID = os.environ['DAILYMILE_ACCOUNT_ID']
-    DAILYMILE_SECRET = os.environ['DAILYMILE_SECRET']
-
-
-    oauth = OAuth()
-
-    dmile = oauth.remote_app(
-        'dailymile',
-        consumer_key=CLIENT_ID,
-        consumer_secret=DAILYMILE_SECRET,
-        request_token_params={'scope': 'email,statuses_to_me_read'},
-        base_url='https://api.weibo.com/2/',
-        authorize_url='https://api.weibo.com/oauth2/authorize',
-        request_token_url=None,
-        access_token_method='POST',
-        access_token_url='https://api.weibo.com/oauth2/access_token',
-
-        # force to parse the response in applcation/json
-        content_type='application/json',
-    )
-
-    flow = client.flow_from_clientsecrets(
-        'secrets.sh',
-        scope='https://api.dailymile.com/oauth/authorize?',
-        redirect_uri=url_for('display_runner_page')
-        )
-    if 'code' not in request.args:
-        # Send user to email page & asks permission to send info to calendar
-        auth_uri = flow.step1_get_authorize_url()
-        return redirect(auth_uri)
-    else:
-        # answer from user re: using calendar, gives back oauth token to send info to calendar
-        auth_code = request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        session['credentials'] = credentials.to_json()
-
-        runner_id = session.get('runner_id')
-        runner = Runner.query.get(runner_id)
-        runner.add_oauth_token_to_database(credentials)
-        return redirect(url_for('add_runs_to_runners_google_calenadr_account'))
 
 
 if __name__ == "__main__":

@@ -271,13 +271,18 @@ def example_data():
     """Creates some sample data for testing."""
     start_date = datetime.today()
 
-    sally = Runner(email='sally@gmail.com', password='password', salt='sldeifwlopcSDUEo')
-    plan = Plan(plan_id=1, runner_id=1, start_date="2017-03-29", end_date="2017-05-27", goal_distance=13.1, current_ability=6)
+    sally = Runner(runner_id=1, email='sally@gmail.com', password='password', salt='sldeifwlopcSDUEo')
+    fred = Runner(runner_id=2, email='fred@gmail.com', password='password', salt='dhelsidehwddiaoe', is_subscribed_to_email=True, is_using_gCal=True, is_subscribed_to_texts=True)
+    plan1 = Plan(plan_id=1, runner_id=1, start_date="2017-03-29", end_date="2017-05-27", goal_distance=13.1, current_ability=6)
+    plan2 = Plan(plan_id=2, runner_id=2, start_date="2017-04-29", end_date="2017-05-27", goal_distance=10, current_ability=1)
     run1 = Run(run_id=1, plan_id=1, date="2017-04-27", distance=7, is_completed=True, is_on_gCal=False)
     run2 = Run(run_id=2, plan_id=1, date="2017-04-28", distance=4, is_completed=False, is_on_gCal=False)
     run3 = Run(run_id=3, plan_id=1, date="2017-04-29", distance=2, is_completed=False, is_on_gCal=False)
+    run4 = Run(run_id=4, plan_id=2, date="2017-04-30", distance=7, is_completed=True, is_on_gCal=False)
+    run5 = Run(run_id=5, plan_id=2, date="2017-05-01", distance=4, is_completed=False, is_on_gCal=False)
+    run6 = Run(run_id=6, plan_id=2, date="2017-05-02", distance=2, is_completed=False, is_on_gCal=False)
 
-    db.session.add_all([sally, plan, run1, run2, run3])
+    db.session.add_all([sally, fred, plan1, plan2, run1, run2, run3, run4, run5, run6])
     db.session.commit()
 
 ##############################################################################
