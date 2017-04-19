@@ -33,6 +33,17 @@ class Runner(db.Model):
     OAuth_token = db.Column(db.String, nullable=True)
     photo = db.Column(db.String(200), nullable=True)
 
+    @staticmethod
+    def format_phone(phone):
+        """Formats the runner's phone number to work for Twilio messaging."""
+
+        new_phone = "+1"
+        for char in phone:
+            if char.isdigit():
+                new_phone += char
+
+        return new_phone
+
 
     def calculate_today_date_for_runner(self):
         """Calculates current date in Pacific time."""
@@ -74,7 +85,8 @@ class Runner(db.Model):
     def update_phone(self, raw_phone):
         """Updates the runner's phone number in the database"""
 
-        formatted_phone = "+1%s" % raw_phone
+        formatted_phone = Runner.format_phone(raw_phone)
+
         self.phone = formatted_phone
         db.session.commit()
 
@@ -84,6 +96,7 @@ class Runner(db.Model):
 
         self.timezone = new_timezone
         db.session.commit()
+
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -212,8 +225,7 @@ class Plan(db.Model):
     def update_start_time(self, start_time):
         """Updates the plan's start time to the database."""
 
-        start_time_formatted = datetime.strptime(start_time, '%H:%M:%S')
-        self.start_time = start_time_formatted
+        self.start_time = start_time
         db.session.commit()
 
 

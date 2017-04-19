@@ -192,9 +192,11 @@ def display_runner_page():
     weeks_in_plan = current_plan.calculate_weeks_in_plan()
     runs = {}
     for run in current_plan.runs:
+        future = today_date < run.date
         runs[run.date] = {'run_id': run.run_id,
                           'distance': run.distance,
-                          'is_completed': run.is_completed}
+                          'is_completed': run.is_completed,
+                          'is_in_future': future}
 
     return render_template("runner_dashboard.html", runner=runner,
                                                     plan=current_plan,
@@ -204,7 +206,8 @@ def display_runner_page():
                                                     total_workouts_completed=total_workouts_completed,
                                                     total_miles_completed=total_miles_completed,
                                                     dates=dates,
-                                                    times=times)
+                                                    times=times,
+                                                    today_date=today_date)
 
 
 @app.route('/update-run.json', methods=["POST"])
@@ -452,55 +455,47 @@ def update_account_settings():
     opt_gcal = request.form.get("opt-gcal")
     timezone = request.form.get("time-zone")
     start_time = request.form.get("cal-run-start-time")
-    start_time_formatted = datetime.strptime(start_time, '%H:%M:%S')
 
-    # opt_gcal = bool(opt_gcal)
-    print "Type opt_email is %s" % type(str(opt_email))
-    print "Type of opt_gcal is %s" % type(str(opt_gcal))
-    print "Opt_email is %s" % opt_email
-    print "Opt_text is %s" % opt_text
-    print "Opt_gcal is %s" % opt_gcal
-    print "phone is %s" % phone
     print "timezone is %s" % timezone
-    print "start_time is %s" % start_time
-    print "current_plan.start_time.time() is %s" % current_plan.start_time
-    print "are starttimes the same? %s" % (current_plan.start_time == start_time_formatted)
-    print "runner.is_using_gCal is %s" % runner.is_using_gCal
-    print "runner.is_using_gCal is not equal to opt_gcal? %s" % (opt_gcal is not runner.is_using_gCal)
-    print "type of runner.is_using_gCal is %s" % type(runner.is_using_gCal)
-    print "type of opt_gcal is %s" % type(opt_gcal)
+    print "runner timezone is %s" % runner.timezone
+    print "runner timezone equal timezone? %s" % (runner.timezone == timezone)
+
+    if phone:
+        runner.update_phone(phone)
+        flash("Your phone number has been updated.")
+
+    if timezone is not runner.timezone:
+        runner.update_timezone(timezone)
+
+    if start_time:
+        start_time_formatted = datetime.strptime(str(start_time), '%H:%M:%S')
+        if start_time_formatted.time() is not current_plan.start_time.time():
+            current_plan.update_start_time(start_time_formatted)
 
     if not runner.is_subscribed_to_texts and opt_text == 'on':
         runner.update_text_subscription(True)
         runner.update_phone(phone)
-        print "runner's text was added"
+        flash("You are now signed-up to receive text message reminders.")
 
     if runner.is_subscribed_to_texts and not opt_text:
         runner.update_text_subscription(False)
-        print "runner's text was canceled"
+        flash("You will no longer receive text message reminders.")
 
     if not runner.is_subscribed_to_email and opt_email == 'on':
         runner.update_email_subscription(True)
-        print "runner is now subscribed to weekly emails"
+        flash("You are now subscribed to receive weekly emails.")
 
     if runner.is_subscribed_to_email and not opt_email:
         runner.update_email_subscription(False)
-        print "runner is no longer subscribed to weekly emails"
+        flash("You are no longer subscribed to weekly emails.")
 
     if not runner.is_using_gCal and opt_gcal == 'on':
         runner.update_is_using_gCal(True)
-        print "runner is now using google calendar"
-
-        if timezone is not runner.timezone:
-            runner.update_timezone(timezone)
-
-        if start_time is not current_plan.start_time:
-            current_plan.update_start_time(start_time)
 
         return redirect('/add-to-google-calendar')
 
     if runner.is_using_gCal and not opt_gcal:
-        runner.update_is_using_gCal(True)
+        runner.update_is_using_gCal(False)
 
     return redirect("/dashboard")
 

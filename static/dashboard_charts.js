@@ -34,6 +34,8 @@ $(document).ready(function() {
   }
 
   $('input:checkbox.workout').change(updateDoughnutChartInfo);
+  $(".run.incompleted-run").on("dblclick", updateDoughnutChartInfo);
+  $(".run.completed-run").on("dblclick", updateDoughnutChartInfo);
   $.get("/workout-info.json", displayWorkoutInfo);
   $.get("/mileage-info.json", displayMileageInfo);
 });
