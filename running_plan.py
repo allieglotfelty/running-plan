@@ -86,7 +86,7 @@ def generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, start_date, curren
     is ramping his/her mileage by the calculated increment each week.
     """
 
-    for week in range(start_week, weeks_to_goal + 1):
+    for week in range(start_week, weeks_to_goal-1):
         weekly_plan[week] = {}
         long_run = float('%.2f' % (current_ability + ((week - start_week) * increment)))
         mid_run = long_run/2
@@ -108,7 +108,7 @@ def generate_second_to_last_week_of_plan(weekly_plan, weeks_to_goal, current_abi
     long_run = float(current_ability)
     short_run = long_run/4
     mid_run = long_run/2
-    week = weeks_to_goal + 1
+    week = weeks_to_goal - 1
 
     weekly_plan[week] = {}
     for i in range(7):
@@ -152,7 +152,7 @@ def generate_last_week_of_plan(weekly_plan, weeks_to_goal, goal_distance, curren
     for i in range(7):
         deltas[i] = str(end_date + relativedelta(days=(-i)))
 
-    week = weeks_to_goal + 2
+    week = weeks_to_goal
     weekly_plan[week] = {}
 
     for day in range(end_day+1):
@@ -177,7 +177,8 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     weeks_to_goal = calculate_number_of_weeks_to_goal(start_date, end_date)
 
     weekly_plan = {}
-    increment = (goal_distance - current_ability) / float(weeks_to_goal)
+    increment = (goal_distance - current_ability) / float(weeks_to_goal-2)
+    print increment
 
     # Create all runs if start date is a Monday
     if start_date_day == 0:

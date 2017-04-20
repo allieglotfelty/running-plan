@@ -99,7 +99,7 @@ def generate_run_events_for_google_calendar(plan, timezone, chosen_start_time):
     runs = plan.runs
     run_events = []
 
-    for run in runs[15:20]:
+    for run in runs:
         if not run.is_on_gCal:
             title = "Run %s miles" % run.distance
             date = run.date

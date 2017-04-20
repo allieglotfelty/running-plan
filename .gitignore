@@ -26,3 +26,6 @@ twilio_text_output.tx
 twilio_text_output.txt
 running_plan2.py
 running_plan2.pyc
+cronjobs.txt
+gcal_cron.py
+gcal_cronjob.txt

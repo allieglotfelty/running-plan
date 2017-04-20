@@ -321,9 +321,6 @@ def return_total_miles_info_for_doughnut_chart():
 def add_runs_to_runners_google_calendar_account():
     """Adds a runner's runs to their Google Calendar account."""
 
-    # timezone = session.get('timezone')
-    # preferred_start_time = session.get('preferred_start_time')
-
     # If there are no credentials in the current session, redirect to get oauth permisssions
     if not session.get('credentials'):
         return redirect(url_for('oauth2callback'))
@@ -395,7 +392,8 @@ def oauth2callback():
         runner_id = session.get('runner_id')
         runner = Runner.query.get(runner_id)
         runner.add_oauth_token_to_database(credentials)
-        return redirect(url_for('add_runs_to_runners_google_calendar_account'))
+        return redirect(url_for('display_runner_page'))
+        # return redirect(url_for('add_runs_to_runners_google_calendar_account'))
 
 
 @app.route('/update-plan-name.json', methods=["POST"])
@@ -466,7 +464,8 @@ def update_account_settings():
     if not runner.is_using_gCal and opt_gcal == 'on':
         runner.update_is_using_gCal(True)
 
-        return redirect('/add-to-google-calendar')
+        # return redirect('/add-to-google-calendar')
+        return redirect('/oauth2callback')
 
     if runner.is_using_gCal and not opt_gcal:
         runner.update_is_using_gCal(False)
