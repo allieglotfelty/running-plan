@@ -355,8 +355,7 @@ class SeleniumUITests(unittest.TestCase):
         dropdown2.selectByVisibleText("Half Marathon (13.1 miles)")
         dropdown3 = self.browser.find_element_by_id("goal-date")
         dropdown3.send_keys("2017-06-24")
-        # dropdown3 = self.browser.find_element_by_xpath("//input[@id='goal-date']//[text()='2017-06-24']")).click() 
-        
+        # dropdown3 = self.browser.find_element_by_xpath("//input[@id='goal-date']//[text()='2017-06-24']")).click()
 
         btn = self.browser.find_element_by_id('generate-plan')
         btn.click()

@@ -140,7 +140,7 @@ def process_login():
         session['admin'] = 'admin'
         return redirect('/admin')
     try:
-        runner_account = Runner.query.filter_by(email=raw_runner_email).one()
+        runner_account = Runner.query.filter_by(email=raw_runner_email).first()
     except Exception, e:
         runner_account = False
 
@@ -179,7 +179,7 @@ def display_runner_page():
     today_date = runner.calculate_today_date_for_runner()
 
     current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id,
-                                                              Plan.end_date>=today_date).one()
+                                                              Plan.end_date>=today_date).first()
 
     dates = current_plan.generate_running_dates()
 
@@ -348,7 +348,7 @@ def add_runs_to_runners_google_calendar_account():
 
         today_date = runner.calculate_today_date_for_runner()
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
-                                                                  Plan.end_date >= today_date).one()
+                                                                  Plan.end_date >= today_date).first()
         timezone = runner.timezone
         preferred_start_time = current_plan.start_time
 
@@ -421,7 +421,7 @@ def update_account_settings():
     runner = Runner.query.get(runner_id)
     today_date = runner.calculate_today_date_for_runner()
     current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
-                                                              Plan.end_date >= today_date).one()
+                                                              Plan.end_date >= today_date).first()
     opt_email = request.form.get("opt-email")
     opt_text = request.form.get("opt-text")
     phone = request.form.get("phone-number")
