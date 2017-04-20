@@ -1,7 +1,10 @@
 import unittest
-
 from server import app
 from model import db, example_data, connect_to_db
+import running_plan
+from datetime import datetime, date
+from selenium import webdriver
+import time
 
 class ServerTestsNoDB(unittest.TestCase):
     """Tests for Run Holmes site."""
@@ -35,56 +38,15 @@ class ServerTestsNoDB(unittest.TestCase):
         self.assertIn("Generate Plan!", result.data)
         self.assertEqual(result.status_code, 200)
 
-    # def test_send_sms_with_messages_to_send(self):
-    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-30"},
-    #                                                            follow_redirects=True)
-    #     self.assertIn("Messages sent successfully!", result.data)
-
-    # def test_send_sms_with_no_messages_to_send(self):
-    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-27"},
-    #                                                            follow_redirects=True)
-    #     self.assertIn("No messages sent.", result.data)
-
-
-class ServerTestsWithDB(unittest.TestCase):
-    """Flask tests that use the database."""
-
-    def setUp(self):
-        """What to do before each test."""
-
-        self.client = app.test_client()
-        app.config['TESTING'] = True
-        connect_to_db(app, 'postgresql:///testdb')
-
-        db.create_all()
-        example_data()
-
-    def tearDown(self):
-        """Do at end of each test."""
-
-        db.session.close()
-        db.drop_all()
 
     def test_sign_up_complete(self):
         """Test that the sign-up works."""
+
         result = self.client.post('/sign-up-complete', data={'email': 'john@gmail.com',
                                                              "password": 'password'}, 
                                                              follow_redirects=True)
         self.assertIn('<h1>Running Dashboard</h1>', result.data)
         self.assertNotIn('<h1>Sign-up</h1>', result.data)
-        self.assertEqual(result.status_code, 200)
-
-
-    def test_login_good_account(self):
-        """Test that login works with a good account."""
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
-
-        result = self.client.post('/login-complete', data={'email': 'sally@gmail.com',
-                                                           'password': 'password'},
-                                                           follow_redirects=True)
-        self.assertIn('<h1>Running Dashboard</h1>', result.data)
         self.assertEqual(result.status_code, 200)
 
 
@@ -99,12 +61,52 @@ class ServerTestsWithDB(unittest.TestCase):
         self.assertNotIn('<h1>Running Dashboard</h1>', result.data)
         self.assertEqual(result.status_code, 200)
 
+    # def test_send_sms_with_messages_to_send(self):
+    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-30"},
+    #                                                            follow_redirects=True)
+    #     self.assertIn("Messages sent successfully!", result.data)
 
-    def test_dashboard(self):
-        """Test that the dashboard will display when a user is logged in."""
+    # def test_send_sms_with_no_messages_to_send(self):
+    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-27"},
+    #                                                            follow_redirects=True)
+    #     self.assertIn("No messages sent.", result.data)
+
+
+class ServerTestsWithDBRunnerOne(unittest.TestCase):
+    """Flask tests that use the database."""
+
+    def setUp(self):
+        """What to do before each test."""
+
+        self.client = app.test_client()
+        app.config['TESTING'] = True
+        connect_to_db(app, 'postgresql:///testdb')
+
+        db.create_all()
+        example_data()
+
         with self.client as c:
             with c.session_transaction() as sess:
                 sess['runner_id'] = 1
+
+    def tearDown(self):
+        """Do at end of each test."""
+
+        db.session.close()
+        db.drop_all()
+
+    def test_login_good_account(self):
+        """Test that login works with a good account."""
+
+        result = self.client.post('/login-complete', data={'email': 'sally@gmail.com',
+                                                           'password': 'password'},
+                                                           follow_redirects=True)
+        self.assertIn('<h1>Running Dashboard</h1>', result.data)
+        self.assertEqual(result.status_code, 200) 
+
+
+    def test_dashboard(self):
+        """Test that the dashboard will display when a user is logged in."""
 
         result = self.client.get("/dashboard")
         self.assertIn("Monday", result.data)
@@ -117,9 +119,6 @@ class ServerTestsWithDB(unittest.TestCase):
         """Test that the user can effectively update their run from their 
         dashboard.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
 
         result = self.client.post("/update-run.json",
                                   data={'run-id': 2},
@@ -132,10 +131,6 @@ class ServerTestsWithDB(unittest.TestCase):
     def test_update_incomplete_run(self):
         """Test that a user can unclick a run they actually didn't complete."""
 
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
-
         result = self.client.post("/update-run-incomplete.json",
                                   data={'run-id': 1},
                                   follow_redirects=True)
@@ -146,10 +141,6 @@ class ServerTestsWithDB(unittest.TestCase):
     def test_workout_chart(self):
         """Test that the workout chartjs chart renders properly."""
 
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
-
         result = self.client.get("/workout-info.json")
 
         self.assertIn("Workouts Remaining", result.data)
@@ -157,10 +148,6 @@ class ServerTestsWithDB(unittest.TestCase):
 
     def test_mileage_chart(self):
         """Test that the mileage chartjs chart renders properly."""
-
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
 
         result = self.client.get("/mileage-info.json")
 
@@ -171,9 +158,6 @@ class ServerTestsWithDB(unittest.TestCase):
         """Test that the runner's account updates properly when they sign-up to
         receive emails on the Accountability Settings form.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
 
         result = self.client.post("/update-account", data={"opt-email": "on"}, follow_redirects=True)
 
@@ -185,9 +169,6 @@ class ServerTestsWithDB(unittest.TestCase):
         """Test that the runner's account updates properly when they sign-up to
         receive text messages on the Accountability Settings form.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
 
         result = self.client.post("/update-account", data={"opt-text": "on",
                                                            "phone-number": '(603) 275-0521'},
@@ -201,9 +182,6 @@ class ServerTestsWithDB(unittest.TestCase):
         """Test that the runner's account updates properly when they update
         their timezone on the Accountability Settings form.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
 
         result = self.client.post("/update-account", data={"time-zone": "America/Anchorage"},
                                                            follow_redirects=True)
@@ -215,22 +193,40 @@ class ServerTestsWithDB(unittest.TestCase):
         """Test that the runner's account updates properly when they update
         their start time on the Accountability Settings form.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 1
 
         result = self.client.post("/update-account", data={"cal-run-start-time": "04:00:00"},
                                                            follow_redirects=True)
 
         self.assertIn('<option selected value="04:00:00">04:00:00</option>', result.data)
 
+
+class ServerTestsWithDBRunnerTwo(unittest.TestCase):
+    """Flask tests that use the database."""
+
+    def setUp(self):
+        """What to do before each test."""
+
+        self.client = app.test_client()
+        app.config['TESTING'] = True
+        connect_to_db(app, 'postgresql:///testdb')
+
+        db.create_all()
+        example_data()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['runner_id'] = 2
+
+    def tearDown(self):
+        """Do at end of each test."""
+
+        db.session.close()
+        db.drop_all()
+
     def test_update_account_removing_email(self):
         """Test that the runner's account updates properly when they unsign-up to
         receive emails on the Accountability Settings form.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 2
 
         result = self.client.post("/update-account", data={"opt-email": None}, follow_redirects=True)
 
@@ -242,9 +238,6 @@ class ServerTestsWithDB(unittest.TestCase):
         """Test that the runner's account updates properly when they unsign-up to
         receive texts on the Accountability Settings form.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 2
 
         result = self.client.post("/update-account", data={"opt-text": None}, follow_redirects=True)
 
@@ -256,26 +249,121 @@ class ServerTestsWithDB(unittest.TestCase):
         """Test that the runner's account updates properly when they unsign-up to
         add runs to their Google Calendar on the Accountability Settings form.
         """
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['runner_id'] = 2
 
         result = self.client.post("/update-account", data={"opt-gcal": None}, follow_redirects=True)
 
         self.assertIn('<input type="checkbox" class="opt-gcal" name="opt-gcal">', result.data)
 
 
-    def test_admin(self):
-        """Test that admin page renders properly."""
+class ServerTestsWithAdmin(unittest.TestCase):
+    """Flask tests that use the database."""
+
+    def setUp(self):
+        """What to do before each test."""
+
+        self.client = app.test_client()
+        app.config['TESTING'] = True
+        connect_to_db(app, 'postgresql:///testdb')
+
+        db.create_all()
+        example_data()
 
         with self.client as c:
             with c.session_transaction() as sess:
                 sess['admin'] = 'admin'
 
+
+    def tearDown(self):
+        """Do at end of each test."""
+
+        db.session.close()
+        db.drop_all()
+
+
+    def test_admin(self):
+        """Test that admin page renders properly."""
+
         result = self.client.get("/admin")
         self.assertIn("<h1>Admin Page</h1>", result.data)
         self.assertEqual(result.status_code, 200)
 
+
+class RunningPlanUnitTests(unittest.TestCase):
+    """Unit tests!"""
+
+    def test_round_quarter(self):
+        """Test that the round_quarter function works."""
+
+        assert running_plan.round_quarter(12) == 12.0
+        assert running_plan.round_quarter(12.10) == 12.0
+        assert running_plan.round_quarter(12.15) == 12.25
+        assert running_plan.round_quarter(12.35) == 12.25
+        assert running_plan.round_quarter(12.45) == 12.5
+        assert running_plan.round_quarter(12.60) == 12.5
+        assert running_plan.round_quarter(12.65) == 12.75
+        assert running_plan.round_quarter(12.85) == 12.75
+        assert running_plan.round_quarter(12.90) == 13.00
+
+    def test_calculate_days_in_last_week(self):
+        """Tests that the calculate_days_in_last_week function works."""
+
+        end_date = datetime.strptime("2017-4-19", "%Y-%m-%d")
+        assert running_plan.calculate_days_in_last_week(end_date) == 3
+
+    def test_calculate_start_date(self):
+        """Tests that the calculate_start_date function works."""
+
+        today_date = datetime.strptime("2017-4-19", "%Y-%m-%d")
+        assert running_plan.calculate_start_date(today_date) == datetime.strptime("2017-4-20", "%Y-%m-%d")
+
+
+    def test_calculate_days_in_first_week(self):
+        """Test that the calculate_days_in_first_week function works."""
+
+        start_date = datetime.strptime("2017-4-19", "%Y-%m-%d")
+
+        assert running_plan.calculate_days_in_first_week(start_date) == 4
+
+
+    def test_calculate_number_of_weeks_to_goal(self):
+        """Test that calculate_number_of_weeks_to_goal function works."""
+
+        start_date = datetime.strptime("2017-4-19", "%Y-%m-%d")
+        end_date = datetime.strptime("2017-6-24", "%Y-%m-%d")
+
+        assert running_plan.calculate_number_of_weeks_to_goal(start_date, end_date) == 10 
+
+class SeleniumUITests(unittest.TestCase):
+
+    def setUp(self):
+        self.browser = webdriver.Chrome('~/src/chromedriver')
+        time.sleep(5)
+
+    def tearDown(self):
+        self.browser.quit()
+
+    def test_title(self):
+        self.browser.get('http://localhost:5000/')
+        self.assertEqual(self.browser.title, 'Run Holmes')
+
+    def test_run_plan(self):
+        self.browser.get('http://localhost:5000/')
+
+        dropdown1 = self.browser.find_element_by_id('current-ability')
+        dropdown1.selectByVisibleText("6 miles")
+        dropdown2 = self.browser.find_element_by_id('goal-distance')
+        dropdown2.selectByVisibleText("Half Marathon (13.1 miles)")
+        dropdown3 = self.browser.find_element_by_id("goal-date")
+        dropdown3.send_keys("2017-06-24")
+        # dropdown3 = self.browser.find_element_by_xpath("//input[@id='goal-date']//[text()='2017-06-24']")).click() 
+        
+
+        btn = self.browser.find_element_by_id('generate-plan')
+        btn.click()
+
+        result = self.browser.find_element_by_id('plan-calendar')
+        # self.assertEqual(result.text, "7")
+        print result
 
 
 if __name__ == "__main__":

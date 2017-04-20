@@ -20,22 +20,21 @@ $(document).ready(function() {
       });
     } else {
     $("#run-info-chart").empty();
-
     for (var week in runPlan) {
       $("#run-info-chart").append('<tr>');
       $("#run-info-chart").append('<td class="week-number">Week ' + week + '</td>');
-
       var weeklyPlan = runPlan[week];
       for (var date in weeklyPlan) {
-        // var newDate = new Date(date);
-        // var month = (newDate.getMonth()+1)+ "";
-        // var day = newDate.getDate();
+        var newDate = new Date(date);
+        newDate.setDate(newDate.getDate() + 1);
+        var month = (newDate.getMonth()+1)+ "";
+        var day = newDate.getDate();
         if (weeklyPlan[date]) {
-          // $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
-          $("#run-info-chart").append('<td>  ' + date + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
+          $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
+          // $("#run-info-chart").append('<td>  ' + date + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
         } else {
-          // $("#run-info-chart").append('<td class="off-day">  ' + month + "/" + day + '<br><br>  off day</td>');
-          $("#run-info-chart").append('<td class="off-day">  ' + date + '<br><br>  off day</td>');
+          $("#run-info-chart").append('<td class="off-day">  ' + month + "/" + day + '<br><br>  off day</td>');
+          // $("#run-info-chart").append('<td class="off-day">  ' + date + '<br><br>  off day</td>');
         }
       }
       $("#run-info-chart").append('</tr>');
@@ -70,73 +69,32 @@ $(document).ready(function() {
                       goalDate;
   }
 
-// Checkbox feature of checking off runs. Less attractive UI:
-  // $('input:checkbox.workout').change(function() {
-  //     var runId = $(this).attr('id');
-  //     if ($(this).is(":checked")) {
-  //         $(this).attr("checked", true);
-  //         $(this).toggleClass("completed-run");
-  //         $.post("/update-run.json", {'run-id': runId}, function(results) {
-  //           alert("Congrats on completing a run!");
-  //           $("#total-miles").html(results['total_miles_completed']);
-  //           $("#total-workouts").html(results['total_workouts_completed']);
-  //         });
-  //     } else {
-  //         $(this).attr("checked", false);
-  //         $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
-  //           alert("We have removed this run from your total!");
-  //           $("#total-miles").html(results['total_miles_completed']);
-  //           $("#total-workouts").html(results['total_workouts_completed']);
-  //         });
-  //     }
-  //   });
+  var today_date = new Date();
+  $("td").each(function() {
+    var run_date = $(this).attr("name");
+    if (run_date < today_date) {
+      $(this).css("background-color", "red");
+    }
+  });
 
-    var today_date = new Date();
-    $("td").each(function() {
-      var run_date = $(this).attr("name");
-      if (run_date < today_date) {
-        $(this).css("background-color", "red");
-      }
-    });
-
-    // $(".run.incompleted-run").on("dblclick", function() {
-    //   var runId = $(this).attr('id');
-    //   $(this).addClass("completed-run").removeClass("incompleted-run");
-    //   $.post("/update-run.json", {'run-id': runId}, function(results) {
-    //     alert("Congrats on completing a run!");
-    //     $("#total-miles").html(results['total_miles_completed']);
-    //     $("#total-workouts").html(results['total_workouts_completed']);
-    //   });
-    // });
-
-    // $(".run.completed-run").on("dblclick", function() {
-    //   var runId = $(this).attr('id');
-    //   $(this).addClass("incompleted-run").removeClass("completed-run");
-    //   $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
-    //     alert("We have removed this run from your total!");
-    //     $("#total-miles").html(results['total_miles_completed']);
-    //     $("#total-workouts").html(results['total_workouts_completed']);
-    //   });
-    // });
-
-    $(".run").on("dblclick", function() {
-      var runId = $(this).attr('id');
-      if ($(this).hasClass("incompleted-run")) {
-        $(this).removeClass("incompleted-run").addClass("completed-run");
-        $.post("/update-run.json", {'run-id': runId}, function(results) {
-          alert("Congrats on completing a run!");
-          $("#total-miles").html(results['total_miles_completed']);
-          $("#total-workouts").html(results['total_workouts_completed']);
-        });
-      } else if ($(this).hasClass("completed-run")) {
-        $(this).addClass("incompleted-run").removeClass("completed-run");
-        $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
-          alert("We have removed this run from your total!");
-          $("#total-miles").html(results['total_miles_completed']);
-          $("#total-workouts").html(results['total_workouts_completed']);
-        });
-      }
-    });
+  $(".run").on("dblclick", function() {
+    var runId = $(this).attr('id');
+    if ($(this).hasClass("incompleted-run")) {
+      $(this).removeClass("incompleted-run").addClass("completed-run");
+      $.post("/update-run.json", {'run-id': runId}, function(results) {
+        alert("Congrats on completing a run!");
+        $("#total-miles").html(results['total_miles_completed']);
+        $("#total-workouts").html(results['total_workouts_completed']);
+      });
+    } else if ($(this).hasClass("completed-run")) {
+      $(this).addClass("incompleted-run").removeClass("completed-run");
+      $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
+        alert("We have removed this run from your total!");
+        $("#total-miles").html(results['total_miles_completed']);
+        $("#total-workouts").html(results['total_workouts_completed']);
+      });
+    }
+  });
   
   $('input[type=checkbox][name=opt-text]').change(function() {
     if ($(this).is(":checked")) {
@@ -178,16 +136,60 @@ $(document).ready(function() {
     $("#plan-name-change-box").show();
   }
 
-  // $(".run").on("click", function(e) {
-  //   $(this)
-  //      .toggleClass("selected");
-  // });
-
-
   $("#generate-plan").on('click', getPlanResults);
   $("#download-to-excel").on('click', getPlanResultsForDownload);
   $("#update-plan-name").on('click', showUpdatePlanNameBox);
   $("#plan-name-change-box").on('submit', updatePlanName);
+
+
+// Checkbox feature of checking off runs. Less attractive UI:
+  // $('input:checkbox.workout').change(function() {
+  //     var runId = $(this).attr('id');
+  //     if ($(this).is(":checked")) {
+  //         $(this).attr("checked", true);
+  //         $(this).toggleClass("completed-run");
+  //         $.post("/update-run.json", {'run-id': runId}, function(results) {
+  //           alert("Congrats on completing a run!");
+  //           $("#total-miles").html(results['total_miles_completed']);
+  //           $("#total-workouts").html(results['total_workouts_completed']);
+  //         });
+  //     } else {
+  //         $(this).attr("checked", false);
+  //         $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
+  //           alert("We have removed this run from your total!");
+  //           $("#total-miles").html(results['total_miles_completed']);
+  //           $("#total-workouts").html(results['total_workouts_completed']);
+  //         });
+  //     }
+  //   });
+
+
+
+    // $(".run.incompleted-run").on("dblclick", function() {
+    //   var runId = $(this).attr('id');
+    //   $(this).addClass("completed-run").removeClass("incompleted-run");
+    //   $.post("/update-run.json", {'run-id': runId}, function(results) {
+    //     alert("Congrats on completing a run!");
+    //     $("#total-miles").html(results['total_miles_completed']);
+    //     $("#total-workouts").html(results['total_workouts_completed']);
+    //   });
+    // });
+
+    // $(".run.completed-run").on("dblclick", function() {
+    //   var runId = $(this).attr('id');
+    //   $(this).addClass("incompleted-run").removeClass("completed-run");
+    //   $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
+    //     alert("We have removed this run from your total!");
+    //     $("#total-miles").html(results['total_miles_completed']);
+    //     $("#total-workouts").html(results['total_workouts_completed']);
+    //   });
+    // });
+
+
+  // $(".run").on("click", function(e) {
+  //   $(this)
+  //      .toggleClass("selected");
+  // });
 
 
   // function addEventsToGoogleCal(results) {

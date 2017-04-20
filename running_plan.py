@@ -5,17 +5,17 @@ from dateutil.relativedelta import *
 import StringIO
 
 
-def round_quarter(x):
+def round_quarter(num):
     """Rounds the given number to the nearest quarter."""
 
-    return round(x * 4) / 4.0
+    return round(num * 4) / 4.0
 
 
 def calculate_days_in_last_week(end_date):
     """Calculates the number of days in the last week of the running plan."""
 
-    end_day = end_date.weekday()
-    days_in_last_week = end_day + 1
+    end_day = end_date.isoweekday()
+    days_in_last_week = end_day
     return days_in_last_week
 
 
@@ -32,7 +32,7 @@ def calculate_start_date(today_date):
 def calculate_days_in_first_week(start_date):
     """Calculate the number of days in the first week of the running plan."""
 
-    start_date_day = start_date.weekday()
+    start_date_day = start_date.isoweekday()
     days_in_first_week = 7 - start_date_day
     return days_in_first_week
 
@@ -43,11 +43,11 @@ def calculate_number_of_weeks_to_goal(start_date, end_date):
     days_to_goal = (end_date - start_date).days
     days_in_first_week = calculate_days_in_first_week(start_date)
     days_in_last_week = calculate_days_in_last_week(end_date)
-    weeks_to_goal = ((days_to_goal - days_in_first_week - days_in_last_week) / 7) + 1
+    weeks_to_goal = ((days_to_goal - days_in_first_week - days_in_last_week) / 7) + 2
     return weeks_to_goal
 
 
-def generate_first_week_of_runs(start_date_day, start_date, increment, current_ability):
+def generate_first_week_of_runs(start_date_day, start_date, current_ability):
     """Generate the first week of runs for the running plan. This will depend on
     which day of the week the plan starts. It is meant to help the runner build
     a base before diving into their plan.
@@ -187,7 +187,7 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
 
     # Generate runs if start date is not Monday
     else:
-        weekly_plan[1] = generate_first_week_of_runs(start_date_day, start_date, increment, current_ability)
+        weekly_plan[1] = generate_first_week_of_runs(start_date_day, start_date, current_ability)
 
         # Start date for first full week will be the Monday after the start_date
         first_date = start_date+relativedelta(weekday=MO)
@@ -210,20 +210,20 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
     #     return edgecase
 
 
-def create_event_source(weekly_plan):
-    """Creates objects in correct format to feed into calendar."""
+# def create_event_source(weekly_plan):
+#     """Creates objects in correct format to feed into calendar."""
 
-    event_data = []
-    for date in weekly_plan:
-        if weekly_plan[date]:
-            event_source = {}
-            event_source['title'] = "%s miles" % weekly_plan[date]
-            event_source['allDay'] = True
-            event_source['start'] = date
-            event_source['eventBackgroundColor'] = 'red'
-            event_data.append(event_source)
+#     event_data = []
+#     for date in weekly_plan:
+#         if weekly_plan[date]:
+#             event_source = {}
+#             event_source['title'] = "%s miles" % weekly_plan[date]
+#             event_source['allDay'] = True
+#             event_source['start'] = date
+#             event_source['eventBackgroundColor'] = 'red'
+#             event_data.append(event_source)
 
-    return event_data
+#     return event_data
 
 
 def create_excel_workbook(weekly_plan, output):

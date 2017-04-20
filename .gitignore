@@ -25,3 +25,4 @@ sendgrid_cron_reply.txt
 twilio_text_output.tx
 twilio_text_output.txt
 running_plan2.py
+running_plan2.pyc

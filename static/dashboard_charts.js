@@ -3,6 +3,14 @@ $(document).ready(function() {
   "use strict";
 
  // For workout chart
+ 
+  // var canvas = document.getElementById('donutChartWorkouts');
+  // var ctx = canvas.getContext('2d');
+
+  // ctx.font = '20px serif';
+  // ctx.textAlign = 'left';
+  // ctx.fillText('Hello world', 570, 100);
+
   var workoutOptions = { responsive: true };
   var ctx_donut = $("#donutChartWorkouts");
   
@@ -15,15 +23,17 @@ $(document).ready(function() {
     // $('#donutLegend').html(myDonutChart.generateLegend());
   }
 
+
   // For mileage chart
   var mileageOptions = { responsive: true };
   var ctx_donut_2 = $("#donutChartMileage");
+
   
   function displayMileageInfo(data) {
     var myDonutChart = new Chart(ctx_donut_2, {
                                             type: 'doughnut',
                                             data: data,
-                                            options: mileageOptions
+                                            options: mileageOptions,
                                           });
     // $('#donutLegend').html(myDonutChart.generateLegend());
   }
@@ -39,6 +49,7 @@ $(document).ready(function() {
                             greedy: false,
                             definitions: { '#': { validator: "[0-9]", cardinality: 1}} }
   );
+
 
   $('input:checkbox.workout').change(updateDoughnutChartInfo);
   $(".run.incompleted-run").on("dblclick", updateDoughnutChartInfo);
