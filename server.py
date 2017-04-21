@@ -98,7 +98,7 @@ def process_sign_up():
 
     raw_runner_email = request.form.get("email")
     raw_runner_password = request.form.get("password")
-    email_query = Runner.query.filter_by(email=raw_runner_email).all()
+    email_query = Runner.query.filter_by(email=raw_runner_email).first()
 
     if email_query:
         flash('This user already exists. Please try to login or create an account with a different email.')

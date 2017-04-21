@@ -4,12 +4,47 @@ $(document).ready(function() {
 
   $("#plan-name-change-box").hide();
   $("#warning-complete-all-fields").hide();
-  $("#opt-in-for-texts-form").hide();
-  $("#opt-out-of-texts-button").hide();
-  $("#opt-into-email-form").hide();
-  $("#your-email-subscription-has-been-updated").hide();
-  $("#you-will-no-longer-receive-emails").hide();
+  // $("#run-completed").hide();
+  // $("#run-not-complete").hide();
+  // $("#opt-in-for-texts-form").hide();
+  // $("#opt-out-of-texts-button").hide();
+  // $("#opt-into-email-form").hide();
+  // $("#your-email-subscription-has-been-updated").hide();
+  // $("#you-will-no-longer-receive-emails").hide();
   $("#options-below").hide();
+
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+
+  $(function () {
+    $('[data-toggle="popover"]').popover();
+  });
+
+  $('[data-toggle=popover]').popover({
+      content: $('#myPopoverContent').html(),
+      html: true
+  }).click(function() {
+      $(this).popover('show');
+  });
+
+
+  $('[data-toggle=popover]').popover({
+      content: $('#myPopoverContent2').html(),
+      html: true
+  }).click(function() {
+      $(this).popover('show');
+  });
+
+  // $('[data-toggle="tooltip"]').tooltip({
+  //   trigger:'click'
+  // });
+
+  // $('.run').tooltip({
+  //                    delay: { "show": 500, "hide": 100 },
+  //                    title: "Tooltips are cool!",
+  //                    trigger: 'dblclick'
+  //                   });
 
   function showPlanResults(results) {
     var runPlan = results;
@@ -81,17 +116,33 @@ $(document).ready(function() {
     var runId = $(this).attr('id');
     if ($(this).hasClass("incompleted-run")) {
       $(this).removeClass("incompleted-run").addClass("completed-run");
+      // $(this).removeAttr('title').attr('title', 'Congrats on completing your run!');
+      // $('#run-completed').show().delay(5000).queue(function() {
+      //     $(this).hide();
+      //   });
       $.post("/update-run.json", {'run-id': runId}, function(results) {
-        alert("Congrats on completing a run!");
+        // alert("Congrats on completing a run!");
         $("#total-miles").html(results['total_miles_completed']);
         $("#total-workouts").html(results['total_workouts_completed']);
+        $("#run-completed-message").empty();
+        $("#run-completed-message").html("Congrats on completing your run!").delay(5000).queue(function() {
+          $(this).empty();
+        });
       });
     } else if ($(this).hasClass("completed-run")) {
       $(this).addClass("incompleted-run").removeClass("completed-run");
+      // $(this).removeAttr('title').attr('title', 'We have removed this run from your total.');
       $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
-        alert("We have removed this run from your total!");
+          // $('#run-not-completed').show().delay(5000).queue(function() {
+          //   $(this).hide();
+          // });
+        // alert("We have removed this run from your total!");
         $("#total-miles").html(results['total_miles_completed']);
         $("#total-workouts").html(results['total_workouts_completed']);
+        $("#run-completed-message").empty();
+        $("#run-completed-message").html("We have removed this run from your totals.").delay(5000).queue(function() {
+          $(this).empty();
+        });
       });
     }
   });
