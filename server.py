@@ -64,7 +64,7 @@ def generate_plan():
         weekly_plan = server_utilities.generate_weekly_plan(raw_current_ability,
                                                             raw_goal_distance,
                                                             raw_end_date)
-    except Exception, e:
+    except ValueError:
         weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
 
     results = jsonify(weekly_plan)
