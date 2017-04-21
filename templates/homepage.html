@@ -96,10 +96,10 @@
           <h2>Sign-up:</h2>
           <form action="/sign-up-complete" id="sign-up" method="POST">
             <label>Email:</label>
-            <input type="email" name="email" placeholder="email" required><br><br>
+            <input type="email" id="email" name="email" placeholder="email" required><br><br>
             <label>Password:</label>
-            <input type="password" name="password" placeholder="password" required><br><br>
-            <input type="submit"> 
+            <input type="password" id="password" name="password" placeholder="password" required><br><br>
+            <input type="submit" id="sign-up-submit"> 
         </form>
       </div>
     </div>
@@ -127,7 +127,7 @@
     </tbody>
   </table>
 
-  <div id="calendar" hidden></div>
+  <!-- <div id="calendar" hidden></div> -->
 
 {% endblock %}
 

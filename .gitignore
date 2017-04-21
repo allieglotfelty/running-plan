@@ -29,3 +29,5 @@ running_plan2.pyc
 cronjobs.txt
 gcal_cron.py
 gcal_cronjob.txt
+ghostdriver.log
+phantomjs-2.1.1-linux-x86_64.tar.bz2

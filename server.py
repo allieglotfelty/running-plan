@@ -58,6 +58,7 @@ def generate_plan():
     raw_current_ability = request.args.get("current-ability")
     raw_goal_distance = request.args.get("goal-distance")
     raw_end_date = request.args.get("goal-date")
+    print "Raw end date is %s type: %s" % (raw_end_date, type(raw_end_date))
 
     try:
         weekly_plan = server_utilities.generate_weekly_plan(raw_current_ability,
@@ -80,9 +81,9 @@ def download_excel():
     # weekly_plan = session.get('weekly_plan')
     excel_text = create_excel_text(weekly_plan)
 
-    # Create a response object that takes in the excel_text (string of excel doc) and the mimetime (format) for the doc
-    response = Response(response=excel_text, 
-                        status=200, 
+    # Create a response object that takes in the excel_text (string of excel doc) and the mimetype (format) for the doc
+    response = Response(response=excel_text,
+                        status=200,
                         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     # Says the header will contain an attachement of the filename RunPlan.xlsx
@@ -347,9 +348,9 @@ def add_runs_to_runners_google_calendar_account():
         current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id == runner_id,
                                                                   Plan.end_date >= today_date).first()
         timezone = runner.timezone
-        preferred_start_time = current_plan.start_time
 
         if current_plan:
+            preferred_start_time = current_plan.start_time
             run_events = server_utilities.generate_run_events_for_google_calendar(current_plan,
                                                                                   timezone,
                                                                                   preferred_start_time)
@@ -392,6 +393,7 @@ def oauth2callback():
         runner_id = session.get('runner_id')
         runner = Runner.query.get(runner_id)
         runner.add_oauth_token_to_database(credentials)
+        flash("Your runs will be added to your Google Calender in the next 10 minutes.")
         return redirect(url_for('display_runner_page'))
         # return redirect(url_for('add_runs_to_runners_google_calendar_account'))
 
@@ -426,10 +428,6 @@ def update_account_settings():
     opt_gcal = request.form.get("opt-gcal")
     timezone = request.form.get("time-zone")
     start_time = request.form.get("cal-run-start-time")
-
-    print "timezone is %s" % timezone
-    print "runner timezone is %s" % runner.timezone
-    print "runner timezone equal timezone? %s" % (runner.timezone == timezone)
 
     if phone:
         runner.update_phone(phone)

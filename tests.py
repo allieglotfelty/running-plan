@@ -4,6 +4,7 @@ from model import db, example_data, connect_to_db
 import running_plan
 from datetime import datetime, date
 from selenium import webdriver
+from selenium.webdriver.support.ui import Select, WebDriverWait
 import time
 
 class ServerTestsNoDB(unittest.TestCase):
@@ -101,7 +102,7 @@ class ServerTestsWithDBRunnerOne(unittest.TestCase):
         result = self.client.post('/login-complete', data={'email': 'sally@gmail.com',
                                                            'password': 'password'},
                                                            follow_redirects=True)
-        self.assertIn('<h1>Running Dashboard</h1>', result.data)
+        self.assertIn('Running Dashboard', result.data)
         self.assertEqual(result.status_code, 200) 
 
 
@@ -333,36 +334,91 @@ class RunningPlanUnitTests(unittest.TestCase):
 
         assert running_plan.calculate_number_of_weeks_to_goal(start_date, end_date) == 10 
 
+
+
+
+
 class SeleniumUITests(unittest.TestCase):
 
     def setUp(self):
-        self.browser = webdriver.Chrome('~/src/chromedriver')
+        self.driver = webdriver.PhantomJS()
         time.sleep(5)
 
     def tearDown(self):
-        self.browser.quit()
+        self.driver.quit()
 
     def test_title(self):
-        self.browser.get('http://localhost:5000/')
-        self.assertEqual(self.browser.title, 'Run Holmes')
+        self.driver.get('http://localhost:5000/')
+        self.assertEqual(self.driver.title, 'Run Holmes')
 
-    def test_run_plan(self):
-        self.browser.get('http://localhost:5000/')
+    def test_homepage_user_flow(self):
+        self.driver.get('http://localhost:5000/')
 
-        dropdown1 = self.browser.find_element_by_id('current-ability')
-        dropdown1.selectByVisibleText("6 miles")
-        dropdown2 = self.browser.find_element_by_id('goal-distance')
-        dropdown2.selectByVisibleText("Half Marathon (13.1 miles)")
-        dropdown3 = self.browser.find_element_by_id("goal-date")
-        dropdown3.send_keys("2017-06-24")
-        # dropdown3 = self.browser.find_element_by_xpath("//input[@id='goal-date']//[text()='2017-06-24']")).click()
+        # dropdown1 = self.driver.find_element_by_id('current-ability')
+        dropdown1 = Select(self.driver.find_element_by_id('current-ability'))
+        dropdown1.select_by_visible_text('6 miles')
+        dropdown2 = Select(self.driver.find_element_by_id('goal-distance'))
+        dropdown2.select_by_visible_text('Half Marathon (13.1 miles)')
 
-        btn = self.browser.find_element_by_id('generate-plan')
-        btn.click()
+        date_field = self.driver.find_element_by_id('goal-date')
+        date_field.clear()
+        date_field.send_keys('2017-06-30')
 
-        result = self.browser.find_element_by_id('plan-calendar')
-        # self.assertEqual(result.text, "7")
-        print result
+        generate_plan_btn = self.driver.find_element_by_id('generate-plan')
+        generate_plan_btn.click()
+        time.sleep(5)
+
+        download_button = self.driver.find_element_by_id('download-to-excel')
+        plan_display = self.driver.find_element_by_id('plan-calendar')
+        sign_up_link = self.driver.find_element_by_id('sign-up')
+
+        self.assertEqual(download_button.is_displayed(), True)
+        self.assertEqual(plan_display.is_displayed(), True)
+        self.assertEqual(sign_up_link.is_displayed(), True)
+
+        sign_up_link.click()
+        time.sleep(3)
+
+        email_field = self.driver.find_element_by_id('email')
+        password_field = self.driver.find_element_by_id('password')
+
+        self.assertEqual(email_field.is_displayed(), True)
+        self.assertEqual(password_field.is_displayed(), True)
+
+        email_field.send_keys('judy@gmail.com')
+        time.sleep(5)
+        password_field.send_keys('pass')
+        time.sleep(5)
+
+        submit_btn = self.driver.find_element_by_id('sign-up-submit')
+        submit_btn.click()
+
+        # wait = WebDriverWait(self.driver, 20)
+        # wait.until(lambda driver: self.driver.current_url != "http://localhost:5000/")
+
+        self.old_page = self.driver.find_element_by_tag_name('html')
+
+        def wait_for(condition_function):
+            start_time = time.time()
+            while time.time() < start_time + 3:
+                if condition_function():
+                    return True
+                else:
+                    time.sleep(0.1)
+            raise Exception(
+                'Timeout waiting for {}'.format(condition_function.__name__)
+            )
+
+
+        def page_has_loaded(self):
+            new_page = self.driver.find_element_by_tag_name('html')
+            return new_page.id != self.old_page.id
+
+        wait_for(SeleniumUITests.page_has_loaded)
+
+        dashboard_header = self.driver.find_element_by_id('dashboard-header')
+        self.assertEqual(dashboard_header.is_displayed(), True)
+
 
 
 if __name__ == "__main__":
