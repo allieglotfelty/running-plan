@@ -140,10 +140,8 @@ def process_login():
     if raw_runner_email == 'admin@admin.com' and server_utilities.is_admin(raw_runner_password):
         session['admin'] = 'admin'
         return redirect('/admin')
-    try:
-        runner_account = Runner.query.filter_by(email=raw_runner_email).first()
-    except Exception, e:
-        runner_account = False
+
+    runner_account = Runner.query.filter_by(email=raw_runner_email).first()
 
     if runner_account:
         hashed_password = server_utilities.generate_hashed_password(raw_runner_password,
@@ -318,9 +316,15 @@ def return_total_miles_info_for_doughnut_chart():
     return jsonify(data_dict)
 
 
-@app.route('/add-to-google-calendar', methods=["POST", "GET"])
+@app.route('/add-to-google-calendar', methods=["POST"])
 def add_runs_to_runners_google_calendar_account():
-    """Adds a runner's runs to their Google Calendar account."""
+    """Adds a runner's run events to their Google Calendar account.
+    Route works if want users to add events to Google Calendar directly from
+    their dashboards. The problem with this is that the user must wait for the
+    events to be created and added to their calendars. Instead, I created a
+    cronjob to run every 10 minutes and add any run events that have not been
+    added already.
+    """
 
     # If there are no credentials in the current session, redirect to get oauth permisssions
     if not session.get('credentials'):
