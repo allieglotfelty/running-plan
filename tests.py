@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import json
 
 class ServerTestsNoDB(unittest.TestCase):
     """Tests for Run Holmes site."""
@@ -57,8 +58,8 @@ class ServerTestsNoDB(unittest.TestCase):
         """Test that login doesn't work with a bad account."""
         result = self.client.post('/login-complete',
                                   data={'email': 'joe@gmail.com',
-                                  'password': 'password'},
-                                  follow_redirects=True)
+                                        'password': 'password'},
+                                        follow_redirects=True)
 
         self.assertIn('Email or Password is incorrect.', result.data)
         self.assertNotIn('<h1>Running Dashboard</h1>', result.data)
@@ -334,10 +335,84 @@ class RunningPlanUnitTests(unittest.TestCase):
         start_date = datetime.strptime("2017-4-19", "%Y-%m-%d")
         end_date = datetime.strptime("2017-6-24", "%Y-%m-%d")
 
-        assert running_plan.calculate_number_of_weeks_to_goal(start_date, end_date) == 10 
+        assert running_plan.calculate_number_of_weeks_to_goal(start_date, end_date) == 10
 
 
+    def test_generate_first_week_of_runs(self):
+        """Test that the algorithm generates the first week of the running plan 
+        successfully.
+        """
 
+        start_date = datetime.strptime("2017-4-21", "%Y-%m-%d")
+        start_day = start_date.weekday()
+
+        result = json.dumps(running_plan.generate_first_week_of_runs(start_day, start_date, 6), sort_keys=True)
+        # week_one = {"2017-04-17": 0.0, "2017-04-18": 0.0, "2017-04-19": 0.0, "2017-04-20": 0.0, "2017-04-21": 1.5, "2017-04-22": 0.0, "2017-04-23": 3.0}
+        week_one = '{"2017-04-17 00:00:00": 0.0, "2017-04-18 00:00:00": 0.0, "2017-04-19 00:00:00": 0.0, "2017-04-20 00:00:00": 0.0, "2017-04-21 00:00:00": 1.5, "2017-04-22 00:00:00": 0.0, "2017-04-23 00:00:00": 3.0}'
+        assert result == week_one
+
+
+    def test_generate_middle_weeks_of_plan(self):
+        """Test that the algorithm generates the middle weeks of the running
+        plan successfully.
+        """
+
+        start_date = datetime.strptime("2017-4-21", "%Y-%m-%d")
+
+        middle_weeks, start_date = running_plan.generate_middle_weeks_of_plan({}, 8, start_date, 6, 1, 2)
+
+        result = json.dumps(middle_weeks)
+        mid_weeks_test_case = '{"2": {"2017-04-27 00:00:00": 6.0, "2017-04-22 00:00:00": 0.0, "2017-04-23 00:00:00": 1.5, "2017-04-25 00:00:00": 0.0, "2017-04-21 00:00:00": 3.0, "2017-04-26 00:00:00": 1.5, "2017-04-24 00:00:00": 3.0}, "3": {"2017-04-30 00:00:00": 1.75, "2017-05-01 00:00:00": 3.5, "2017-04-29 00:00:00": 0.0, "2017-05-03 00:00:00": 1.75, "2017-05-02 00:00:00": 0.0, "2017-05-04 00:00:00": 7.0, "2017-04-28 00:00:00": 3.5}, "4": {"2017-05-08 00:00:00": 4.0, "2017-05-05 00:00:00": 4.0, "2017-05-06 00:00:00": 0.0, "2017-05-10 00:00:00": 2.0, "2017-05-11 00:00:00": 8.0, "2017-05-09 00:00:00": 0.0, "2017-05-07 00:00:00": 2.0}, "5": {"2017-05-16 00:00:00": 0.0, "2017-05-12 00:00:00": 4.5, "2017-05-15 00:00:00": 4.5, "2017-05-17 00:00:00": 2.25, "2017-05-18 00:00:00": 9.0, "2017-05-13 00:00:00": 0.0, "2017-05-14 00:00:00": 2.25}, "6": {"2017-05-23 00:00:00": 0.0, "2017-05-24 00:00:00": 2.5, "2017-05-21 00:00:00": 2.5, "2017-05-20 00:00:00": 0.0, "2017-05-22 00:00:00": 5.0, "2017-05-25 00:00:00": 10.0, "2017-05-19 00:00:00": 5.0}}'
+
+        assert result == mid_weeks_test_case
+
+
+    def test_generate_second_to_last_week_of_plan(self):
+        """Test that the algorithm generates the second to last week of the
+        running plan successfully.
+        """
+
+        start_date = datetime.strptime("2017-4-21", "%Y-%m-%d")
+
+        second_to_last_week = running_plan.generate_second_to_last_week_of_plan({}, 8, 6, start_date)
+
+        result = json.dumps(second_to_last_week)
+
+        second_to_last_week_test_case = '{"7": {"2017-04-27 00:00:00": 6.0, "2017-04-22 00:00:00": 0.0, "2017-04-23 00:00:00": 1.5, "2017-04-25 00:00:00": 0.0, "2017-04-21 00:00:00": 3.0, "2017-04-26 00:00:00": 1.5, "2017-04-24 00:00:00": 3.0}}'
+
+        assert result == second_to_last_week_test_case
+
+
+    def test_generate_last_week_of_plan(self):
+        """Test that the algorithm generates the last week of the
+        running plan successfully.
+        """
+
+        end_date = datetime.strptime("2017-5-28", "%Y-%m-%d")
+
+        last_week = running_plan.generate_last_week_of_plan({}, 8, 13.1, 6, 6, end_date)
+
+        result = json.dumps(last_week)
+        last_week_test_case = '{"8": {"2017-05-28 00:00:00": 13.1, "2017-05-23 00:00:00": 4.25, "2017-05-24 00:00:00": 0.0, "2017-05-26 00:00:00": 0.0, "2017-05-22 00:00:00": 3.25, "2017-05-25 00:00:00": 3.25, "2017-05-27 00:00:00": 3.0}}'
+
+        assert result == last_week_test_case
+
+
+    def test_build_plan_with_two_dates(self):
+        """Test that the algorithm generates the last week of the
+        running plan successfully.
+        """
+
+        today_date = datetime.strptime("2017-4-21", "%Y-%m-%d")
+        end_date = datetime.strptime("2017-5-28", "%Y-%m-%d")
+
+        plan = running_plan.build_plan_with_two_dates(today_date, end_date, 6, 13.1)
+
+        result = json.dumps(plan)
+
+        plan_test_case = '{"1": {"2017-04-20 00:00:00": 0.0, "2017-04-22 00:00:00": 1.5, "2017-04-23 00:00:00": 0.0, "2017-04-19 00:00:00": 0.0, "2017-04-17 00:00:00": 0.0, "2017-04-21 00:00:00": 0.0, "2017-04-18 00:00:00": 0.0}, "2": {"2017-04-27 00:00:00": 3.0, "2017-04-30 00:00:00": 6.0, "2017-04-29 00:00:00": 1.5, "2017-04-25 00:00:00": 0.0, "2017-04-26 00:00:00": 1.5, "2017-04-28 00:00:00": 0.0, "2017-04-24 00:00:00": 3.0}, "3": {"2017-05-05 00:00:00": 0.0, "2017-05-01 00:00:00": 4.0, "2017-05-06 00:00:00": 2.0, "2017-05-03 00:00:00": 2.0, "2017-05-02 00:00:00": 0.0, "2017-05-04 00:00:00": 4.0, "2017-05-07 00:00:00": 7.75}, "4": {"2017-05-08 00:00:00": 4.75, "2017-05-12 00:00:00": 0.0, "2017-05-10 00:00:00": 2.5, "2017-05-11 00:00:00": 4.75, "2017-05-09 00:00:00": 0.0, "2017-05-13 00:00:00": 2.5, "2017-05-14 00:00:00": 9.5}, "5": {"2017-05-16 00:00:00": 0.0, "2017-05-21 00:00:00": 6.0, "2017-05-20 00:00:00": 1.5, "2017-05-15 00:00:00": 3.0, "2017-05-17 00:00:00": 1.5, "2017-05-18 00:00:00": 3.0, "2017-05-19 00:00:00": 0.0}, "6": {"2017-05-28 00:00:00": 13.1, "2017-05-23 00:00:00": 4.25, "2017-05-24 00:00:00": 0.0, "2017-05-26 00:00:00": 0.0, "2017-05-22 00:00:00": 3.25, "2017-05-25 00:00:00": 3.25, "2017-05-27 00:00:00": 3.0}}'
+
+        assert result == plan_test_case
 
 
 class SeleniumUITests(unittest.TestCase):

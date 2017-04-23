@@ -2,7 +2,48 @@
 {% block title %}Run Holmes{% endblock %}
 {% block content %}
 
-  <form action="/login-complete" method="POST">
+<style>
+
+  body {
+      background-size: cover;
+      background: url("https://previews.123rf.com/images/magiceyes/magiceyes1507/magiceyes150700059/43152948-Woman-celebrating-running-and-training-success-on-countryside-road-during-sunset-or-sunrise-Female-r-Stock-Photo.jpg") no-repeat center center;
+  }
+
+  #planning-form {
+    text-align: center;
+  }
+
+  #run-holmes {
+    text-align: left;
+    font-size: 40px;
+    color: #A2A386;
+  }
+
+  .input-field {
+    background-color: rgba(212, 213, 200, 0.7);
+  }
+
+  .questions {
+    background-color: rgba(212, 213, 200, 0.7);
+  }
+ /* #log-in {
+    vertical-align: left;
+  }*/
+
+</style>
+
+<div class="container-fluid">
+  <h1 id="run-holmes">Run Holmes</h1>
+  <form class="navbar-form navbar-right" action="/login-complete" method="POST" id="log-in">
+    <div class="form-group">
+        <input type="email" name="email" class="input-field" placeholder="email" required>
+        <input type="password" name="password" class="input-field" placeholder="password" required>
+    </div>
+    <input type="submit" value="Login" class="btn btn-default">
+  </form>
+</div>
+
+<!-- <form action="/login-complete" method="POST">
     <label>Email:</label>
       <input type="email" name="email" placeholder="email" required>
     <label>Password:</label>
@@ -10,33 +51,49 @@
       <input type="submit" value="Login">
   </form>
   <hr>
+ -->
+  <br><br><br>
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-offset-6 col-xs-4 questions"> 
+        <br><br>
+        <form id="planning-form">
+          <!-- 1. How far can you run today without stopping (or how far is your current long-run)?: -->
+            <!-- Current Long Run <br> -->
+            <select id="current-ability" name="current-ability" required>
+              <option selected disabled value="---">Current Long Run</option>
+              <option value="0.5">Less than a mile</option>
+              <option value="1">1 mile</option>
+              {% for distance in distances %}
+                <option value="{{ distance }}">{{ distance }} miles</option>
+              {% endfor %}
+              <option value="26">26+ miles</option>
+            </select><br><br>
+            <!-- Running Goal <br> -->
+          <!-- 2. What is your running goal (event or distance)?: -->
+            <select id="goal-distance" name="goal-distance" required>
+              <option selected disabled value="---">Goal Distance</option>
+              <option value="3.1">5K (3.1 miles)</option>
+              <option value="5">5 miles</option>
+              <option value="6.2">10K (6.2 miles)</option>
+              <option value="10">10 miles</option>
+              <option value="13.1">Half Marathon (13.1 miles)</option>
+              <option value="26.2">Marathon (26.2 miles)</option>
+            </select><br><br>
+            <!-- Goal Date <br> -->
+          <!-- 3. When will your event/goal take place? -->
+            <!-- <input type="date" id="goal-date" value="2017-06-24" name="goal-date" min="{{ today }}" max="{{ yearaway }}"> -->
+            <input type="date" id="goal-date" name="goal-date" min="{{ today }}" max="{{ yearaway }}"><br><br>
+            <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!">
+        </form><br><br>
 
-  <p>Let's generate your running plan!</p>
-  <form id="planning-form">
-    1. How far can you run today without stopping (or how far is your current long-run)?:
-      <select id="current-ability" name="current-ability" required>
-        <option selected disabled value="---">---</option>
-        <option value="0.5">Less than a mile</option>
-        <option selected value="1">1 mile</option>
-        {% for distance in distances %}
-          <option value="{{ distance }}">{{ distance }} miles</option>
-        {% endfor %}
-        <option value="26">26+ miles</option>
-      </select><br><br>
-    2. What is your running goal (event or distance)?:
-      <select id="goal-distance" name="goal-distance" required>
-        <option selected disabled value="---">---</option>
-        <option value="3.1">5K (3.1 miles)</option>
-        <option value="5">5 miles</option>
-        <option value="6.2">10K (6.2 miles)</option>
-        <option selected value="10">10 miles</option>
-        <option value="13.1">Half Marathon (13.1 miles)</option>
-        <option value="26.2">Marathon (26.2 miles)</option>
-      </select><br><br>
-    3. When will your event/goal take place?
-      <input type="date" id="goal-date" value="2017-06-24" name="goal-date" min="{{ today }}" max="{{ yearaway }}"><br><br>
-      <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!">
-  </form><br>
+      </div>
+    </div>
+  </div>
+
+  
+
+  
 
   <style>
     .modalDialog {
@@ -107,25 +164,30 @@
   <!-- <form action="/sign-up">
     <input type="submit" id="sign-up-and-save" name="sign-up-and-save" value="Save &amp Sign-up" hidden>
   </form> -->
-
-  <button type="submit" id="download-to-excel" name="download-to-excel" hidden>Download as .xlsx</button>
-  
-  <table id="plan-calendar" name="plan-calendar" border="1px" class="table" hidden>
-    <thead id="plan-header">
-      <tr>
-        <th>Week</th>
-        <th>Monday</th>
-        <th>Tuesday</th>
-        <th>Wednesday</th>
-        <th>Thursday</th>
-        <th>Friday</th>
-        <th>Saturday</th>
-        <th>Sunday</th>
-      </tr>
-    </thead>
-    <tbody id="run-info-chart">
-    </tbody>
-  </table>
+ <div class="container">
+    <div class="row">
+      <div class="col-xs-offset-6 col-xs-4"> 
+        <button type="submit" id="download-to-excel" name="download-to-excel" hidden>Download as .xlsx</button>
+        
+        <table id="plan-calendar" name="plan-calendar" border="1px" class="table" hidden>
+          <thead id="plan-header">
+            <tr>
+              <th>Week</th>
+              <th>Monday</th>
+              <th>Tuesday</th>
+              <th>Wednesday</th>
+              <th>Thursday</th>
+              <th>Friday</th>
+              <th>Saturday</th>
+              <th>Sunday</th>
+            </tr>
+          </thead>
+          <tbody id="run-info-chart">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>  
 
   <!-- <div id="calendar" hidden></div> -->
 

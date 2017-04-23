@@ -5,17 +5,16 @@ from flask import Flask, jsonify, render_template, redirect, request, flash, ses
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db, db, Runner, Plan, Run
 from datetime import datetime, date, timedelta, time
-import pytz
-from tzlocal import get_localzone
+# import pytz
+# from tzlocal import get_localzone
 from apiclient import discovery as gcal_client
 from oauth2client import client
 import httplib2
-from running_plan import create_excel_text, handle_edgecases, calculate_start_date, calculate_number_of_weeks_to_goal
+from running_plan import create_excel_text
 import server_utilities
-import random
-from twilio import twiml
-import sendgrid
-import os
+# from twilio import twiml
+# import sendgrid
+# import os
 from sendgrid.helpers.mail import *
 
 app = Flask(__name__)
@@ -30,9 +29,9 @@ def index():
     """Homepage."""
 
     today = server_utilities.calculate_today_date_pacific()
-    year_from_today = today + timedelta(365)
-    date_today = datetime.strftime(today, '%Y-%m-%d')
-    date_year_from_today = datetime.strftime(year_from_today, '%Y-%m-%d')
+    year_from_today = server_utilities.calculate_date_year_from_today(today)
+    date_today = server_utilities.generate_date_string(today)
+    date_year_from_today = server_utilities.generate_date_string(year_from_today)
 
     distances = range(2, 26)
 
@@ -65,7 +64,7 @@ def generate_plan():
                                                             raw_goal_distance,
                                                             raw_end_date)
     except ValueError:
-        weekly_plan = {'response': "Please complete all fields before clicking 'Generate Plan'"}
+        weekly_plan = {'response': 'show response'}
 
     results = jsonify(weekly_plan)
 

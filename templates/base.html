@@ -9,8 +9,6 @@
 </head>
 
 <body>
-  <h1>Run Holmes</h1>
-   <h3>runner tested. runner approved.</h3>
     <ul>
     {% for message in get_flashed_messages() %}
         <li>{{ message }}</li>
@@ -19,7 +17,6 @@
    <!--  <p id="run-completed">Congrats on completing a run! Your workout total has been updated.</p>
     <p id="run-not-complete">We have removed this run from your totals.</p> -->
     </ul>
-  <hr>
   
 {% block content %} put your content here {% endblock %}
 

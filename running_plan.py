@@ -283,22 +283,22 @@ def create_excel_text(weekly_plan):
     return output.getvalue()
 
 
-def create_excel_doc(weekly_plan):
-    filename = 'RunningPlan9.xlsx'
-    create_excel_workbook(weekly_plan, filename)
+# def create_excel_doc(weekly_plan):
+#     filename = 'RunningPlan9.xlsx'
+#     create_excel_workbook(weekly_plan, filename)
 
 
-def handle_edgecases(increment, goal_distance, current_ability):
-    """Handles any edge cases that the user might encounter."""
+# def handle_edgecases(increment, goal_distance, current_ability):
+#     """Handles any edge cases that the user might encounter."""
 
-    if increment > 1:
-        return """We're sorry, but it will be very difficult for you to achieve 
-        your goal in the time that you have. Please consider a race that 
-        will provide you with more weeks for training."""
+#     if increment > 1:
+#         return """We're sorry, but it will be very difficult for you to achieve
+#         your goal in the time that you have. Please consider a race that
+#         will provide you with more weeks for training."""
 
-    elif (goal_distance * .8) <= current_ability:
-        return """We believe that you already have the ability to achieve your goal. 
-        If you would like to try a longer race or goal, we would be happy to assist you!"""
+#     elif (goal_distance * .8) <= current_ability:
+#         return """We believe that you already have the ability to achieve your goal.
+#         If you would like to try a longer race or goal, we would be happy to assist you!"""
 
-    else:
-        return None
+#     else:
+#         return None

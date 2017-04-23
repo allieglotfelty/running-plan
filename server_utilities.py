@@ -21,9 +21,9 @@ def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
     goal_distance = float(raw_goal_distance)
     end_date = datetime.strptime(raw_end_date, "%Y-%m-%d").date()
     today_date = calculate_today_date_pacific()
-    weekly_plan = build_plan_with_two_dates(today_date, 
-                                            end_date, 
-                                            current_ability, 
+    weekly_plan = build_plan_with_two_dates(today_date,
+                                            end_date,
+                                            current_ability,
                                             goal_distance)
     start_date = calculate_start_date(today_date)
 
@@ -76,6 +76,17 @@ def calculate_today_date_pacific():
     today = dt.date()
 
     return today
+
+def calculate_date_year_from_today(date):
+    """Calculates date year away from date given."""
+
+    return date + timedelta(365)
+
+
+def generate_date_string(date):
+    """Generates a string version of date given datetime.datetime format."""
+
+    return datetime.strftime(date, '%Y-%m-%d')
 
 
 def add_plan_to_database(runner_id):
