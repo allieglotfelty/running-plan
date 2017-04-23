@@ -34,11 +34,15 @@ class ServerTestsNoDB(unittest.TestCase):
         result = self.client.get("/download", data={"current-ability": 6, 
                                                      "goal-distance": 13.1,
                                                      "goal-date": "2017-06-03"})
-        self.assertEqual(result.headers['Content-Type'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+        self.assertEqual(result.headers['Content-Type'], 
+                         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
     def test_logout(self):
-        result = self.client.get("/logout-complete", follow_redirects=True)
+        result = self.client.get("/logout-complete", 
+                                 follow_redirects=True)
+
         self.assertIn("Generate Plan!", result.data)
         self.assertEqual(result.status_code, 200)
 
@@ -46,9 +50,11 @@ class ServerTestsNoDB(unittest.TestCase):
     def test_sign_up_complete(self):
         """Test that the sign-up works."""
 
-        result = self.client.post('/sign-up-complete', data={'email': 'john@gmail.com',
-                                                             "password": 'password'}, 
-                                                             follow_redirects=True)
+        result = self.client.post('/sign-up-complete',
+                                  data={'email': 'john@gmail.com',
+                                        'password': 'password'}, 
+                                  follow_redirects=True)
+
         self.assertIn('<h1>Running Dashboard</h1>', result.data)
         self.assertNotIn('<h1>Sign-up</h1>', result.data)
         self.assertEqual(result.status_code, 200)
@@ -59,7 +65,7 @@ class ServerTestsNoDB(unittest.TestCase):
         result = self.client.post('/login-complete',
                                   data={'email': 'joe@gmail.com',
                                         'password': 'password'},
-                                        follow_redirects=True)
+                                  follow_redirects=True)
 
         self.assertIn('Email or Password is incorrect.', result.data)
         self.assertNotIn('<h1>Running Dashboard</h1>', result.data)
@@ -102,9 +108,11 @@ class ServerTestsWithDBRunnerOne(unittest.TestCase):
     def test_login_good_account(self):
         """Test that login works with a good account."""
 
-        result = self.client.post('/login-complete', data={'email': 'sally@gmail.com',
-                                                           'password': 'password'},
-                                                           follow_redirects=True)
+        result = self.client.post('/login-complete',
+                                  data={'email': 'sally@gmail.com',
+                                        'password': 'password'},
+                                  follow_redirects=True)
+
         self.assertIn('Running Dashboard', result.data)
         self.assertEqual(result.status_code, 200) 
 
@@ -163,10 +171,14 @@ class ServerTestsWithDBRunnerOne(unittest.TestCase):
         receive emails on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", data={"opt-email": "on"}, follow_redirects=True)
+        result = self.client.post("/update-account",
+                                  data={"opt-email": "on"},
+                                  follow_redirects=True)
 
-        self.assertIn("You are now subscribed to receive weekly emails.", result.data)
-        self.assertIn('<input type="checkbox" class="opt-email" name="opt-email" checked="checked">', result.data)
+        self.assertIn("You are now subscribed to receive weekly emails.",
+                      result.data)
+        self.assertIn('<input type="checkbox" class="opt-email" name="opt-email" checked="checked">',
+                      result.data)
 
 
     def test_update_account_text(self):
@@ -174,12 +186,15 @@ class ServerTestsWithDBRunnerOne(unittest.TestCase):
         receive text messages on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", data={"opt-text": "on",
-                                                           "phone-number": '(603) 275-0521'},
-                                                           follow_redirects=True)
+        result = self.client.post("/update-account", 
+                                  data={"opt-text": "on",
+                                        "phone-number": '(603) 275-0521'},
+                                  follow_redirects=True)
 
-        self.assertIn("You are now signed-up to receive text message reminders.", result.data)
-        self.assertIn('<input type="checkbox" class="opt-text" name="opt-text" checked="checked">', result.data)
+        self.assertIn("You are now signed-up to receive text message reminders.",
+                      result.data)
+        self.assertIn('<input type="checkbox" class="opt-text" name="opt-text" checked="checked">',
+                      result.data)
 
 
     def test_update_account_timezone(self):
@@ -187,10 +202,12 @@ class ServerTestsWithDBRunnerOne(unittest.TestCase):
         their timezone on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", data={"time-zone": "America/Anchorage"},
-                                                           follow_redirects=True)
+        result = self.client.post("/update-account",
+                                  data={"time-zone": "America/Anchorage"},
+                                  follow_redirects=True)
 
-        self.assertIn('<option selected value="America/Anchorage">America/Anchorage</option>', result.data)
+        self.assertIn('<option selected value="America/Anchorage">America/Anchorage</option>',
+                      result.data)
 
 
     def test_update_account_start_time(self):
@@ -198,10 +215,12 @@ class ServerTestsWithDBRunnerOne(unittest.TestCase):
         their start time on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", data={"cal-run-start-time": "04:00:00"},
-                                                           follow_redirects=True)
+        result = self.client.post("/update-account",
+                                  data={"cal-run-start-time": "04:00:00"},
+                                  follow_redirects=True)
 
-        self.assertIn('<option selected value="04:00:00">04:00:00</option>', result.data)
+        self.assertIn('<option selected value="04:00:00">04:00:00</option>',
+                      result.data)
 
 
 class ServerTestsWithDBRunnerTwo(unittest.TestCase):
@@ -232,31 +251,43 @@ class ServerTestsWithDBRunnerTwo(unittest.TestCase):
         receive emails on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", data={"opt-email": None}, follow_redirects=True)
+        result = self.client.post("/update-account",
+                                  data={"opt-email": None},
+                                  follow_redirects=True)
 
-        self.assertIn("You are no longer subscribed to weekly emails.", result.data)
-        self.assertIn('<input type="checkbox" class="opt-email" name="opt-email">', result.data)
+        self.assertIn("You are no longer subscribed to weekly emails.",
+                      result.data)
+
+        self.assertIn('<input type="checkbox" class="opt-email" name="opt-email">',
+                      result.data)
 
 
     def test_update_account_removing_text(self):
-        """Test that the runner's account updates properly when they unsign-up to
-        receive texts on the Accountability Settings form.
+        """Test that the runner's account updates properly when they unsign-up
+        to receive texts on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", data={"opt-text": None}, follow_redirects=True)
+        result = self.client.post("/update-account", 
+                                  data={"opt-text": None},
+                                  follow_redirects=True)
 
-        self.assertIn("You will no longer receive text message reminders.", result.data)
-        self.assertIn('<input type="checkbox" class="opt-text" name="opt-text">', result.data)
+        self.assertIn("You will no longer receive text message reminders.",
+                      result.data)
+        self.assertIn('<input type="checkbox" class="opt-text" name="opt-text">',
+                      result.data)
 
 
     def test_update_account_removing_gcal(self):
-        """Test that the runner's account updates properly when they unsign-up to
-        add runs to their Google Calendar on the Accountability Settings form.
+        """Test that the runner's account updates properly when they unsign-up
+        to add runs to their Google Calendar on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", data={"opt-gcal": None}, follow_redirects=True)
+        result = self.client.post("/update-account",
+                                  data={"opt-gcal": None},
+                                  follow_redirects=True)
 
-        self.assertIn('<input type="checkbox" class="opt-gcal" name="opt-gcal">', result.data)
+        self.assertIn('<input type="checkbox" class="opt-gcal" name="opt-gcal">',
+                      result.data)
 
 
 class ServerTestsWithAdmin(unittest.TestCase):

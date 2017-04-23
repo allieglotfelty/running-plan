@@ -57,7 +57,6 @@ def generate_plan():
     raw_current_ability = request.args.get("current-ability")
     raw_goal_distance = request.args.get("goal-distance")
     raw_end_date = request.args.get("goal-date")
-    print "Raw end date is %s type: %s" % (raw_end_date, type(raw_end_date))
 
     try:
         weekly_plan = server_utilities.generate_weekly_plan(raw_current_ability,
@@ -247,7 +246,6 @@ def return_workout_info_for_doughnut_chart():
     """Get info for workout doughnut chart."""
 
     runner_id = session.get('runner_id')
-    print "runner_id is %s" % runner_id
     runner = Runner.query.get(runner_id)
     today_date = runner.calculate_today_date_for_runner()
 
