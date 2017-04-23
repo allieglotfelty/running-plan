@@ -3,14 +3,6 @@ $(document).ready(function() {
   "use strict";
 
  // For workout chart
- 
-  // var canvas = document.getElementById('donutChartWorkouts');
-  // var ctx = canvas.getContext('2d');
-
-  // ctx.font = '20px serif';
-  // ctx.textAlign = 'left';
-  // ctx.fillText('Hello world', 570, 100);
-
   var workoutOptions = { responsive: true };
   var ctx_donut = $("#donutChartWorkouts");
   

@@ -69,14 +69,18 @@ class Runner(db.Model):
 
 
     def update_text_subscription(self, is_subscribed):
-        """Updates the runner's subscription to receive text reminders in the database."""
+        """Updates the runner's subscription to receive text reminders
+        in the database.
+        """
 
         self.is_subscribed_to_texts = is_subscribed
         db.session.commit()
 
 
     def update_email_subscription(self, is_subscribed):
-        """Updates the runner's subscription to receive email reminders in the database."""
+        """Updates the runner's subscription to receive email reminders in the
+        database.
+        """
 
         self.is_subscribed_to_email = is_subscribed
         db.session.commit()
@@ -233,7 +237,8 @@ class Plan(db.Model):
         """Provide helpful representation when printed."""
 
         return "<Plan plan_id=%s runner_id=%s name=%s>" % (self.plan_id, 
-                                                           self.runner_id, self.name)
+                                                           self.runner_id,
+                                                           self.name)
 
 
 class Run(db.Model):
