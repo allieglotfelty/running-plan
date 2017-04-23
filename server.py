@@ -80,7 +80,8 @@ def download_excel():
     # weekly_plan = session.get('weekly_plan')
     excel_text = create_excel_text(weekly_plan)
 
-    # Create a response object that takes in the excel_text (string of excel doc) and the mimetype (format) for the doc
+    # Create a response object that takes in the excel_text
+    # (string of excel doc) and the mimetype (format) for the doc
     response = Response(response=excel_text,
                         status=200,
                         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -135,8 +136,9 @@ def process_login():
 
     raw_runner_email = request.form.get("email")
     raw_runner_password = request.form.get("password")
+    check_is_admin = server_utilities.is_admin(raw_runner_password)
 
-    if raw_runner_email == 'admin@admin.com' and server_utilities.is_admin(raw_runner_password):
+    if raw_runner_email == 'admin@admin.com' and check_is_admin:
         session['admin'] = 'admin'
         return redirect('/admin')
 
@@ -186,7 +188,7 @@ def display_runner_page():
         total_workouts_completed = current_plan.calculate_total_workouts_completed()
         total_miles_completed = current_plan.calculate_total_miles_completed()
     else:
-        flash("It seems like all of your plans have expired. Feel free to click and view and old plan or make a new one!")
+        flash("It seems like all of your plans have expired. Feel free to click and view an old plan or make a new one!")
 
     weeks_in_plan = current_plan.calculate_weeks_in_plan()
     runs = {}
@@ -257,23 +259,24 @@ def return_workout_info_for_doughnut_chart():
     workouts_remaining = count_total_plan_runs - count_plan_runs_completed
     
     data_dict = {
-                "labels": [
-                    "Total Workouts Completed",
-                    "Workouts Remaining"
-                ],
-                "datasets": [
-                    {
-                        "data": [count_plan_runs_completed, workouts_remaining],
-                        "backgroundColor": [
-                            "#FFED82",
-                            "#B0E85F"
-                        ],
-                        "hoverBackgroundColor": [
-                            "#37E8E4",
-                            "0E60FF"
-                        ]
-                    }]
-            }
+                 "labels": [
+                            "Total Workouts Completed",
+                            "Workouts Remaining"
+                           ],
+                 "datasets": [
+                        {
+                         "data": [count_plan_runs_completed, workouts_remaining],
+                         "backgroundColor": [
+                                             "#FFED82",
+                                             "#B0E85F"
+                                            ],
+                         "hoverBackgroundColor": [
+                                                  "#37E8E4",
+                                                  "0E60FF"
+                                                 ]
+                        }
+                 ]
+                }
 
     return jsonify(data_dict)
 
@@ -294,23 +297,24 @@ def return_total_miles_info_for_doughnut_chart():
     miles_remaining = total_mileage - total_miles_completed
 
     data_dict = {
-                "labels": [
-                    "Total Miles Completed",
-                    "Total Miles Remaining"
-                ],
-                "datasets": [
-                    {
-                        "data": [total_miles_completed, miles_remaining],
-                        "backgroundColor": [
-                            "#37E8E4",
-                            "#B0E85F"
-                        ],
-                        "hoverBackgroundColor": [
-                            "#FFED82",
-                            "0E60FF"
-                        ]
-                    }]
-            }
+                 "labels": [
+                            "Total Miles Completed",
+                            "Total Miles Remaining"
+                           ],
+                 "datasets": [
+                        {
+                         "data": [total_miles_completed, miles_remaining],
+                         "backgroundColor": [
+                                             "#37E8E4",
+                                             "#B0E85F"
+                                            ],
+                         "hoverBackgroundColor": [
+                                                  "#FFED82",
+                                                  "0E60FF"
+                                                 ]
+                        }
+                 ]
+                }
 
     return jsonify(data_dict)
 
@@ -325,7 +329,8 @@ def add_runs_to_runners_google_calendar_account():
     added already.
     """
 
-    # If there are no credentials in the current session, redirect to get oauth permisssions
+    # If there are no credentials in the current session, 
+    # redirect to get oauth permisssions
     if not session.get('credentials'):
         return redirect(url_for('oauth2callback'))
 
@@ -362,7 +367,6 @@ def add_runs_to_runners_google_calendar_account():
             else:
                 for event in run_events:
                     event_to_add = calendar.events().insert(calendarId='primary', body=event).execute()
-                    # flash('Added event to Google Calendar: %s on %s' % (event['summary'], event['start']['dateTime']))
                     print'Event created: %s' % (event_to_add.get('htmlLink'))
                 flash('All running events have been added to your Google Calendar.')
         else:
@@ -397,7 +401,10 @@ def oauth2callback():
         runner = Runner.query.get(runner_id)
         runner.add_oauth_token_to_database(credentials)
         flash("Your runs will be added to your Google Calender in the next 10 minutes.")
+        # For using Google Calendar cronjob to add events:
         return redirect(url_for('display_runner_page'))
+
+        # For added events directly to Google Calendar:
         # return redirect(url_for('add_runs_to_runners_google_calendar_account'))
 
 
@@ -465,8 +472,11 @@ def update_account_settings():
     if not runner.is_using_gCal and opt_gcal == 'on':
         runner.update_is_using_gCal(True)
 
-        # return redirect('/add-to-google-calendar')
+        # For using google calendar cronjob to add events:
         return redirect('/oauth2callback')
+
+        # For adding runs directly to calendar:
+        # return redirect('/add-to-google-calendar')
 
     if runner.is_using_gCal and not opt_gcal:
         runner.update_is_using_gCal(False)
