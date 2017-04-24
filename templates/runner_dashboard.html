@@ -2,119 +2,44 @@
 {% block title %}Runner Dashboard{% endblock %}
 {% block content %}
 
+{% block head %}{% endblock %}
+
+<nav class="navbar navbar-default navbar-dashboard">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button"
+              class="navbar-toggle collapsed"
+              data-toggle="collapse"
+              data-target="#navbar"
+              aria-expanded="false"
+              aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+      </button>
+
+      <a class="navbar-brand" href="#">Run Holmes</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+          <!-- <li><a href="/logut-complete">Log Out</a></li> -->
+          <li>
+            <form action="/logout-complete">
+              <input type="submit" value="Logout" name="logout-button" id="logout-button">
+            </form>
+          </li>  
+      </ul>
+    </div>
+  </div>
+</nav>  
+
 
 <div id="runner-id" name="{{ plan.runner_id }}" hidden></div>
-<form action="/logout-complete">
-    <input type="submit" value="Logout" name="logout-button">
-</form>
-
-<style>
-/*    .modalDialog {
-      position: fixed;
-      font-family: Arial, Helvetica, sans-serif;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      background: rgba(0,0,0,0.8);
-      z-index: 99999;
-      opacity:0;
-      -webkit-transition: opacity 400ms ease-in;
-      -moz-transition: opacity 400ms ease-in;
-      transition: opacity 400ms ease-in;
-      pointer-events: none;
-    }
-
-    .modalDialog:target {
-      opacity:1;
-      pointer-events: auto;
-    }
-    .modalDialog > div {
-      width: 600px;
-      position: relative;
-      margin: 5% auto;
-      padding: 20px 20px 20px 20px;
-      background: #fff;
-    }
-
-   .close {
-      background: #606061;
-      color: #FFFFFF;
-      line-height: 25px;
-      position: absolute;
-      right: -12px;
-      text-align: center;
-      top: -10px;
-      width: 24px;
-      text-decoration: none;
-      font-weight: bold;
-      -webkit-border-radius: 12px;
-      -moz-border-radius: 12px;
-      border-radius: 12px;
-      -moz-box-shadow: 1px 1px 3px #000;
-      -webkit-box-shadow: 1px 1px 3px #000;
-      box-shadow: 1px 1px 3px #000;
-    }
-
-    .close:hover { 
-      background: #00d9ff; 
-    }*/
-
-    .workout {
-      background-color: #cccccc;
-    }
-
-    .off-day {
-      color: #cccccc;
-    }
-
-    /*td:not(.off-day):hover {
-      background-color: #37E8E4;
-    }*/
-
-    td.run:hover {
-      background-color: #37E8E4;
-    }
-
-    .run.completed-run {
-      background-color: #C8FFC9;
-    }
-
-    .run.incompleted-run.old {
-      background-color: #f2cccc;
-    }
-
-    .past-event {
-      background-color: #cccccc;
-    }
-
-    .run.completed-run.incompleted-run {
-      background-color: white;
-    }
-
-    span.miles {
-      font-size: 20px;
-    }
-
-    #myPopoverContent {
-      display: none; 
-      float: right;
-    }
-
-    .popover{
-        width:700px;   
-    }
-
-   /* .run.incompleted-run {
-      background-color: #cccccc;
-    }
-*/
-
-/*    td.selected {
-      background-color: #ffd659;
-    }*/
-
-  </style>
 
   <!-- Button trigger modal -->
   <button type="button" class="btn btn-primary" id="account-settings" data-toggle="modal" data-target="#exampleModalLong">
@@ -205,23 +130,48 @@
   </div>
 </div> <!-- maybe delete? -->
 
-<h1 id="dashboard-header">Running Dashboard</h1>
+
+<div class="container-fluid dashboard-body">
+
+  <div class="row">
+    <div class="col-xs-12"> 
+      <h1 id="dashboard-header">Running Dashboard</h1>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-xs-4">
+      <p>Countdown to Goal</p>
+      <p>{{ days_left_to_goal }} days</p>
+    </div>
+
+    <div class="col-xs-4">
+      <div class="workouts-chart">
+        <canvas id="donutChartWorkouts" height="50"></canvas>
+        <div id="donutLegend" class="chart-legend"></div>
+      </div>
+    </div>
+
+    <div class="col-xs-4">
+      <div class="workouts-chart">
+        <canvas id="donutChartMileage" height="50"></canvas>
+        <div id="donutLegend" class="chart-legend"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 {% if plan %}
 
-<p>Countdown to Goal: {{ days_left_to_goal }} days</p>
+
 <span>Total Workouts Completed: </span><span id="total-workouts">{{ total_workouts_completed }}</span><br>
 <span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br>
 
-  <div class="workouts-chart">
-    <canvas id="donutChartWorkouts" height="50"></canvas>
-    <div id="donutLegend" class="chart-legend"></div>
-  <div>
+  
 
-  <div class="workouts-chart">
-    <canvas id="donutChartMileage" height="50"></canvas>
-    <div id="donutLegend" class="chart-legend"></div>
-  <div>
+  
 
 <h4 id="plan-name-title">{{ plan.name }}</h4>
 <button id="update-plan-name">Update Plan Name</button>

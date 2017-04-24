@@ -76,10 +76,10 @@ def calculate_today_date_pacific():
 
     return today
 
-def calculate_date_year_from_today(date):
+def calculate_date_year_from_today(input_date):
     """Calculates date year away from date given."""
 
-    return date + timedelta(365)
+    return input_date + timedelta(365)
 
 
 def generate_date_string(date):
@@ -166,7 +166,10 @@ def send_reminder_sms_messages(run_date):
             distance = run_event.distance
             runner_phone = run_event.plan.runner.phone
             print run_event.plan.runner.runner_id, run_event.plan.runner.phone
-            runner_message = "%s Don't forget your %s mile run today! Reply Y to log your run or N for words of encouragement." % (run_event.plan.runner.runner_id, distance)
+            runner_message = ("%s Don't forget your %s mile run today! " + 
+                              "Reply Y to log your run or N for words of " + 
+                              "encouragement." % 
+                              (run_event.plan.runner.runner_id, distance))
 
             message = client.messages.create(
                                              to=runner_phone,
@@ -194,19 +197,22 @@ def response_to_inbound_text(number, message_body):
                                   'Way to go!',
                                   'Good job completing your run.']
 
-    encouraging_negative_responses = ['Bummer, see if you can fit in your run later this week.',
-                                      'Hope everything is okay.',
-                                      'We all have our off days. Try again tomorrow.',
-                                      'Remember to make today your off day, and run tomorrow!']
+    encouraging_negative_responses = [
+            'Bummer, see if you can fit in your run later this week.',
+            'Hope everything is okay.',
+            'We all have our off days. Try again tomorrow.',
+            'Remember to make today your off day, and run tomorrow!']
 
     positive_reply_choice = random.choice(positive_message_responses)
     negative_reply_choice = random.choice(encouraging_negative_responses)
 
     if message_body.lower() in ['y', 'yes']:
         reply = positive_reply_choice + ' Your run has been logged.'
-        run = db.session.query(Run).join(Plan).join(Runner).filter(Runner.phone == number,
-                                                                   Runner.is_subscribed_to_texts == True,
-                                                                   Run.date == today_date).first()
+        run = (db.session.query(Run).join(Plan).join(Runner)
+                         .filter(Runner.phone == number,
+                                 Runner.is_subscribed_to_texts == True,
+                                 Run.date == today_date)
+                         .first())
         update_run(run.run_id, True)
 
     elif message_body.lower() in ['n', 'no']:
@@ -229,11 +235,12 @@ def send_email_reminders():
     for runner in runners_for_emails:
         runner_email = runner.email
         runner_id = runner.runner_id
-        runs_for_email = db.session.query(Run).join(Plan).join(Runner).filter(
-                                    (Runner.runner_id == runner_id)
-                                    & (Run.date > today_date)
-                                    & (Run.date <= next_sunday_date)
-                                    ).order_by(Run.date).all()
+        runs_for_email = (db.session.query(Run).join(Plan).join(Runner)
+                                    .filter((Runner.runner_id == runner_id) &
+                                            (Run.date > today_date) &
+                                            (Run.date <= next_sunday_date))
+                                    .order_by(Run.date)
+                                    .all())
         runs_to_add_to_email = ""
 
         for run in runs_for_email:
@@ -271,3 +278,4 @@ def is_admin(password):
     hashed_password = generate_hashed_password(password, admin_salt)
 
     return hashed_password == '7652c53ed89bf85a6da936f614bb32c9274706b7dbafe2a5fe68bbeebf24d9e1'
+

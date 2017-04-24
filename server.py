@@ -197,16 +197,17 @@ def display_runner_page():
                           'is_completed': run.is_completed,
                           'is_in_future': future}
 
-    return render_template("runner_dashboard.html", runner=runner,
-                                                    plan=current_plan,
-                                                    runs=runs,
-                                                    weeks_in_plan=weeks_in_plan,
-                                                    days_left_to_goal=days_left_to_goal,
-                                                    total_workouts_completed=total_workouts_completed,
-                                                    total_miles_completed=total_miles_completed,
-                                                    dates=dates,
-                                                    times=times,
-                                                    today_date=today_date)
+    return render_template("runner_dashboard.html",
+                           runner=runner,
+                           plan=current_plan,
+                           runs=runs,
+                           weeks_in_plan=weeks_in_plan,
+                           days_left_to_goal=days_left_to_goal,
+                           total_workouts_completed=total_workouts_completed,
+                           total_miles_completed=total_miles_completed,
+                           dates=dates,
+                           times=times,
+                           today_date=today_date)
 
 
 @app.route('/update-run.json', methods=["POST"])

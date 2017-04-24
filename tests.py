@@ -8,6 +8,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.expected_conditions import staleness_of
+from contextlib import contextmanager
 import time
 import json
 
@@ -47,13 +49,33 @@ class ServerTestsNoDB(unittest.TestCase):
         self.assertIn("Generate Plan!", result.data)
         self.assertEqual(result.status_code, 200)
 
+class ServerTestNotYetLoggedInRunnerWithDB(unittest.TestCase):
+    """Tests sign-up and log-in for users."""
+
+    def setUp(self):
+        """What to do before each test."""
+
+        self.client = app.test_client()
+        app.config['TESTING'] = True
+        connect_to_db(app, 'postgresql:///testdb')
+
+        db.create_all()
+        example_data()
+
+
+    def tearDown(self):
+        """Do at end of each test."""
+
+        db.session.close()
+        db.drop_all()
+
 
     def test_sign_up_complete(self):
         """Test that the sign-up works."""
 
         result = self.client.post('/sign-up-complete',
                                   data={'email': 'john@gmail.com',
-                                        'password': 'password'}, 
+                                        'password': 'password'},
                                   follow_redirects=True)
 
         self.assertIn('<h1>Running Dashboard</h1>', result.data)
@@ -65,22 +87,13 @@ class ServerTestsNoDB(unittest.TestCase):
         """Test that login doesn't work with a bad account."""
         result = self.client.post('/login-complete',
                                   data={'email': 'joe@gmail.com',
-                                        'password': 'password'},
+                                        'password': 'password',
+                                        'runner_id': 50},
                                   follow_redirects=True)
 
         self.assertIn('Email or Password is incorrect.', result.data)
         self.assertNotIn('<h1>Running Dashboard</h1>', result.data)
         self.assertEqual(result.status_code, 200)
-
-    # def test_send_sms_with_messages_to_send(self):
-    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-30"},
-    #                                                            follow_redirects=True)
-    #     self.assertIn("Messages sent successfully!", result.data)
-
-    # def test_send_sms_with_no_messages_to_send(self):
-    #     result = self.client.post("/send-sms-reminders", data={"run-date": "2017-04-27"},
-    #                                                            follow_redirects=True)
-    #     self.assertIn("No messages sent.", result.data)
 
 
 class ServerTestsWithDBRunnerOne(unittest.TestCase):
@@ -458,7 +471,7 @@ class ServerUtilitiesUnitTests(unittest.TestCase):
 
         year_from_date = date_to_test + timedelta(365)
 
-        result = server_utilities.calculate_date_year_from_today(date)
+        result = server_utilities.calculate_date_year_from_today(date_to_test)
 
         assert result == year_from_date
 
@@ -476,6 +489,12 @@ class ServerUtilitiesUnitTests(unittest.TestCase):
 
 
 class SeleniumUITests(unittest.TestCase):
+
+    @contextmanager
+    def wait_for_page_load(self, timeout=30):
+        old_page = self.driver.find_element_by_tag_name('html')
+        yield
+        WebDriverWait(self.driver, timeout).until(staleness_of(old_page))
 
     def setUp(self):
         app.config['TESTING'] = True
@@ -524,55 +543,18 @@ class SeleniumUITests(unittest.TestCase):
         self.assertEqual(email_field.is_displayed(), True)
         self.assertEqual(password_field.is_displayed(), True)
 
-        email_field.send_keys('judy@gmail.com')
+        email_field.send_keys('katiebye@gmail.com')
         time.sleep(5)
         password_field.send_keys('pass')
         time.sleep(5)
 
         submit_btn = self.driver.find_element_by_id('sign-up-submit')
         submit_btn.click()
+        time.sleep(5)
 
-
-
-        # wait = WebDriverWait(self.driver, 20)
-        # print self.driver.current_url
-        # dashboard_header = self.driver.find_element_by_id('dashboard-header')
-        # self.assertEqual(dashboard_header.is_displayed(), True)
-
-
-        # wait.until(self.assertEqual(self.driver.title, 'Run Holmes'))
-
-        # self.old_page = self.driver.find_element_by_tag_name('html')
-
-        # try:
-        #     element = WebDriverWait(self.driver, 100).until(
-        #         EC.presence_of_element_located((By.ID, "update-account"))
-        #     )
-        # finally:
-        #     self.driver.close()
-
-
-        # def wait_for(condition_function):
-        #     start_time = time.time()
-        #     while time.time() < start_time + 3:
-        #         if condition_function():
-        #             return True
-        #         else:
-        #             time.sleep(0.1)
-        #     raise Exception(
-        #         'Timeout waiting for {}'.format(condition_function.__name__)
-        #     )
-
-
-        # def page_has_loaded(self):
-        #     new_page = self.driver.find_element_by_tag_name('html')
-        #     return new_page.id != self.old_page.id
-
-        # wait_for(SeleniumUITests.page_has_loaded)
-
-  
-
-
+        dashboard_header = self.driver.find_element_by_id('dashboard-header')
+        self.assertEqual(dashboard_header.is_displayed(), True)
+        
 
 if __name__ == "__main__":
     unittest.main()

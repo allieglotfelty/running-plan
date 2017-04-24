@@ -3,7 +3,16 @@ $(document).ready(function() {
   "use strict";
 
  // For workout chart
-  var workoutOptions = { responsive: true };
+  var workoutOptions = {
+                        responsive: true,
+                        title: {
+                                display: true,
+                                text: 'Total Workouts Completed'
+                                },
+                        legend: {
+                                 display: false,
+                                }
+                        };
   var ctx_donut = $("#donutChartWorkouts");
   
   function displayWorkoutInfo(data) {
@@ -17,7 +26,16 @@ $(document).ready(function() {
 
 
   // For mileage chart
-  var mileageOptions = { responsive: true };
+  var mileageOptions = {
+                        responsive: true,
+                        title: {
+                                display: true,
+                                text: 'Total Miles Completed'
+                                },
+                        legend: {
+                                 display: false,
+                                }
+                      };
   var ctx_donut_2 = $("#donutChartMileage");
 
   
