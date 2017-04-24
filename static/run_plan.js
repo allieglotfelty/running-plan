@@ -4,6 +4,8 @@ $(document).ready(function() {
 
   $("#plan-name-change-box").hide();
   $("#warning-complete-all-fields").hide();
+  $("#download-to-excel").hide();
+  $("#sign-up").hide();
   // $("#run-completed").hide();
   // $("#run-not-complete").hide();
   // $("#opt-in-for-texts-form").hide();
@@ -65,10 +67,10 @@ $(document).ready(function() {
         var month = (newDate.getMonth()+1)+ "";
         var day = newDate.getDate();
         if (weeklyPlan[date]) {
-          $("#run-info-chart").append('<td>  ' + month + "/" + day + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
+          $("#run-info-chart").append('<td class="run-event">  ' + month + "/" + day + '<br><br>  ' + '<span class="distance">' + weeklyPlan[date] + ' miles</span></td>');
           // $("#run-info-chart").append('<td>  ' + date + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
         } else {
-          $("#run-info-chart").append('<td class="off-day">  ' + month + "/" + day + '<br><br>  off day</td>');
+          $("#run-info-chart").append('<td class="off-day run-event">  ' + month + "/" + day + '<br><br>  off day</td>');
           // $("#run-info-chart").append('<td class="off-day">  ' + date + '<br><br>  off day</td>');
         }
       }
@@ -76,8 +78,10 @@ $(document).ready(function() {
     }
     $("#plan-calendar").removeAttr("hidden");
     $("#generate-plan").attr('value', 'Update Plan');
-    $("#download-to-excel").removeAttr("hidden");
-    $("#sign-up").removeAttr("hidden");
+    $("#download-to-excel").show();
+    $("#sign-up").show();
+    // $("#download-to-excel").removeAttr("hidden");
+    // $("#sign-up").removeAttr("hidden");
     $("#warning-complete-all-fields").empty();
     }
   }

@@ -2,7 +2,8 @@ import unittest
 from server import app
 from model import db, example_data, connect_to_db
 import running_plan
-from datetime import datetime, date
+import server_utilities
+from datetime import datetime, date, timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -444,6 +445,34 @@ class RunningPlanUnitTests(unittest.TestCase):
         plan_test_case = '{"1": {"2017-04-20 00:00:00": 0.0, "2017-04-22 00:00:00": 1.5, "2017-04-23 00:00:00": 0.0, "2017-04-19 00:00:00": 0.0, "2017-04-17 00:00:00": 0.0, "2017-04-21 00:00:00": 0.0, "2017-04-18 00:00:00": 0.0}, "2": {"2017-04-27 00:00:00": 3.0, "2017-04-30 00:00:00": 6.0, "2017-04-29 00:00:00": 1.5, "2017-04-25 00:00:00": 0.0, "2017-04-26 00:00:00": 1.5, "2017-04-28 00:00:00": 0.0, "2017-04-24 00:00:00": 3.0}, "3": {"2017-05-05 00:00:00": 0.0, "2017-05-01 00:00:00": 4.0, "2017-05-06 00:00:00": 2.0, "2017-05-03 00:00:00": 2.0, "2017-05-02 00:00:00": 0.0, "2017-05-04 00:00:00": 4.0, "2017-05-07 00:00:00": 7.75}, "4": {"2017-05-08 00:00:00": 4.75, "2017-05-12 00:00:00": 0.0, "2017-05-10 00:00:00": 2.5, "2017-05-11 00:00:00": 4.75, "2017-05-09 00:00:00": 0.0, "2017-05-13 00:00:00": 2.5, "2017-05-14 00:00:00": 9.5}, "5": {"2017-05-16 00:00:00": 0.0, "2017-05-21 00:00:00": 6.0, "2017-05-20 00:00:00": 1.5, "2017-05-15 00:00:00": 3.0, "2017-05-17 00:00:00": 1.5, "2017-05-18 00:00:00": 3.0, "2017-05-19 00:00:00": 0.0}, "6": {"2017-05-28 00:00:00": 13.1, "2017-05-23 00:00:00": 4.25, "2017-05-24 00:00:00": 0.0, "2017-05-26 00:00:00": 0.0, "2017-05-22 00:00:00": 3.25, "2017-05-25 00:00:00": 3.25, "2017-05-27 00:00:00": 3.0}}'
 
         assert result == plan_test_case
+
+
+class ServerUtilitiesUnitTests(unittest.TestCase):
+    """Unit tests for the server_utilities file"""
+
+    def test_calculate_date_year_from_today(self):
+        """Test that the function generates the correct date a year from today.
+        """
+
+        date_to_test = datetime.strptime("2017-4-23", "%Y-%m-%d").date()
+
+        year_from_date = date_to_test + timedelta(365)
+
+        result = server_utilities.calculate_date_year_from_today(date)
+
+        assert result == year_from_date
+
+
+    def test_generate_date_string(self):
+        """Test that the function returns a string version of the date entered.
+        """
+
+        date_string = "2017-04-23"
+        date_to_test = datetime.strptime("2017-4-23", "%Y-%m-%d").date()
+
+        result = server_utilities.generate_date_string(date_to_test)
+
+        assert result == date_string
 
 
 class SeleniumUITests(unittest.TestCase):

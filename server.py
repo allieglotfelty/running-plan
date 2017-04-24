@@ -135,9 +135,8 @@ def process_login():
 
     raw_runner_email = request.form.get("email")
     raw_runner_password = request.form.get("password")
-    check_is_admin = server_utilities.is_admin(raw_runner_password)
 
-    if raw_runner_email == 'admin@admin.com' and check_is_admin:
+    if raw_runner_email == 'admin@admin.com' and server_utilities.is_admin(raw_runner_password):
         session['admin'] = 'admin'
         return redirect('/admin')
 
