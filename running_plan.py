@@ -178,53 +178,56 @@ def build_plan_with_two_dates(today_date, end_date, current_ability, goal_distan
 
     weekly_plan = {}
     increment = (goal_distance - current_ability) / float(weeks_to_goal-2)
-    print increment
 
     # Create all runs if start date is a Monday
     if start_date_day == 0:
-        weekly_plan_start, start_date = generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, start_date, current_ability, increment, 1)
-        weekly_plan_up_to_last_week = generate_second_to_last_week_of_plan(weekly_plan_start, weeks_to_goal, current_ability, start_date)
-        weekly_plan_final = generate_last_week_of_plan(weekly_plan_up_to_last_week, weeks_to_goal, goal_distance, current_ability, end_day, end_date)
+        weekly_plan_start, start_date = generate_middle_weeks_of_plan(weekly_plan,
+                                                                      weeks_to_goal,
+                                                                      start_date,
+                                                                      current_ability,
+                                                                      increment, 1)
+        weekly_plan_up_to_last_week = generate_second_to_last_week_of_plan(weekly_plan_start,
+                                                                           weeks_to_goal,
+                                                                           current_ability,
+                                                                           start_date)
+        weekly_plan_final = generate_last_week_of_plan(weekly_plan_up_to_last_week,
+                                                       weeks_to_goal, goal_distance,
+                                                       current_ability,
+                                                       end_day,
+                                                       end_date)
 
     # Generate runs if start date is not Monday
     else:
-        weekly_plan[1] = generate_first_week_of_runs(start_date_day, start_date, current_ability)
+        weekly_plan[1] = generate_first_week_of_runs(start_date_day,
+                                                     start_date,
+                                                     current_ability)
 
         # Start date for first full week will be the Monday after the start_date
         first_date = start_date+relativedelta(weekday=MO)
 
-        weekly_plan_up_to_second_to_last_week, start_date = generate_middle_weeks_of_plan(weekly_plan, weeks_to_goal, first_date, current_ability, increment, 2)
+        weekly_plan_up_to_second_to_last_week, start_date = generate_middle_weeks_of_plan(weekly_plan,
+                                                                                          weeks_to_goal,
+                                                                                          first_date,
+                                                                                          current_ability,
+                                                                                          increment,
+                                                                                          2)
 
         second_to_last_week_monday = end_date+relativedelta(weekday=MO(-2))
 
         # Second to last week will be the same as the first week
-        weekly_plan_up_to_last_week = generate_second_to_last_week_of_plan(weekly_plan_up_to_second_to_last_week, weeks_to_goal, current_ability, second_to_last_week_monday)
+        weekly_plan_up_to_last_week = generate_second_to_last_week_of_plan(weekly_plan_up_to_second_to_last_week,
+                                                                           weeks_to_goal, current_ability,
+                                                                           second_to_last_week_monday)
 
         # Generate last week of runs based on the number of days in the last week
-        weekly_plan_final = generate_last_week_of_plan(weekly_plan_up_to_last_week, weeks_to_goal, goal_distance, current_ability, end_day, end_date)
+        weekly_plan_final = generate_last_week_of_plan(weekly_plan_up_to_last_week,
+                                                       weeks_to_goal,
+                                                       goal_distance,
+                                                       current_ability,
+                                                       end_day,
+                                                       end_date)
 
-    # edgecase = handle_edgecases(increment, goal_distance, current_ability)
-
-    # if not edgecase:
     return weekly_plan_final
-    # else:
-    #     return edgecase
-
-
-# def create_event_source(weekly_plan):
-#     """Creates objects in correct format to feed into calendar."""
-
-#     event_data = []
-#     for date in weekly_plan:
-#         if weekly_plan[date]:
-#             event_source = {}
-#             event_source['title'] = "%s miles" % weekly_plan[date]
-#             event_source['allDay'] = True
-#             event_source['start'] = date
-#             event_source['eventBackgroundColor'] = 'red'
-#             event_data.append(event_source)
-
-#     return event_data
 
 
 def create_excel_workbook(weekly_plan, output):
@@ -281,24 +284,3 @@ def create_excel_text(weekly_plan):
 
     # Retrieves the entire contents of the "File"
     return output.getvalue()
-
-
-# def create_excel_doc(weekly_plan):
-#     filename = 'RunningPlan9.xlsx'
-#     create_excel_workbook(weekly_plan, filename)
-
-
-# def handle_edgecases(increment, goal_distance, current_ability):
-#     """Handles any edge cases that the user might encounter."""
-
-#     if increment > 1:
-#         return """We're sorry, but it will be very difficult for you to achieve
-#         your goal in the time that you have. Please consider a race that
-#         will provide you with more weeks for training."""
-
-#     elif (goal_distance * .8) <= current_ability:
-#         return """We believe that you already have the ability to achieve your goal.
-#         If you would like to try a longer race or goal, we would be happy to assist you!"""
-
-#     else:
-#         return None

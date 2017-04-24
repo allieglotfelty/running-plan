@@ -268,7 +268,7 @@ class ServerTestsWithDBRunnerTwo(unittest.TestCase):
         to receive texts on the Accountability Settings form.
         """
 
-        result = self.client.post("/update-account", 
+        result = self.client.post("/update-account",
                                   data={"opt-text": None},
                                   follow_redirects=True)
 

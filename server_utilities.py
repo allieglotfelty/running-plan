@@ -36,7 +36,6 @@ def generate_weekly_plan(raw_current_ability, raw_goal_distance, raw_end_date):
                     }
 
     session.update(updated_vals)
-    print session
 
     return weekly_plan
 
