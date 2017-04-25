@@ -40,9 +40,9 @@
 
 {% if plan %}
 
-<div class="container-fluid dashboard-body">
+<div class="container dashboard-body">
 
-  <div class="row-fluid">
+  <div class="row">
     <div class="col-xs-offset-2 col-xs-4"> 
       <!-- <h1 id="dashboard-header">Running Dashboard</h1> -->
       <h1 id="plan-name-title" class="dashboard-header">{{ plan.name }}<span><button id="update-plan-name" type="button" class="btn btn-default btn-xs">
@@ -153,40 +153,40 @@
   <div class="row charts-display">
 
     <div class="col-xs-offset-2 col-xs-2 runner-updates">
-      <p class="chart-titles">Countdown to Goal</p>
-      <p class="training-info">{{ days_left_to_goal }}<span class="smaller-training-info">days</span></p>
+      <p class="training-info">{{ days_left_to_goal }}</p>
+      <p class="smaller-training-info">Days to Goal</p>
     </div>
 
     <div class="col-xs-2 runner-updates">
-      <p class="chart-titles">Today's Workout</p>
-      <p class="training-info">3<span class="smaller-training-info"> miles</span></p>
+      <p class="training-info">3</p>
+      <p class="smaller-training-info"> Miles Today</p>
     </div>
 
     <div class="col-xs-2 runner-updates">
-      <p class="chart-titles">{{ total_workouts_completed }} Workouts Completed</p>
+      <span id="total-workouts">{{ total_workouts_completed }}</span><span class="chart-titles"> Workouts Completed</span>
       <div class="workouts-chart">
         <canvas id="donutChartWorkouts" class="doughnut-chart"></canvas>
-        <div id="donutLegend" class="chart-legend"></div>
+        <!-- <div id="donutLegend" class="chart-legend"></div> -->
       </div>
     </div>
 
     <div class="col-xs-2 runner-updates">
-      <p class="chart-titles">{{ total_miles_completed }} Miles Completed</p>
+      <span class="chart-titles" id="total-miles">{{ total_miles_completed }}</span><span> Miles Completed</span>
       <div class="workouts-chart">
         <canvas id="donutChartMileage" class="doughnut-chart"></canvas>
-        <div id="donutLegend" class="chart-legend"></div>
+        <!-- <div id="donutLegend" class="chart-legend"></div> -->
       </div>
     </div>
 
   </div>
 
 <!-- <span>Total Workouts Completed: </span><span id="total-workouts">{{ total_workouts_completed }}</span><br>
-<span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br>
- -->
+<span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br> -->
 
- <div class="container-fluid patterned">
+
+ <div class="container">
     <div class="row">
-      <div class="col-xs-offset-1 col-xs-10 table-responsive">           
+      <div class="col-xs-10 table">           
         <div id="run-completed-message"></div>
 
         <table id="plan-calendar" name="plan-calendar" border="1px" class="table table-bordered table-condensed">

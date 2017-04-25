@@ -265,12 +265,12 @@ def return_workout_info_for_doughnut_chart():
                         {
                          "data": [count_plan_runs_completed, workouts_remaining],
                          "backgroundColor": [
-                                             "#FFED82",
-                                             "#B0E85F"
+                                             "#7BA9C8",
+                                             "#D4D5C8"
                                             ],
                          "hoverBackgroundColor": [
-                                                  "#37E8E4",
-                                                  "0E60FF"
+                                                  "#2E3D47",
+                                                  "#7C7C72"
                                                  ]
                         }
                  ]
@@ -303,12 +303,12 @@ def return_total_miles_info_for_doughnut_chart():
                         {
                          "data": [total_miles_completed, miles_remaining],
                          "backgroundColor": [
-                                             "#37E8E4",
-                                             "#B0E85F"
+                                             "#7BA9C8",
+                                             "#D4D5C8"
                                             ],
                          "hoverBackgroundColor": [
-                                                  "#FFED82",
-                                                  "0E60FF"
+                                                  "#2E3D47",
+                                                  "#7C7C72"
                                                  ]
                         }
                  ]

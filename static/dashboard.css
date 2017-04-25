@@ -8,6 +8,21 @@ body {
     -webkit-font-smoothing: antialiased;
   }
 
+.runner-updates {
+  padding-right: 10px;
+  padding-left: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  /*margin: 10px;*/
+  background-color: white;
+  /*border: 2px white;*/
+  border-color: white;
+  border-radius: 10px;
+  height: 168px;
+  text-align: center;
+}
+
+
 .navbar-dashboard {
   background: #005546;
   border: none;
@@ -36,9 +51,9 @@ body {
   font-size: 20px;
 }
 
-.workouts-chart {
-  height: 50px;
-}
+/*.workouts-chart {
+  /*height: px;*/
+/*}*/
 
 #update-plan-name {
   margin: 3px;
@@ -50,9 +65,6 @@ body {
   color: #cccccc;
 }
 
-  /*td:not(.off-day):hover {
-    background-color: #37E8E4;
-  }*/
 table {
   background-color: #F6F6F4;
   margin: 50px;
@@ -107,18 +119,9 @@ span.miles {
   overflow: hidden;
 }
 
-.runner-updates {
-  padding-right: 20px;
-  padding-left: 20px;
-}
-
 #account-settings {
   background-color: #005546;
   color: white;
-/*  margin: -20px -50px; 
-  position:relative;
-  top:50%; 
-  left:50%;*/
 }
 
 div {

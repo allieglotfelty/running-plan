@@ -11,7 +11,7 @@ $(document).ready(function() {
                                 fontSize: 18,
                                 },
                         legend: {
-                                 display: true,
+                                 display: false,
                                  position: 'right',
                                 }
                         };
@@ -35,7 +35,7 @@ $(document).ready(function() {
                                 text: 'Total Miles Completed'
                                 },
                         legend: {
-                                 display: true,
+                                 display: false,
                                  position: 'right',
                                 }
                       };
