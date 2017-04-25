@@ -16,7 +16,7 @@ $(document).ready(function() {
                                 }
                         };
   var ctx_donut = $("#donutChartWorkouts");
-  
+
   function displayWorkoutInfo(data) {
     var myDonutChart = new Chart(ctx_donut, {
                                             type: 'doughnut',
@@ -25,6 +25,8 @@ $(document).ready(function() {
                                           });
     // $('#donutLegend').html(myDonutChart.generateLegend());
   }
+
+
 
 
   // For mileage chart

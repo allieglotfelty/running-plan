@@ -11,15 +11,16 @@ body {
 .runner-updates {
   padding-right: 10px;
   padding-left: 10px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+/*  padding-top: 10px;
+  padding-bottom: 10px;*/
   /*margin: 10px;*/
   background-color: white;
   /*border: 2px white;*/
   border-color: white;
   border-radius: 10px;
-  height: 168px;
+  height: 180px;
   text-align: center;
+  vertical-align: top;
 }
 
 
@@ -124,7 +125,15 @@ span.miles {
   color: white;
 }
 
-div {
-    vertical-align: top;
+/*p {
+  margin: 0px;
+}*/
+
+.doughnut-chart {
+  margin-top: 12px;
 }
+
+/*div {
+    vertical-align: top;
+}*/
 

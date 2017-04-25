@@ -153,29 +153,29 @@
   <div class="row charts-display">
 
     <div class="col-xs-offset-2 col-xs-2 runner-updates">
-      <p class="training-info">{{ days_left_to_goal }}</p>
-      <p class="smaller-training-info">Days to Goal</p>
-    </div>
-
-    <div class="col-xs-2 runner-updates">
       <p class="training-info">3</p>
-      <p class="smaller-training-info"> Miles Today</p>
+      <p class="smaller-training-info"> MILES TODAY</p>
     </div>
 
     <div class="col-xs-2 runner-updates">
-      <span id="total-workouts">{{ total_workouts_completed }}</span><span class="chart-titles"> Workouts Completed</span>
+      <p class="training-info">{{ days_left_to_goal }}</p>
+      <p class="smaller-training-info">DAYS TO GOAL</p>
+    </div>
+
+    <div class="col-xs-2 runner-updates">
       <div class="workouts-chart">
         <canvas id="donutChartWorkouts" class="doughnut-chart"></canvas>
         <!-- <div id="donutLegend" class="chart-legend"></div> -->
-      </div>
+      </div><br>
+      <span id="total-workouts" class="smaller-training-info">{{ total_workouts_completed }}</span><span class="smaller-training-info"> Workouts Completed</span>
     </div>
 
     <div class="col-xs-2 runner-updates">
-      <span class="chart-titles" id="total-miles">{{ total_miles_completed }}</span><span> Miles Completed</span>
       <div class="workouts-chart">
         <canvas id="donutChartMileage" class="doughnut-chart"></canvas>
         <!-- <div id="donutLegend" class="chart-legend"></div> -->
-      </div>
+      </div><br>
+      <span class="smaller-training-info" id="total-miles">{{ total_miles_completed }}</span><span class="smaller-training-info"> Miles Completed</span>
     </div>
 
   </div>
