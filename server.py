@@ -258,8 +258,8 @@ def return_workout_info_for_doughnut_chart():
     
     data_dict = {
                  "labels": [
-                            "Total Workouts Completed",
-                            "Workouts Remaining"
+                            "Completed",
+                            "Remaining"
                            ],
                  "datasets": [
                         {
@@ -296,8 +296,8 @@ def return_total_miles_info_for_doughnut_chart():
 
     data_dict = {
                  "labels": [
-                            "Total Miles Completed",
-                            "Total Miles Remaining"
+                            "Completed",
+                            "Remaining"
                            ],
                  "datasets": [
                         {

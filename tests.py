@@ -552,7 +552,7 @@ class SeleniumUITests(unittest.TestCase):
         submit_btn.click()
         time.sleep(5)
 
-        dashboard_header = self.driver.find_element_by_id('dashboard-header')
+        plan_name_title = self.driver.find_element_by_id('plan-name-title')
         self.assertEqual(dashboard_header.is_displayed(), True)
         
 

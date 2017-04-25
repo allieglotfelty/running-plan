@@ -1,0 +1,127 @@
+body {
+    background-image: url("/static/crossword.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    color: #000;
+    line-height: 1.3;
+    -webkit-font-smoothing: antialiased;
+  }
+
+.navbar-dashboard {
+  background: #005546;
+  border: none;
+  color: #fff;
+  font-family: 'Raleway', sans-serif;
+}
+
+.navbar-default .navbar-brand, .navbar-default .navbar-nav li a {
+  color: #fff;
+  font-family: 'Raleway', sans-serif;
+
+}
+
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-nav li a:hover {
+  color: #ED8429;
+}
+
+#dashboard-body {
+}
+
+.training-info {
+  font-size: 100px;
+}
+
+.smaller-training-info {
+  font-size: 20px;
+}
+
+.workouts-chart {
+  height: 50px;
+}
+
+#update-plan-name {
+  margin: 3px;
+  background-color: transparent;
+  border: none;
+}
+
+.off-day {
+  color: #cccccc;
+}
+
+  /*td:not(.off-day):hover {
+    background-color: #37E8E4;
+  }*/
+table {
+  background-color: #F6F6F4;
+  margin: 50px;
+}
+
+th, .week-number {
+  background-color: #005546;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  width: 80px;
+}
+
+td.run:hover {
+  background-color: #37E8E4;
+}
+
+.run.completed-run {
+  background-color: #C8FFC9;
+}
+
+.run.incompleted-run.old {
+  background-color: #f2cccc;
+}
+
+.past-event {
+  background-color: #cccccc;
+}
+
+.run.completed-run.incompleted-run {
+  background-color: white;
+}
+
+span.miles {
+  font-size: 20px;
+}
+
+#myPopoverContent {
+  display: none; 
+  float: right;
+}
+
+.popover{
+    width:700px;   
+}
+
+#logout-button {
+  background-color: transparent;
+  background-repeat:no-repeat;
+  border: none;
+  cursor:pointer;
+  overflow: hidden;
+}
+
+.runner-updates {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+
+#account-settings {
+  background-color: #005546;
+  color: white;
+/*  margin: -20px -50px; 
+  position:relative;
+  top:50%; 
+  left:50%;*/
+}
+
+div {
+    vertical-align: top;
+}
+

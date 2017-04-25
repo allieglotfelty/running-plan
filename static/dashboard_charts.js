@@ -6,11 +6,13 @@ $(document).ready(function() {
   var workoutOptions = {
                         responsive: true,
                         title: {
-                                display: true,
-                                text: 'Total Workouts Completed'
+                                display: false,
+                                text: 'Total Workouts Completed',
+                                fontSize: 18,
                                 },
                         legend: {
-                                 display: false,
+                                 display: true,
+                                 position: 'right',
                                 }
                         };
   var ctx_donut = $("#donutChartWorkouts");
@@ -29,11 +31,12 @@ $(document).ready(function() {
   var mileageOptions = {
                         responsive: true,
                         title: {
-                                display: true,
+                                display: false,
                                 text: 'Total Miles Completed'
                                 },
                         legend: {
-                                 display: false,
+                                 display: true,
+                                 position: 'right',
                                 }
                       };
   var ctx_donut_2 = $("#donutChartMileage");
