@@ -20,5 +20,6 @@ twilio_text_output.tx
 twilio_text_output.txt
 cronjobs.txt
 gcal_cronjob.txt
+gcal_cronjob copy.txt
 ghostdriver.log
 phantomjs-2.1.1-linux-x86_64.tar.bz2

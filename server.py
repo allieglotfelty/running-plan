@@ -71,7 +71,6 @@ def download_excel():
 
     weekly_plan = session.get('weekly_plan')
 
-    # weekly_plan = session.get('weekly_plan')
     excel_text = create_excel_text(weekly_plan)
 
     # Create a response object that takes in the excel_text

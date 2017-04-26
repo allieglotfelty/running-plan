@@ -266,10 +266,10 @@ def create_excel_workbook(weekly_plan, output):
         col = 0
 
     workbook.set_properties({
-    'title':    'Running Plan',
-    'author':   'Run Holmes',
-    'keywords': 'Run, Plan, Workout',
-    })
+                             'title':    'Running Plan',
+                             'author':   'Run Holmes',
+                             'keywords': 'Run, Plan, Workout',
+                             })
 
     workbook.close()
 
