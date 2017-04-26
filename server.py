@@ -5,16 +5,11 @@ from flask import Flask, jsonify, render_template, redirect, request, flash, ses
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db, db, Runner, Plan, Run
 from datetime import datetime, date, timedelta, time
-# import pytz
-# from tzlocal import get_localzone
 from apiclient import discovery as gcal_client
 from oauth2client import client
 import httplib2
 from running_plan import create_excel_text
 import server_utilities
-# from twilio import twiml
-# import sendgrid
-# import os
 from sendgrid.helpers.mail import *
 
 app = Flask(__name__)
@@ -249,13 +244,13 @@ def return_workout_info_for_doughnut_chart():
     runner = Runner.query.get(runner_id)
     today_date = runner.calculate_today_date_for_runner()
 
-    count_total_plan_runs = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
+    count_total_plan_runs = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id,
                                                                                  Plan.end_date>=today_date).count()
-    count_plan_runs_completed = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id, 
+    count_plan_runs_completed = db.session.query(Run).join(Plan).join(Runner).filter(Runner.runner_id==runner_id,
                                                                                      Plan.end_date>=today_date, 
                                                                                   Run.is_completed==True).count()
     workouts_remaining = count_total_plan_runs - count_plan_runs_completed
-    
+
     data_dict = {
                  "labels": [
                             "Completed",
@@ -327,7 +322,7 @@ def add_runs_to_runners_google_calendar_account():
     added already.
     """
 
-    # If there are no credentials in the current session, 
+    # If there are no credentials in the current session,
     # redirect to get oauth permisssions
     if not session.get('credentials'):
         return redirect(url_for('oauth2callback'))
