@@ -37,7 +37,7 @@ Users can download their plan as an excel document.
 ![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/static/run_holmes_excel_doc.png "Excel Download")
 
 Users can create an account and see progress toward their goal on the user dashboard.
-![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/static/run_holmes_dashboard.png "Dashboard")
+![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_dashboard.png?raw=true "Dashboard")
 
 Users can update their "Stay On Track Settings" to receive daily text reminders, weekly emails or add their runs directly to their Google Calendar.
 ![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/static/run_holmes_stay_on_track_settings.png "Stay On Track Settings")
