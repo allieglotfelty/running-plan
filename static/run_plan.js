@@ -8,6 +8,8 @@ $(document).ready(function() {
   $("#sign-up").hide();
   $("#options-below").hide();
 
+
+  // Displays running plan on homepage
   function showPlanResults(results) {
     var runPlan = results;
     console.log(runPlan);
@@ -32,7 +34,6 @@ $(document).ready(function() {
           // $("#run-info-chart").append('<td>  ' + date + '<br><br>  ' + weeklyPlan[date] + ' miles</td>');
         } else {
           $("#run-info-chart").append('<td class="off-day run-event"><span class="distance">Off day!</span><br>' + month + "/" + day + '</td>');
-          // $("#run-info-chart").append('<td class="off-day">  ' + date + '<br><br>  off day</td>');
         }
       }
       $("#run-info-chart").append('</tr>');
@@ -45,6 +46,7 @@ $(document).ready(function() {
     }
   }
 
+  // Ajax call to compute running plan based on user input
   function getPlanResults(evt) {
     evt.preventDefault();
     console.log("Running getPlanResults");
@@ -56,6 +58,7 @@ $(document).ready(function() {
                           "goal-date": goalDate}, showPlanResults);
     }
 
+  // Configures downloadable version of running plan
   function getPlanResultsForDownload(evt) {
     var currentAbility = $("#current-ability").val();
     var goalDistance = $("#goal-distance").val();
@@ -67,14 +70,7 @@ $(document).ready(function() {
                       goalDate;
   }
 
-  var today_date = new Date();
-  $("td").each(function() {
-    var run_date = $(this).attr("name");
-    if (run_date < today_date) {
-      $(this).css("background-color", "red");
-    }
-  });
-
+  // Ajax call to update running calendar as completed on click
   $(".run").on("click", function() {
     var runId = $(this).attr('id');
     if ($(this).hasClass("incompleted-run")) {
@@ -91,20 +87,9 @@ $(document).ready(function() {
       });
     }
   });
-  
-  $('input[type=checkbox][name=opt-text]').change(function() {
-    if ($(this).is(":checked")) {
-      var phone = $(".phone");
-      phone.prop('disabled', false);
-      phone.prop('required', true);
-      $(".phone").text( function(i, text) {
-          return text.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3');
-      });
-    } else {
-      $(".phone").prop('required', false);
-    }
-  });
 
+  // Displays prompt to fill in timezone and start time if user clicks opt into
+  // Google Calendar
   $('input[type=checkbox][name=opt-gcal]').change(function() {
     if ($(this).is(":checked")) {
       $("#options-below").show();
@@ -113,7 +98,7 @@ $(document).ready(function() {
     }
   });
 
-
+  // Allows user to updated their Running Plan Name
   function planNameUpdated(results) {
     $("#plan-name-change-box").hide();
     var title = $("#plan-name-title");
@@ -138,7 +123,9 @@ $(document).ready(function() {
   $("#plan-name-change-box").on('submit', updatePlanName);
 
 
-// Checkbox feature of checking off runs. Less attractive UI:
+});
+
+// Checkbox feature of checking off runs. Less attractive UI thank clicking box itself:
   // $('input:checkbox.workout').change(function() {
   //     var runId = $(this).attr('id');
   //     if ($(this).is(":checked")) {
@@ -160,39 +147,8 @@ $(document).ready(function() {
   //   });
 
 
-
-    // $(".run.incompleted-run").on("dblclick", function() {
-    //   var runId = $(this).attr('id');
-    //   $(this).addClass("completed-run").removeClass("incompleted-run");
-    //   $.post("/update-run.json", {'run-id': runId}, function(results) {
-    //     alert("Congrats on completing a run!");
-    //     $("#total-miles").html(results['total_miles_completed']);
-    //     $("#total-workouts").html(results['total_workouts_completed']);
-    //   });
-    // });
-
-    // $(".run.completed-run").on("dblclick", function() {
-    //   var runId = $(this).attr('id');
-    //   $(this).addClass("incompleted-run").removeClass("completed-run");
-    //   $.post("/update-run-incomplete.json", {'run-id': runId}, function(results) {
-    //     alert("We have removed this run from your total!");
-    //     $("#total-miles").html(results['total_miles_completed']);
-    //     $("#total-workouts").html(results['total_workouts_completed']);
-    //   });
-    // });
-
-
-  // $(".run").on("click", function(e) {
-  //   $(this)
-  //      .toggleClass("selected");
-  // });
-
-
-  // function addEventsToGoogleCal(results) {
-  //   console.log("Events added to Google Calendar");
-  // }
-
-
+// Alternative way to capture user timezone and start time for Google Calendar. 
+// Less friendly UI and disconnected process.
   // function getEventInfoForGoogleCal(evt) {
   //   evt.preventDefault();
   //   var timezone = $("#time-zone").val();
@@ -230,7 +186,8 @@ $(document).ready(function() {
   // }
 
 
-
+// Alternative way to capture user information for opting into text message reminders.
+// Less user friendly and unattractive UI
   // function showOptIntoTextsForm() {
   //   $("#opt-in-for-texts-form").show();
   // }
@@ -262,7 +219,8 @@ $(document).ready(function() {
 
   // }
 
-
+// Alternative way to capture user information for opting into email reminders.
+// Less user friendly and unattractive UI
 
   // function optOutOfEmails(evt) {
   //   $("#you-will-no-longer-receive-emails").show().delay(5000).queue(function() {
@@ -306,10 +264,6 @@ $(document).ready(function() {
   // $("#cal-run-start-time").change(getStartTimeForGoogleCal);
   // $("#time-zone").change(getTimezoneForGoogleCal);
 
-  // $("#planning-form").on('submit', displaySignUpAndSaveButton);
-  // $("#planning-form").on('submit', displayCalendar);
-  // $("#planning-form").change(getPlanResults);
-
   // $("#opt-into-texts-button").on('click', showOptIntoTextsForm);
   // $("#opt-in-for-texts-form").on('submit', updatePhone);
   // $("#opt-out-of-texts-button").on('click', optOutOfTexts);
@@ -319,5 +273,3 @@ $(document).ready(function() {
   // $("#opt-out-of-email-button").on('click', optOutOfEmails);
 
   // $("#add-to-google-calendar-form").on('submit', getEventInfoForGoogleCal);
-
-});

@@ -79,6 +79,7 @@
     opacity:1;
     pointer-events: auto;
   }
+  
   .modalDialog > div {
     width: 390px;
     position: relative;
@@ -107,11 +108,8 @@
     box-shadow: 1px 1px 3px #000;
   }
 
-  .close:hover { background: #00d9ff; }
-
-  .copyright {
-    color: white;
-    font-size: 8px;
+  .close:hover { 
+    background: #00d9ff; 
   }
 
   select, option { 

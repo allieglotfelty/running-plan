@@ -235,7 +235,6 @@ def create_excel_workbook(weekly_plan, output):
 
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet('RunningPlan')
-    # worksheet.write(row, col, some_data) rows & columns are zero indexed A1 is (0,0)
 
     # Add bold format
     bold = workbook.add_format({'bold': 1})
@@ -248,7 +247,6 @@ def create_excel_workbook(weekly_plan, output):
 
     for day in weekdays:
         worksheet.write(row, col, day, format_header)
-        # worksheet.set_column(row, col, 17)
         col += 1
 
     row = 1
