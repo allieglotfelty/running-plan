@@ -1,6 +1,6 @@
 # Run Holmes
 --- 
-![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/README/run_holmes_homepage.png "Homepage")
+![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_homepage.png?raw=true "Homepage")
 
 
 # Description
@@ -28,19 +28,19 @@ Run Holmes helps users reach their running goals. The application uses a unique 
 # Features
 ---
 The Run Holmes algorithm uses the answers to these three questions to generate a plan for the user.
-![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/README/run_holmes_homepage.png "Homepage")
+![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_homepage.png?raw=true "Homepage")
 
 Once the user clicks the "Generate Plan!" button, the plan populates on the bottom of the screen.
-![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/static/run_holmes_homepage_with_plan.png "Homepage with plan")
+![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_homepage_with_plan.png?raw=true "Homepage with plan")
 
 Users can download their plan as an excel document.
-![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/static/run_holmes_excel_doc.png "Excel Download")
+![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_excel_doc.png?raw=true "Excel Download")
 
 Users can create an account and see progress toward their goal on the user dashboard.
 ![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_dashboard.png?raw=true "Dashboard")
 
 Users can update their "Stay On Track Settings" to receive daily text reminders, weekly emails or add their runs directly to their Google Calendar.
-![alt text](https://raw.githubusercontent.com/allieglotfelty/running-plan/master/static/run_holmes_stay_on_track_settings.png "Stay On Track Settings")
+![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_stay_on_track_settings.png?raw=true "Stay On Track Settings")
 
  
 # Author
