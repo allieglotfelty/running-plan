@@ -1,41 +1,31 @@
 {% extends 'base.html' %}
-{% block title %}Runner Dashboard{% endblock %}
+{% block title %}Run Holmes Dashboard{% endblock %}
 {% block head %}
   <link rel="stylesheet" type="text/css" href="/static/dashboard.css">
 {% endblock %}
 
 {% block content %}
 
-<nav class="navbar navbar-default navbar-dashboard">
+<nav class="navbar navbar-light bg-faded">
   <div class="container-fluid">
+  <a class="navbar-brand navbar-dashboard" href="#">
+    <img src="/static/noun_987496.svg" width="50" height="50" alt="Run Holmes" id="run-icon">
+  </a>
     <div class="navbar-header">
-      <button type="button"
-              class="navbar-toggle collapsed"
-              data-toggle="collapse"
-              data-target="#navbar"
-              aria-expanded="false"
-              aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-      </button>
-
-      <a class="navbar-brand" href="#">Run Holmes</a>
+      <a class="navbar-brand" href="#" class="nav-words">Run Holmes</a>
     </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-          <li><a href="#">About Us</a></li>
-          <li><a href="#">Contact</a></li>
-      </ul>
+
       <ul class="nav navbar-nav navbar-right">
-          <li><a href="/logout-complete">Log Out</a></li>
+          <li><a href="/logout-complete" class="nav-words">Log Out</a></li>
       </ul>
     </div>
   </div>
-</nav>  
 
-
+<ul>
+    {% for message in get_flashed_messages() %}
+        <li><div class="col-xs-4 alert-success">{{ message }}</div></li>
+    {% endfor %}
+</ul>
 <div id="runner-id" name="{{ plan.runner_id }}" hidden></div>
 
 {% if plan %}
@@ -43,7 +33,7 @@
 <div class="container dashboard-body">
 
   <div class="row">
-    <div class="col-xs-offset-2 col-xs-4"> 
+    <div class="col-xs-4"> 
       <!-- <h1 id="dashboard-header">Running Dashboard</h1> -->
       <h1 id="plan-name-title" class="dashboard-header">{{ plan.name }}<span><button id="update-plan-name" type="button" class="btn btn-default btn-xs">
         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
@@ -57,22 +47,74 @@
       </form>
     </div>
 
-    <div class="col-xs-offset-2 col-xs-4">
+    <!-- <div class="col-xs-offset-2 col-xs-4"> -->
 
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" id="account-settings" data-toggle="modal" data-target="#exampleModalLong">
-          Accountability Settings
-        </button>
+        
+
+    </div>
+  </div>
+
+  <div class="row charts-display">
+
+    <div class="col-xs-2 runner-updates" id="run-today">
+      <p class="training-info">1.5</p>
+      <p class="smaller-training-info">Miles Today</p>
+    </div>
+
+    <div class="col-xs-2 runner-updates">
+      <p class="training-info">{{ days_left_to_goal }}</p>
+      <p class="smaller-training-info">Days to Goal</p>
+    </div>
+
+    <div class="col-xs-2 runner-updates">
+      <div class="workouts-chart">
+        <canvas id="donutChartWorkouts" class="doughnut-chart"></canvas>
+        <!-- <div id="donutLegend" class="chart-legend"></div> -->
+      </div><br>
+      <span id="total-workouts" class="smaller-training-info">{{ total_workouts_completed }}</span><span class="smaller-training-info"> Workouts Completed</span>
+    </div>
+
+    <div class="col-xs-2 runner-updates">
+      <div class="workouts-chart">
+        <canvas id="donutChartMileage" class="doughnut-chart"></canvas>
+        <!-- <div id="donutLegend" class="chart-legend"></div> -->
+      </div><br>
+      <span class="smaller-training-info" id="total-miles">{{ total_miles_completed }}</span><span class="smaller-training-info"> Miles Completed</span>
+    </div>
+
+    <div class="col-xs-2 runner-updates" id="stay-on-track">
+      <p class="smaller-training-info">Stay on Track:</p>
+      <form>
+        {% if runner.is_subscribed_to_texts %}
+          <input type="checkbox" checked="checked"><label>&nbsp;&nbsp;Text Reminders</label><br>
+        {% else %}
+          <input type="checkbox"><label>&nbsp;&nbsp;Text Reminders</label><br>
+        {% endif %}
+        {% if runner.is_subscribed_to_email %}
+          <input type="checkbox" checked="checked"><label>&nbsp;&nbsp;Email Reminders</label><br>
+        {% else %}
+          <input type="checkbox"><label>&nbsp;&nbsp;Email Reminders</label><br>
+        {% endif %}
+        {% if runner.is_using_gCal %}
+          <input type="checkbox"checked="checked"><label>&nbsp;&nbsp;Google Calendar</label><br>
+        {% else %}
+          <input type="checkbox"><label>&nbsp;&nbsp;Google Calendar</label><br>
+        {% endif %}
+      </form>
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" id="account-settings" data-toggle="modal" data-target="#exampleModalLong">
+        Update Settings
+      </button>
+
+    </div>
+  </div>
 
         <!-- Modal -->
         <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h2 class="modal-title" id="exampleModalLongTitle">Accountability Settings</h2>
-                <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close"> -->
-                  <!-- <span aria-hidden="true">&times;</span> -->
-      <!--           </button> -->
+                <h2 class="modal-title" id="exampleModalLongTitle">Stay On Track Settings</h2>
               </div>
               <div class="modal-body">
                 <form action="/update-account" id="update-account" method="POST">
@@ -84,7 +126,7 @@
                         <input type="text" class="phone" name="phone-number" placeholder="{{ runner.phone[2:] }}">
                       {% else %}
                         <input type="checkbox" class="opt-text" name="opt-text">
-                        <label>&nbsp I would like to receive text reminders on days that I have a run.</label>
+                        <label>&nbsp; I would like to receive text reminders on days that I have a run.</label>
                         <input type="text" class="phone" name="phone-number" placeholder="phone number here">
                       {% endif %}
                   </div>
@@ -96,7 +138,7 @@
                       {% else %}
                         <input type="checkbox" class="opt-email" name="opt-email">
                       {% endif %}
-                      <label>&nbsp I would like to receive weekly email reminders.</label>
+                      <label>&nbsp; I would like to receive weekly email reminders.</label>
                   </div>
                   <hr>
                   <div>
@@ -106,7 +148,7 @@
                     {% else %}
                       <input type="checkbox" class="opt-gcal" name="opt-gcal">
                     {% endif %}
-                    <label>&nbsp I would like to add my runs to my Google Calendar.</label><br>
+                    <label>&nbsp; I would like to add my runs to my Google Calendar.</label><br>
                     <p id="options-below">Don't forget to update your timezone and start time below before clicking save!</p>
                     <label>Timezone</label>
                     <select id="time-zone" name="time-zone">
@@ -140,45 +182,13 @@
                 </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <input type="submit" class="btn btn-primary" value="Save changes">
+                <input type="submit" class="btn btn-primary" id="save-changes" value="Save changes">
               </div>
               </form>
             </div>
           </div>
         </div>
-      </div> <!-- maybe delete? -->
-    </div>
-  </div>
-
-  <div class="row charts-display">
-
-    <div class="col-xs-offset-2 col-xs-2 runner-updates">
-      <p class="training-info">3</p>
-      <p class="smaller-training-info"> MILES TODAY</p>
-    </div>
-
-    <div class="col-xs-2 runner-updates">
-      <p class="training-info">{{ days_left_to_goal }}</p>
-      <p class="smaller-training-info">DAYS TO GOAL</p>
-    </div>
-
-    <div class="col-xs-2 runner-updates">
-      <div class="workouts-chart">
-        <canvas id="donutChartWorkouts" class="doughnut-chart"></canvas>
-        <!-- <div id="donutLegend" class="chart-legend"></div> -->
-      </div><br>
-      <span id="total-workouts" class="smaller-training-info">{{ total_workouts_completed }}</span><span class="smaller-training-info"> Workouts Completed</span>
-    </div>
-
-    <div class="col-xs-2 runner-updates">
-      <div class="workouts-chart">
-        <canvas id="donutChartMileage" class="doughnut-chart"></canvas>
-        <!-- <div id="donutLegend" class="chart-legend"></div> -->
-      </div><br>
-      <span class="smaller-training-info" id="total-miles">{{ total_miles_completed }}</span><span class="smaller-training-info"> Miles Completed</span>
-    </div>
-
-  </div>
+      </div>
 
 <!-- <span>Total Workouts Completed: </span><span id="total-workouts">{{ total_workouts_completed }}</span><br>
 <span>Total Miles Completed: </span> <span id="total-miles"> {{ total_miles_completed }}</span><br> -->
@@ -187,9 +197,8 @@
  <div class="container">
     <div class="row">
       <div class="col-xs-10 table">           
-        <div id="run-completed-message"></div>
 
-        <table id="plan-calendar" name="plan-calendar" border="1px" class="table table-bordered table-condensed">
+        <table id="plan-calendar" name="plan-calendar" border="1px" class="table table-bordered">
           <thead id="plan-header">
             <tr>
               <th>Week</th>
@@ -209,14 +218,14 @@
                     {% for date in dates[(i)*7:7*(i+1)] %}
                       {% if date in runs %}
                         {% if runs[date]['is_completed'] == True %}
-                          <td class="run completed-run" id="{{ runs[date]['run_id'] }}" name="{{ date }}">  {{ date.month }}/{{ date.day }}: <br><br><span class="miles">{{ runs[date]['distance'] }} miles</span></td>
+                          <td class="run completed-run" id="{{ runs[date]['run_id'] }}" name="{{ date }}"><span class="miles">{{ runs[date]['distance'] }}</span><br>miles on {{ date.month }}/{{ date.day }}</td>
                         {% elif runs[date]['is_completed'] == False and date < today_date %}
-                          <td class="run incompleted-run old" id="{{ runs[date]['run_id'] }}" name="{{ date }}">  {{ date.month }}/{{ date.day }}: <br><br><span class="miles">{{ runs[date]['distance'] }} miles</span></td>
+                          <td class="run incompleted-run old" id="{{ runs[date]['run_id'] }}" name="{{ date }}"><span class="miles">{{ runs[date]['distance'] }}</span><br>miles on {{ date.month }}/{{ date.day }}</td>
                         {% else %}
-                          <td class="run incompleted-run" id="{{ runs[date]['run_id'] }}" name="{{ date }}">  {{ date.month }}/{{ date.day }}: <br><br><span class="miles">{{ runs[date]['distance'] }} miles</span></td>
+                          <td class="run incompleted-run" id="{{ runs[date]['run_id'] }}" name="{{ date }}"><span class="miles">{{ runs[date]['distance'] }}</span><br>miles on {{ date.month }}/{{ date.day }}</td>
                         {% endif %}  
                       {% else %}    
-                        <td id="{{ date }}" class="off-day" name="{{ date }}">{{ date.month }}/{{ date.day }} <br><br>Off day!</td>
+                        <td id="{{ date }}" class="off-day" name="{{ date }}"><span class="miles">Off day!</span><br>{{ date.month }}/{{ date.day }}</td>
                       {% endif %}
                     {% endfor %}
                   </tr>

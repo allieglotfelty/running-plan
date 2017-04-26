@@ -11,54 +11,64 @@ body {
 .runner-updates {
   padding-right: 10px;
   padding-left: 10px;
-/*  padding-top: 10px;
-  padding-bottom: 10px;*/
-  /*margin: 10px;*/
-  background-color: white;
-  /*border: 2px white;*/
-  border-color: white;
+  margin-right: 5px;
+  background-color: rgba(204, 204, 204, 0.5);
+  border: 2px gray solid;
   border-radius: 10px;
   height: 180px;
+  width: 220px;
   text-align: center;
-  vertical-align: top;
 }
 
+/*#run-icon {
+  fill: #FF6600;
+}*/
 
-.navbar-dashboard {
-  background: #005546;
-  border: none;
-  color: #fff;
-  font-family: 'Raleway', sans-serif;
+#run-today {
+  margin-left: 11%
+}
+
+.nav-words {
+  margin-top: 20px;
 }
 
 .navbar-default .navbar-brand, .navbar-default .navbar-nav li a {
-  color: #fff;
+  color: #3D4046;
   font-family: 'Raleway', sans-serif;
+}
 
+.navbar-brand {
+  line-height: 50px;
 }
 
 .navbar-default .navbar-brand:hover, .navbar-default .navbar-nav li a:hover {
   color: #ED8429;
 }
 
-#dashboard-body {
+.navbar-dashboard {
+  border: none;
+  /*color: #3D4046;*/
+  font-family: 'Raleway', sans-serif;
 }
 
 .training-info {
   font-size: 100px;
+  margin-bottom: 0px;
+  color: #3D4046;
+  font-family: 'Raleway', sans-serif;
+  font-weight: bold;
 }
 
 .smaller-training-info {
-  font-size: 20px;
+  font-size: 17px;
+  color: #3D4046;
+  font-family: 'Raleway', sans-serif;
 }
-
-/*.workouts-chart {
-  /*height: px;*/
-/*}*/
 
 #update-plan-name {
   margin: 3px;
   background-color: transparent;
+  color: #3D4046;
   border: none;
 }
 
@@ -66,50 +76,55 @@ body {
   color: #cccccc;
 }
 
+.table>tbody>tr>td {
+  vertical-align: middle;
+  text-align: center;
+}
+
 table {
   background-color: #F6F6F4;
-  margin: 50px;
+  margin-top: 20px;
 }
 
 th, .week-number {
-  background-color: #005546;
+  background-color: #9C9F97;
   color: white;
   font-weight: bold;
   text-align: center;
+  vertical-align: middle;
   width: 80px;
+  font-family: 'Raleway', sans-serif;
+}
+
+.week-number {
+  padding-top: 50px;
 }
 
 td.run:hover {
-  background-color: #37E8E4;
+  background-color: #D4D5C8;
 }
 
 .run.completed-run {
-  background-color: #C8FFC9;
+  background-color: #309CDD;
+  color: white;
 }
 
 .run.incompleted-run.old {
-  background-color: #f2cccc;
+  background-color: #A0D2EF;
+  color: white;
 }
 
 .past-event {
-  background-color: #cccccc;
+  background-color: #FF6A5C;
 }
 
 .run.completed-run.incompleted-run {
   background-color: white;
+  color: #3D4046;
 }
 
 span.miles {
-  font-size: 20px;
-}
-
-#myPopoverContent {
-  display: none; 
-  float: right;
-}
-
-.popover{
-    width:700px;   
+  font-size: 30px;
 }
 
 #logout-button {
@@ -120,20 +135,51 @@ span.miles {
   overflow: hidden;
 }
 
-#account-settings {
-  background-color: #005546;
-  color: white;
-}
-
-/*p {
-  margin: 0px;
-}*/
-
 .doughnut-chart {
-  margin-top: 12px;
+  margin-top: 15px;
 }
 
-/*div {
-    vertical-align: top;
-}*/
+label {
+  font-weight: normal;
+}
 
+input {
+  text-align: left;
+  margin: 0 auto;
+}
+
+#stay-on-track {
+  padding-top: 15px;
+  text-align: left;
+  padding-left: 40px;
+  font-family: 'Raleway', sans-serif;
+}
+
+#account-settings {
+  background-color: #FF6600;
+  color: white;
+  font-weight: bold;
+  margin-top: 5px;
+  width: 140px;
+  font-family: 'Raleway', sans-serif;
+}
+
+.modal-body {
+  padding-left: 30px;
+}
+
+.flash-message {
+  background-color: green;
+}
+
+#plan-name-title {
+  color: #3D4046;
+  font-family: 'Raleway', sans-serif;
+}
+
+#save-changes {
+  background-color: #FF6600;
+  color: white;
+  font-weight: bold;
+  font-family: 'Raleway', sans-serif;
+}

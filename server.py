@@ -265,8 +265,8 @@ def return_workout_info_for_doughnut_chart():
                         {
                          "data": [count_plan_runs_completed, workouts_remaining],
                          "backgroundColor": [
-                                             "#7BA9C8",
-                                             "#D4D5C8"
+                                             "#309CDD",
+                                             "#A0D2EF"
                                             ],
                          "hoverBackgroundColor": [
                                                   "#2E3D47",
@@ -303,8 +303,8 @@ def return_total_miles_info_for_doughnut_chart():
                         {
                          "data": [total_miles_completed, miles_remaining],
                          "backgroundColor": [
-                                             "#7BA9C8",
-                                             "#D4D5C8"
+                                             "#309CDD",
+                                             "#A0D2EF"
                                             ],
                          "hoverBackgroundColor": [
                                                   "#2E3D47",
@@ -534,7 +534,7 @@ if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    app.debug = True
+    app.debug = False
     app.jinja_env.auto_reload = app.debug  # make sure templates, etc. are not cached in debug mode
 
     connect_to_db(app)

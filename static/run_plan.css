@@ -20,16 +20,10 @@
     font-family: 'Raleway', sans-serif;
   }
 
-  .navbar-dashboard {
-    background: #005546;
-    border: none;
-    color: #fff;
-    font-family: 'Raleway', sans-serif;
-  }
-
   .navbar-default .navbar-brand, .navbar-default .navbar-nav li a {
     color: #fff;
     font-family: 'Raleway', sans-serif;
+    line-height: 50px;
 
   }
 
@@ -49,13 +43,16 @@
   .run-holmes {
     text-align: center;
     font-size: 24px;
+    color: #3D4046;
+    font-family: 'Raleway', sans-serif;
   }
 
   .input-field {
-    color: #181c1c;
+    color: #3D4046;
     margin-left: 20px;
     width: 300px; 
     height: 30px;
+    font-family: 'Raleway', sans-serif;
   }
 
   .questions {
@@ -88,6 +85,7 @@
     margin: 10% auto;
     padding: 5px 20px 13px 20px;
     background: #F6F6F4;
+    color: #3D4046;
   }
 
  .close {
@@ -120,16 +118,21 @@
     width: 220px; 
     height: 30px;
     background: #F6F6F4;
-    background-color: rgba(212, 213, 200, 0.7)
+    background-color: rgba(212, 213, 200, 0.7);
+    font-family: 'Raleway', sans-serif;
+    color: #3D4046;
+    font-weight: bold;
   }
 
   .homepage-button {
     width: 300px;
     height: 50px;
     font-weight: bold;
+    font-size: 20px;
     color: white;
-    background-color: #005546;
+    background-color: #FF6600;
     margin: 20px;
+    font-family: 'Raleway', sans-serif;
   }
 
   #goal-date {
@@ -148,24 +151,27 @@
   }
 
   .week-number{
-    background-color: #005546;
+    background-color: #9C9F97;
     color: white;
     font-weight: bold;
     text-align: center;
-    width: 80px;
+    width: 100px;
+    font-family: 'Raleway', sans-serif;
   }
 
   .run-event {
-    /*height: 50px;*/
     font-size: 16px;
     padding-left: 5px;
     padding-top: 5px;
-    padding-bottom: 5px;
+    padding-bottom: 10px;
+    text-align: center;
+    color: #3D4046;
   }
 
   .distance {
     text-align: center;
-    font-weight: bold;
+    font-size: 30px;
+    padding-bottom: 5px;
   }
   
   table {
@@ -176,21 +182,23 @@
   #download-to-excel{
     margin: 10px;
     width: 160px;
-    background-color: #F7D468;
-    color: #181c1c;
+    background-color: #458378;
+    color: white;
     font-weight: bold;
+    font-family: 'Raleway', sans-serif;
   }
   
   #sign-up {
     margin: 5px;
     width: 160px;
-    background-color: #F7D468;
-    color: #181c1c;
+    background-color: #458378;
+    color: white;
     font-weight: bold;
+    font-family: 'Raleway', sans-serif;
   }
 
   .glyphicon {
-    color: #005546;
+    color: #458378;
   }
 
   #forgot-password {
@@ -203,4 +211,8 @@
 
   .workout {
     background-color: #cccccc;
+  }
+
+  .off-day {
+    color: #cccccc;
   }

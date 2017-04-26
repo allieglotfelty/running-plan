@@ -10,6 +10,9 @@
 
 <nav class="navbar navbar-default navbar-homepage">
   <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+    <img src="/static/noun_987496.svg" width="50" height="50" alt="Run Holmes" id="run-icon">
+    </a>
     <div class="navbar-header">
       <button type="button"
               class="navbar-toggle collapsed"
@@ -52,6 +55,12 @@
   </div>
 </nav>  
 
+<ul>
+  {% for message in get_flashed_messages() %}
+      <li><div class="col-xs-4 alert-success">{{ message }}</div></li>
+  {% endfor %}
+  <p id="warning-complete-all-fields" class="col-xs-4 alert-success">Please complete all fields before clicking "Generate Plan!"</p>
+</ul>
 
   <br><br><br>
   <div class="container">
@@ -65,7 +74,7 @@
             <select id="current-ability" name="current-ability" required>
               <option selected disabled value="---">Current Long Run</option>
               <option value="0.5">Less than a mile</option>
-              <option selected value="1">1 mile</option>
+              <option value="1">1 mile</option>
               {% for distance in distances %}
                 <option value="{{ distance }}">{{ distance }} miles</option>
               {% endfor %}
@@ -78,7 +87,7 @@
               <option selected disabled value="---">Goal Distance</option>
               <option value="3.1">5K (3.1 miles)</option>
               <option value="5">5 miles</option>
-              <option selected value="6.2">10K (6.2 miles)</option>
+              <option value="6.2">10K (6.2 miles)</option>
               <option value="10">10 miles</option>
               <option value="13.1">Half Marathon (13.1 miles)</option>
               <option value="26.2">Marathon (26.2 miles)</option>
@@ -86,9 +95,9 @@
             <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="What event or distance are you trying to achieve?"></span><br><br>
             <!-- Goal Date <br> -->
           <!-- 3. When will your event/goal take place? -->
-            <span>Event Date: </span><input type="date" id="goal-date" value="2017-06-24" name="goal-date" min="{{ today }}" max="{{ yearaway }}">
-            <!-- <span>Event Date: </span><input type="date" id="goal-date" name="goal-date" min="{{ today }}" max="{{ yearaway }}"><br><br> -->
-            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="When will your goal/event take place?"></span>
+            <!-- <span>Event Date: </span><input type="date" id="goal-date" value="2017-06-24" name="goal-date" min="{{ today }}" max="{{ yearaway }}"> -->
+            <span>Event Date: </span><input type="date" id="goal-date" name="goal-date" min="{{ today }}" max="{{ yearaway }}">&nbsp;<span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="When will your goal/event take place?"></span><br><br>
+            
             <input type="submit" id="generate-plan" name="generate-plan" value="Generate Plan!" class="btn btn-default homepage-button">
         </form>
         <!-- <div class="col-xs-2"> -->
@@ -105,7 +114,7 @@
                   <input type="email" id="email" name="email" class="input-field" required><br><br>
                   <label>Password:</label>
                   <input type="password" id="password" name="password" class="input-field" required><br><br>
-                  <input type="submit" id="sign-up-submit" class="btn btn-default homepage-button"> 
+                  <input type="submit" id="sign-up-submit" class="btn btn-default homepage-button" value="Sign Up"> 
               </form>
             </div>
           </div>
@@ -119,7 +128,7 @@
   </form> -->
  <div class="container-fluid patterned">
     <div class="row">
-      <div class="col-xs-offset-2 col-xs-8 table-responsive">   
+      <div class="col-xs-offset-1 col-xs-10 table-responsive">   
         <table id="plan-calendar" name="plan-calendar" border="1px" class="table table-bordered" hidden>
           <thead id="plan-header">
             <tr>
