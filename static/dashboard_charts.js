@@ -23,7 +23,6 @@ $(document).ready(function() {
                                             data: data,
                                             options: workoutOptions
                                           });
-    // $('#donutLegend').html(myDonutChart.generateLegend());
   }
 
 
@@ -50,7 +49,6 @@ $(document).ready(function() {
                                             data: data,
                                             options: mileageOptions,
                                           });
-    // $('#donutLegend').html(myDonutChart.generateLegend());
   }
 
   function updateDoughnutChartInfo () {
