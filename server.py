@@ -173,6 +173,14 @@ def display_runner_page():
     current_plan = db.session.query(Plan).join(Runner).filter(Runner.runner_id==runner_id,
                                                               Plan.end_date>=today_date).first()
 
+    today_run = db.session.query(Run.distance).join(Plan).join(Runner).filter(Runner.runner_id==runner_id,
+                                                                              Run.date==today_date).first()
+
+    if not today_run:
+        today_run = 0.0
+    else:
+        today_run = today_run[0]
+
     dates = current_plan.generate_running_dates()
 
     if current_plan:
@@ -201,7 +209,8 @@ def display_runner_page():
                            total_miles_completed=total_miles_completed,
                            dates=dates,
                            times=times,
-                           today_date=today_date)
+                           today_date=today_date,
+                           today_run=today_run)
 
 
 @app.route('/update-run.json', methods=["POST"])
@@ -528,7 +537,7 @@ if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    app.debug = False
+    app.debug = True
     app.jinja_env.auto_reload = app.debug  # make sure templates, etc. are not cached in debug mode
 
     connect_to_db(app)

@@ -193,7 +193,7 @@ def response_to_inbound_text(number, message_body):
     positive_message_responses = ['Congrats! Keep up the great work!',
                                   'Great job! You are progressing nicely.',
                                   'Just keep running. Just keep running.',
-                                  'You are a running master',
+                                  'You are a running master.',
                                   'Way to go!',
                                   'Good job completing your run.']
 
