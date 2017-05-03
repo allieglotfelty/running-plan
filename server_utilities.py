@@ -222,6 +222,29 @@ def response_to_inbound_text(number, message_body):
 
     return resp.message(reply)
 
+def calculate_total_miles_completed_in_run_list(run_list):
+    """Calculates the total mileage from a list of run instances."""
+
+    total_miles = 0
+    for run in run_list:
+        if run.is_completed:
+            total_miles += run.distance
+
+    return total_miles
+
+
+def calculate_total_workouts_in_run_list(run_list):
+    """Calculates the total workouts completed from a list of run instances."""
+
+    total_completed_workouts = 0
+    total_workouts = 0
+    for run in run_list:
+        total_workouts += 1
+        if run.is_completed:
+            total_completed_workouts += 1
+
+    return (total_workouts, total_completed_workouts)
+
 
 def send_email_reminders():
     """Send email messages to runners via SendGrid."""
@@ -230,13 +253,31 @@ def send_email_reminders():
 
     today_date = calculate_today_date_pacific()
     next_sunday_date = today_date + timedelta(7)
+    last_sunday_date = today_date - timedelta(7)
     runners_for_emails = Runner.query.filter_by(is_subscribed_to_email=True).all()
 
     for runner in runners_for_emails:
         runner_email = runner.email
         runner_id = runner.runner_id
+        last_week_runs = (db.session.query(Run).join(Plan).join(Runner)
+                                    .filter((Runner.runner_id == runner_id) &
+                                            (Plan.start_date <= last_sunday_date) &
+                                            (Plan.end_date >= today_date) &
+                                            (Run.date > last_sunday_date) &
+                                            (Run.date <= today_date))
+                                    .order_by(Run.date)
+                                    .all())
+
+        if last_week_runs:
+            total_workouts, total_completed_workouts = calculate_total_workouts_in_run_list(last_week_runs)
+            total_miles = calculate_total_miles_completed_in_run_list(last_week_runs)
+            last_week_update = "<p>Last week, you completed %s of %s workouts for a total of %s miles!</p>" % (total_completed_workouts, total_workouts, total_miles)
+        else:
+            last_week_update = ""
         runs_for_email = (db.session.query(Run).join(Plan).join(Runner)
                                     .filter((Runner.runner_id == runner_id) &
+                                            (Plan.start_date <= last_sunday_date) &
+                                            (Plan.end_date >= today_date) &
                                             (Run.date > today_date) &
                                             (Run.date <= next_sunday_date))
                                     .order_by(Run.date)
@@ -253,7 +294,8 @@ def send_email_reminders():
         to_email = Email(runner_email)
         content = Content("text/html", """<html>
                           <body>
-                            <h2>Happy Monday!</h2>
+                            <h2>Happy Monday!
+                            </h2>""" + last_week_update + """
                             <p>Here are your runs for this week:</p>
                             <ul>""" + runs_to_add_to_email + """
                             </ul>

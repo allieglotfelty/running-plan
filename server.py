@@ -187,10 +187,10 @@ def display_runner_page():
         days_left_to_goal = current_plan.calculate_days_to_goal()
         total_workouts_completed = current_plan.calculate_total_workouts_completed()
         total_miles_completed = current_plan.calculate_total_miles_completed()
+        weeks_in_plan = current_plan.calculate_weeks_in_plan()
     else:
         flash("It seems like all of your plans have expired. Feel free to click and view an old plan or make a new one!")
 
-    weeks_in_plan = current_plan.calculate_weeks_in_plan()
     runs = {}
     for run in current_plan.runs:
         future = today_date < run.date
