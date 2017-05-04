@@ -207,12 +207,14 @@
             </tr>
           </thead>
           <tbody id="run-info-chart">
-                {% for i in range(weeks_in_plan) %}
+                {% for i in range(weeks_in_plan + 1) %}
                   <tr>
                     <td class="week-number">Week {{ i + 1 }}</td>
                     {% for date in dates[(i)*7:7*(i+1)] %}
                       {% if date in runs %}
-                        {% if runs[date]['is_completed'] == True %}
+                        {% if date == plan.end_date %}
+                          <td class="run final-run" id="{{ runs[date]['run_id'] }}" name="{{ date }}"><span class="miles">{{ runs[date]['distance'] }}</span><br>miles on {{ date.month }}/{{ date.day }}</td>
+                        {% elif runs[date]['is_completed'] == True %}
                           <td class="run completed-run" id="{{ runs[date]['run_id'] }}" name="{{ date }}"><span class="miles">{{ runs[date]['distance'] }}</span><br>miles on {{ date.month }}/{{ date.day }}</td>
                         {% elif runs[date]['is_completed'] == False and date < today_date %}
                           <td class="run incompleted-run old" id="{{ runs[date]['run_id'] }}" name="{{ date }}"><span class="miles">{{ runs[date]['distance'] }}</span><br>miles on {{ date.month }}/{{ date.day }}</td>

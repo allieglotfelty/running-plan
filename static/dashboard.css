@@ -110,6 +110,11 @@ td.run:hover {
   color: white;
 }
 
+.run.final-run {
+  background-color: #FF6600;
+  color: white;
+}
+
 .past-event {
   background-color: #FF6A5C;
 }
