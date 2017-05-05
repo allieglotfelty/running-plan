@@ -503,7 +503,8 @@ def render_admin_page():
     """Displays the admin page."""
 
     if session.get('admin'):
-        return render_template('admin.html')
+        runners = Runner.query.order_by(Runner.runner_id).all()
+        return render_template('admin.html', runners=runners)
     else:
         redirect('/')
 

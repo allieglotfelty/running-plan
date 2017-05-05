@@ -1,23 +1,53 @@
 {% extends 'base.html' %}
 {% block title %}Admin{% endblock %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="/static/admin.css">
+{% endblock %}
+
 {% block content %}
 
 <h1>Admin Page</h1>
 
-<form action="/send-sms-reminders" id="send-sms" method="POST">
+<form action="/send-sms-reminders" id="send-sms" class="admin-action" method="POST">
   <input type="date" id="run-date" name="run-date">  
   <input type="submit" value="Send Text Reminders"> 
 </form>
 
-<form action="/send-emails" id="send-email" method="POST">
+<form action="/send-emails" id="send-email" class="admin-action" method="POST">
   <input type="date" id="email-date" name="email-date">  
   <input type="submit" value="Send Email Reminders"> 
 </form>
 <br>
 
-<form action="/logout-complete">
+<form action="/logout-complete" class="admin-action">
     <input type="submit" value="Logout" name="logout-button">
 </form>
+
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Email</th>
+      <th>Is Using Google Calendar</th>
+      <th>Is Subscribed to Emails</th>
+      <th>Is Subscribed to Texts</th>
+      <th>Is Active</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for runner in runners %}
+    <tr>
+      <td>{{ runner.runner_id }}</td>
+      <td>{{ runner.email }}</td>
+      <td>{{ runner.is_using_gCal }}</td>
+      <td>{{ runner.is_subscribed_to_email }}</td>
+      <td>{{ runner.is_subscribed_to_texts }}</td>
+      <td>{{ runner.is_active }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% endblock %}
 
