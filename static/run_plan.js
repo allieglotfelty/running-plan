@@ -49,7 +49,6 @@ $(document).ready(function() {
   // Ajax call to compute running plan based on user input
   function getPlanResults(evt) {
     evt.preventDefault();
-    console.log("Running getPlanResults");
     var currentAbility = $("#current-ability").val();
     var goalDistance = $("#goal-distance").val();
     var goalDate = $("#goal-date").val();

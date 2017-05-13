@@ -1,9 +1,9 @@
-# Run Holmes
+# Run Planner
 ![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_homepage.png?raw=true "Homepage")
 
 
 # Description
-Run Holmes helps users reach their running goals. The application uses a unique algorithm, backed by research from thought-leaders in the running community, to develop a mileage-based training plan. Users can download their plan as an excel doc from the homepage or create an account to take advantage of several accountability features. Once logged-in, users can mark off completed runs and track their progress on the runner dashboard. They can also sign-up for reminders via SMS or email, and add running workouts directly to their Google Calendars. With Run Holmes, users have all of the tools and motivation needed to meet and exceed their running goals.
+Run Planner helps users reach their running goals. The application uses a unique algorithm, backed by research from thought-leaders in the running community, to develop a mileage-based training plan. Users can download their plan as an excel doc from the homepage or create an account to take advantage of several accountability features. Once logged-in, users can mark off completed runs and track their progress on the runner dashboard. They can also sign-up for reminders via SMS or email, and add running workouts directly to their Google Calendars. With Run Planner, users have all of the tools and motivation needed to meet and exceed their running goals.
 
 
 # Technologies
@@ -23,7 +23,7 @@ Run Holmes helps users reach their running goals. The application uses a unique 
 
 
 # Features
-The Run Holmes algorithm uses the answers to these three questions to generate a plan for the user.
+The Run Planner algorithm uses the answers to these three questions to generate a plan for the user.
 ![alt text](https://github.com/allieglotfelty/running-plan/blob/master/README/run_holmes_homepage.png?raw=true "Homepage")
 
 Once the user clicks the "Generate Plan!" button, the plan populates on the bottom of the screen.

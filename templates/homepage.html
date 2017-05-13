@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Run Holmes{% endblock %}
+{% block title %}Run Planner{% endblock %}
 {% block head %}
   <link rel="stylesheet" type="text/css" href="/static/run_plan.css">
 {% endblock %}
@@ -9,7 +9,7 @@
 <nav class="navbar navbar-default navbar-homepage">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">
-    <img src="/static/noun_987496.svg" width="50" height="50" alt="Run Holmes" id="run-icon">
+    <img src="/static/noun_987496.svg" width="50" height="50" alt="Run Planner" id="run-icon">
     </a>
     <div class="navbar-header">
       <button type="button"
@@ -24,7 +24,7 @@
           <span class="icon-bar"></span>
       </button>
 
-      <a class="navbar-brand" href="#">Run Holmes</a>
+      <a class="navbar-brand" href="#">Run Planner</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
@@ -37,7 +37,7 @@
               <div>
                 <a href="#close" title="Close" class="close">X</a>
                   <br><br>
-                  <label class="run-holmes">Run Holmes</label><br><br>
+                  <label class="run-planner">Run Planner</label><br><br>
                   <form action="/login-complete" method="POST" id="log-in">
                     <label>Email:</label><br>
                     <input type="email" name="email" class="input-field" required><br><br>
@@ -96,7 +96,7 @@
           <div id="openModal" class="modalDialog">
             <div>
               <a href="#close" title="Close" class="close">X</a>
-                <br><label class="run-holmes">Run Holmes</label><br><br>
+                <br><label class="run-planner">Run Planner</label><br><br>
                 <form action="/sign-up-complete" method="POST">
                   <label>Email:</label>
                   <input type="email" id="email" name="email" class="input-field" required><br><br>

@@ -1,4 +1,4 @@
-"""Models and database functions for Run Plan project."""
+"""Models and database functions for Run Planner project."""
 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date, timedelta
