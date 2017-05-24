@@ -131,6 +131,7 @@
     background-color: #FF6600;
     margin: 20px;
     font-family: 'Raleway', sans-serif;
+    white-space: normal;
   }
 
   #goal-date {
