@@ -57,6 +57,7 @@
 
   .questions {
     background-color: rgba(212, 213, 200, 0.7);
+    text-align: center;
   }
 
   .modalDialog {
@@ -185,6 +186,7 @@
     color: white;
     font-weight: bold;
     font-family: 'Raleway', sans-serif;
+    white-space: normal;
   }
   
   #sign-up {
@@ -194,6 +196,7 @@
     color: white;
     font-weight: bold;
     font-family: 'Raleway', sans-serif;
+    white-space: normal;
   }
 
   .glyphicon {
