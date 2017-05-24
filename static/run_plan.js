@@ -37,6 +37,7 @@ $(document).ready(function() {
       }
       $("#run-info-chart").append('</tr>');
     }
+    $("#table-div").removeAttr("hidden");
     $("#plan-calendar").removeAttr("hidden");
     $("#generate-plan").attr('value', 'Update Plan');
     $("#download-to-excel").show();
