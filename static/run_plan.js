@@ -12,7 +12,6 @@ $(document).ready(function() {
   // Displays running plan on homepage
   function showPlanResults(results) {
     var runPlan = results;
-    console.log(runPlan);
     if ('response' in runPlan) {
       $('#warning-complete-all-fields').show().delay(5000).queue(function() {
         $(this).hide();
@@ -108,7 +107,6 @@ $(document).ready(function() {
     evt.preventDefault();
     var newName = $("#new-plan-name").val();
     var planId = $("#plan-id").attr('name');
-    console.log(planId);
     $.post("/update-plan-name.json", {"newName": newName, "planId": planId}, planNameUpdated);
   }
 
