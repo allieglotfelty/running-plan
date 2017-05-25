@@ -160,7 +160,7 @@
   }
 
   .run-event {
-    font-size: 16px;
+    font-size: 1em;
     padding-left: 5px;
     padding-top: 5px;
     padding-bottom: 10px;
@@ -170,13 +170,22 @@
 
   .distance {
     text-align: center;
-    font-size: 30px;
+    font-size: 2em;
     padding-bottom: 5px;
   }
   
   table {
     background-color: #F6F6F4;
-    margin: 25px;
+    max-width: none;
+    margin-top: 25px;
+    padding: 0px;
+    word-wrap: break-word;
+    border-color: transparent;
+    overflow: scroll;
+  }
+
+  .col-lg-10 {
+    padding: 0px;
   }
 
   #download-to-excel{
