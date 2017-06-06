@@ -125,7 +125,7 @@
                       {% else %}
                         <input type="checkbox" class="opt-text" name="opt-text">
                         <label>&nbsp; I would like to receive text reminders on days that I have a run.</label>
-                        <input type="text" class="phone" name="phone-number" placeholder="phone number here">
+                        <input type="text" class="phone" name="phone-number" placeholder="phone number here" required oninvalid="this.setCustomValidity('You must enter a phone number to sign up for text reminders.')" oninput="setCustomValidity('')">
                       {% endif %}
                   </div>
                   <hr>
